@@ -7,12 +7,11 @@ const DEFAULT_VRCAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
 export interface appParameterObject {
     import?: string;
     filter?: string;
+    verbose?: boolean;
 }
 
 export function app(param: appParameterObject) {
-    console.log("param",param);
-    const dbPath = path.join(path.dirname(process.argv[1]), "..", "db.json"); // コマンド root
-    console.log("dbpath", dbPath);
+    const dbPath = path.join(path.dirname(process.argv[1]), "..", "db.json"); // command root
     if (!existDatabaseFile(dbPath)) {
         console.log("generate db.json in app dir...")
         const userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]!;
@@ -39,8 +38,8 @@ export function app(param: appParameterObject) {
     console.log("--- Activity Log ---")
     const currentTime = Date.now();
     const daymillisecond = 24 * 60 * 60 * 1000;
-    // const showLog = newDbLog.filter(e => currentTime - e.date < daymillisecond);
-    const showLog = newDbLog;
+    const showLog = newDbLog.filter(e => currentTime - e.date < daymillisecond);
+    // const showLog = newDbLog;
     showLog.forEach(e => {
         const date = new Date(e.date);
         let message = date.toLocaleDateString() + " " + date.toLocaleTimeString() + " ";
