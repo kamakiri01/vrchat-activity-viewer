@@ -76,21 +76,33 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
         const activity: MoveActivityLog = {
             date: utcTime,
             activityType: "join",
-            username: /^OnPlayerJoined\s(.+)/.exec(message)![1]
+            userData: {
+                userName: /^OnPlayerJoined\s(.+)/.exec(message)![1]
+            }
         };
         activityLog = activity;
     } else if (message.indexOf("OnPlayerLeft") != -1 && message.indexOf("OnPlayerLeftRoom") === -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
             activityType: "leave",
-            username: /^OnPlayerLeft\s(.+)/.exec(message)![1]
+            userData: {
+                userName: /^OnPlayerLeft\s(.+)/.exec(message)![1]
+            }
         };
         activityLog = activity;
     } else if (message.indexOf("Entering Room") != -1) {
+        const worldInfo = parseEnterActivityJoinLine(rawActivities[index+1])!;
         const activity: EnterActivityLog = {
             date: utcTime,
             activityType: "enter",
-            worldname: /^Entering\sRoom:\s(.+)/.exec(message)![1]
+            worldData: {
+                worldName: /^Entering\sRoom:\s(.+)/.exec(message)![1],
+                worldId: worldInfo.worldId,
+                instanceId: worldInfo.instanceId,
+                access: worldInfo.access,
+                instanceOwner: worldInfo.instanceOwner,
+                nonce: worldInfo.nonce
+            }
         };
         activityLog = activity;
     }
@@ -98,6 +110,49 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
     if (activityLog) return activityLog;
     // console.log("unsupported log: " + message);
     return null;
+}
+
+function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
+    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2})\s.+\[.+\]\s(.+)/.exec(joinLine)!;
+    if (!reg) return null;
+    const message = reg[3];
+
+    let worldEnterInfo: WorldEnterInfo | null;
+    if (joinLine.indexOf("nonce") !== -1) {
+        worldEnterInfo = parseScopeEnterMessage(message);
+    } else {
+        worldEnterInfo = parsePublicEnterMessage(message);
+    }
+    return worldEnterInfo;
+}
+
+function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
+    const reg = /^Joining\s(wrld_[\w\-]+):(\d+)/.exec(message);
+    if (!reg) return null;
+    return {
+        worldId: reg[1],
+        instanceId: reg[2]
+    };
+}
+
+function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
+    const reg = /^Joining\s(wrld_[\w\-]+):(\d+)~(\w+)\((usr_[\w\-]+)\)~nonce\((\w+)\)/.exec(message);
+    if (!reg) return null;
+    return {
+        worldId: reg[1],
+        instanceId: reg[2],
+        access: reg[3],
+        instanceOwner: reg[4],
+        nonce: reg[5]
+    };
+}
+
+interface WorldEnterInfo {
+    worldId: string;
+    instanceId: string;
+    access?: string;
+    instanceOwner?: string;
+    nonce?: string;
 }
 
 function createTemplateDb(vrchatHomePath: string): Database {

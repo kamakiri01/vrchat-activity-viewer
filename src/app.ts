@@ -8,6 +8,7 @@ export interface appParameterObject {
     import?: string;
     filter?: string;
     verbose?: boolean;
+    range: string;
 }
 
 export function app(param: appParameterObject) {
@@ -29,6 +30,8 @@ export function app(param: appParameterObject) {
     const newDbLog = updateDb(db, dbPath, vrchaLogPath);
 
     if (param.import) return;
+
+    console.log("--- Activity Log ---");
     showLog(param, newDbLog);
 }
 
@@ -54,25 +57,54 @@ function updateDb(db: Database, dbPath: string, vrchaLogPath: string) {
 }
 
 function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
-    console.log("--- Activity Log ---")
     const currentTime = Date.now();
-    const daymillisecond = 24 * 60 * 60 * 1000;
-    const showLog = activityLog.filter(e => currentTime - e.date < daymillisecond);
-    // const showLog = newDbLog;
+    const rangeMillisecond = (param.range ? parseInt(param.range, 10) : 24) * 60 * 60 * 1000;
+    const showLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
     showLog.forEach(e => {
         const date = new Date(e.date);
-        let message = date.toLocaleDateString() + " " + date.toLocaleTimeString() + " ";
+        let message = ""; // = date.toLocaleDateString() + " " + date.toLocaleTimeString() + " ";
         switch (e.activityType) {
             case "join":
             case "leave":
-                message += e.activityType + " " +  (<MoveActivityLog>e).username;
+                // message += e.activityType + " " +  (<MoveActivityLog>e).userData.userName;
+                message = generateMoveActivityMessage(e as MoveActivityLog, !!param.verbose);
                 break;
             case "enter":
-                message += e.activityType + " " + (<EnterActivityLog>e).worldname;
+                // message += e.activityType + " " + (<EnterActivityLog>e).worldData.worldName;
+                message = generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
                 break;
         }
         if (param.filter && message.indexOf(param.filter) === -1) return;
         console.log(message);
-        // console.log(date.toLocaleDateString() + " " + date.toLocaleTimeString() + " " + e.activityType);
-    })
+    });
+}
+
+function generateMoveActivityMessage(log: MoveActivityLog, verbose: boolean): string {
+    const date = new Date(log.date);
+    let message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        log.activityType + " " +
+        log.userData.userName;
+    return message;
+}
+
+function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): string {
+    const date = new Date(log.date);
+    const data = log.worldData;
+    let message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        log.activityType + " " +
+        data.worldName;
+    if (verbose) {
+        message += 
+            " (" + data.instanceId + ":" + (data.access ? data.access : "public") + ") " +
+            "URL: " + "https://www.vrchat.com/home/launch?worldId=" + data.worldId + "&instanceId=" + data.instanceId;
+        if (data.access) {
+            message +=
+                + "~" + data.access + "(" + data.instanceOwner + ")~nonce(" + data.nonce + ")";
+        }
+    }
+    return message;
 }

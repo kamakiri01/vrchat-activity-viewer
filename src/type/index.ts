@@ -18,17 +18,23 @@ export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
 // join or leave
 export interface MoveActivityLog extends ActivityLog {
-    username: string;
+    userData: UserData;
 }
 
 // world in
 export interface EnterActivityLog extends ActivityLog {
-    worldname: string;
-    // world instance id
+    worldData: WorldData;
 }
 
-// appパラメータオブジェクト
-interface AppParameterObject {
-    filter?: string;
-    
+interface UserData {
+    userName: string;
+}
+
+interface WorldData {
+    worldName: string;
+    worldId: string;
+    instanceId: string;
+    access?: string;
+    instanceOwner?: string;
+    nonce?: string;
 }
