@@ -1,47 +1,4 @@
-import * as fs from "fs";
-import * as path from "path";
-import { Database, ActivityLog, MoveActivityLog, EnterActivityLog } from "./type";
-
-export function existDatabaseFile(dbPath: string): boolean {
-    try {
-        fs.accessSync(dbPath);
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
-
-export function initDatabase(vrchatHomePath: string, dbPath: string): void {
-    const dbData = createTemplateDb(vrchatHomePath);
-    fs.writeFileSync(dbPath, JSON.stringify(dbData, null, 2), { encoding: "utf-8" });
-}
-
-export function loadDatabase(dbPath: string): Database {
-    const dbJson: Database = JSON.parse(fs.readFileSync(path.resolve(dbPath), "utf8"))
-    return dbJson;
-}
-
-export function writeDatabase(dbPath: string, data: string): void {
-    fs.writeFileSync(path.resolve(dbPath), data);
-}
-
-export function loadVRChatLogFile(logPath: string): string {
-    const logFile = fs.readFileSync(path.resolve(logPath), "utf8");
-    return logFile;
-}
-
-export function findVRChatLogFilesFromDirPath(dirPath: string): string[] {
-    const logFiles = fs.readdirSync(dirPath).filter((file) => {
-        return path.extname(file) === ".txt" && path.basename(file).indexOf("output") != -1
-    });
-    return logFiles;
-}
-
-export function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
-    const tmpNewLog = dbLog.concat(appendLog);
-    const formattedLog = formatDBActivityLog(tmpNewLog);
-    return formattedLog;
-}
+import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, InviteActivityLog } from "../type";
 
 export function parseVRChatLog(logString: string): ActivityLog[] {
     const lineSymbol = "\n";
@@ -56,6 +13,7 @@ export function parseVRChatLog(logString: string): ActivityLog[] {
             if (activity) activityLog.push(activity);
         } catch (error) {
             console.log("catch error, log: " + rawActivity);
+            console.log("catch error, log next: " + rawActivities[index+1]);
             console.log(error);
         }
     });
@@ -72,6 +30,8 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
     const message = reg[3];
 
     let activityLog: ActivityLog = null!;
+
+    // join
     if (message.indexOf("OnPlayerJoined") != -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
@@ -81,6 +41,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             }
         };
         activityLog = activity;
+    // leave
     } else if (message.indexOf("OnPlayerLeft") != -1 && message.indexOf("OnPlayerLeftRoom") === -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
@@ -90,6 +51,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             }
         };
         activityLog = activity;
+    // enter
     } else if (message.indexOf("Entering Room") != -1) {
         const worldInfo = parseEnterActivityJoinLine(rawActivities[index+1])!;
         const activity: EnterActivityLog = {
@@ -105,6 +67,30 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             }
         };
         activityLog = activity;
+    // friendRequest, invite, requestInvite
+    } else if (message.indexOf("Send notification") != -1) {
+        const info = parseSendNotificationMessage(message)!;
+        const activity: SendNotificationActivityLog = {
+            date: utcTime,
+            activityType: "invite",
+            data: {
+                from: {
+                    userName: info.from.userName,
+                    id: info.from.id
+                },
+                to: {
+                    id: info.to.id
+                },
+                created: {
+                    date: info.created.date,
+                    time: info.created.time
+                },
+                details: info.details,
+                type: info.type,
+                senderType: info.senderType
+            }
+        };
+        activityLog = activity;
     }
 
     if (activityLog) return activityLog;
@@ -113,7 +99,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
 }
 
 function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
-    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2})\s.+\[.+\]\s(.+)/.exec(joinLine)!;
+    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2})\s.+\[.+\]\s(.+)/.exec(joinLine);
     if (!reg) return null;
     const message = reg[3];
 
@@ -128,45 +114,93 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 
 function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
     const reg = /^Joining\s(wrld_[\w\-]+):(\d+)/.exec(message);
-    if (!reg) return null;
-    return {
-        worldId: reg[1],
-        instanceId: reg[2]
-    };
-}
 
-function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w\-]+):(\d+)~(\w+)\((usr_[\w\-]+)\)~nonce\((\w+)\)/.exec(message);
     if (!reg) return null;
     return {
         worldId: reg[1],
         instanceId: reg[2],
-        access: reg[3],
+        access: "Public"
+    };
+}
+
+function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
+    const reg = /^Joining\s(wrld_[\w\-]+):(\w+)~(\w+)\((usr_[\w\-]+)\)(~canRequestInvite)?~nonce\((\w+)\)/.exec(message);
+    // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
+
+    if (!reg) return null;
+    let access = getWorldScope(reg[3], reg[5]);
+    return {
+        worldId: reg[1],
+        instanceId: reg[2],
+        access: access,
         instanceOwner: reg[4],
-        nonce: reg[5]
+        canRequestInvite: reg[5],
+        nonce: reg[6]
+    };
+}
+
+function getWorldScope(access: string, canRequestInvite: string): string {
+    let result: string;
+    if (access === "hidden") {
+        result = "Friends+";
+    } else if (access === "friends") {
+        result = "Friend";
+    } else if (access === "private" && !!canRequestInvite) {
+        result = "Invite+";
+    } else if (access === "private") {
+        result = "Invite";
+    } else {
+        result = "Unknown";
+    }
+    return result;
+}
+
+function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
+    const reg = /^Send notification:<Notification from username:(\w+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+) of type: ([\w]+), id: (\w*), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+)/.exec(message);
+
+    if (!reg) return null;
+    return {
+        from: {
+            userName: reg[1],
+            id: reg[2],
+        },
+        to: {
+            id: reg[3],
+        },
+        senderType: reg[4] as SendNotificationType,
+        created: {
+            date: reg[6],
+            time: reg[7]
+        },
+        details: reg[8],
+        type: reg[9] as SendNotificationType
     };
 }
 
 interface WorldEnterInfo {
     worldId: string;
     instanceId: string;
-    access?: string;
+    access: string;
     instanceOwner?: string;
+    canRequestInvite?: string;
     nonce?: string;
 }
 
-function createTemplateDb(vrchatHomePath: string): Database {
-    return {
-        vrchatHomePath,
-        log: []
-    };
-}
+type SendNotificationType = "invite" | "requestInvite" | "friendRequest";
 
-function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
-    const deduplicateLog = Array.from(new Set(log.map(e => JSON.stringify(e)))).map(e => JSON.parse(e) as ActivityLog);
-    return deduplicateLog.sort((a, b) => {
-        if (a.date < b.date) return -1;
-        if (a.date > b.date) return 1;
-        return 0;
-    })
+interface SendNotificationInfo {
+    from: {
+        userName: string;
+        id: string;
+    };
+    to: {
+        id: string;
+    };
+    senderType: SendNotificationType;
+    created: {
+        date: string;
+        time: string;
+    };
+    details: string;
+    type: SendNotificationType;
 }

@@ -1,6 +1,8 @@
 import * as path from "path";
-import { initDatabase, loadDatabase, existDatabaseFile, findVRChatLogFilesFromDirPath, loadVRChatLogFile, parseVRChatLog, mergeActivityLog, writeDatabase } from "./util";
-import { ActivityLog, MoveActivityLog, EnterActivityLog, Database } from "./type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog } from "./type";
+import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
+import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
+import { parseVRChatLog } from "./util/parse";
 
 const DEFAULT_VRCAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
 
@@ -62,16 +64,19 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
     const showLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
     showLog.forEach(e => {
         const date = new Date(e.date);
-        let message = ""; // = date.toLocaleDateString() + " " + date.toLocaleTimeString() + " ";
+        let message = "";
         switch (e.activityType) {
             case "join":
             case "leave":
-                // message += e.activityType + " " +  (<MoveActivityLog>e).userData.userName;
                 message = generateMoveActivityMessage(e as MoveActivityLog, !!param.verbose);
                 break;
             case "enter":
-                // message += e.activityType + " " + (<EnterActivityLog>e).worldData.worldName;
                 message = generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
+                break;
+            case "invite":
+            case "requestInvite":
+            case "friendrequest":
+                message = generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
                 break;
         }
         if (param.filter && message.indexOf(param.filter) === -1) return;
@@ -96,15 +101,32 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
         date.toLocaleDateString() + " " + 
         date.toLocaleTimeString() + " " +
         log.activityType + " " +
-        data.worldName;
+        data.worldName + " (" +
+        data.access + ")";
     if (verbose) {
         message += 
-            " (" + data.instanceId + ":" + (data.access ? data.access : "public") + ") " +
-            "URL: " + "https://www.vrchat.com/home/launch?worldId=" + data.worldId + "&instanceId=" + data.instanceId;
+            " (" + data.instanceId + ") " +
+            "https://www.vrchat.com/home/launch?worldId=" + data.worldId + "&instanceId=" + data.instanceId;
         if (data.access) {
             message +=
                 + "~" + data.access + "(" + data.instanceOwner + ")~nonce(" + data.nonce + ")";
         }
+    }
+    return message;
+}
+
+function generateSendNotificationMessage(log: SendNotificationActivityLog, verbose: boolean): string {
+    const date = new Date(log.date);
+    const data = log.data;
+    let message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        "send " +
+        log.activityType + " " +
+        data.type;
+    if (verbose) {
+        message +=
+            " (to " + data.to.id + ")"; 
     }
     return message;
 }
