@@ -1,4 +1,4 @@
-import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, InviteActivityLog } from "../type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, InviteActivityLog, AccessScope } from "../type";
 
 export function parseVRChatLog(logString: string): ActivityLog[] {
     const lineSymbol = "\n";
@@ -119,7 +119,7 @@ function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
     return {
         worldId: reg[1],
         instanceId: reg[2],
-        access: "Public"
+        access: "public"
     };
 }
 
@@ -139,18 +139,18 @@ function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
     };
 }
 
-function getWorldScope(access: string, canRequestInvite: string): string {
-    let result: string;
+function getWorldScope(access: string, canRequestInvite: string): AccessScope {
+    let result: AccessScope;
     if (access === "hidden") {
-        result = "Friends+";
+        result = "friends+";
     } else if (access === "friends") {
-        result = "Friend";
+        result = "friends";
     } else if (access === "private" && !!canRequestInvite) {
-        result = "Invite+";
+        result = "invite+";
     } else if (access === "private") {
-        result = "Invite";
+        result = "invite";
     } else {
-        result = "Unknown";
+        result = "unknown";
     }
     return result;
 }
@@ -180,7 +180,7 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 interface WorldEnterInfo {
     worldId: string;
     instanceId: string;
-    access: string;
+    access: AccessScope;
     instanceOwner?: string;
     canRequestInvite?: string;
     nonce?: string;

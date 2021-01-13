@@ -46,6 +46,8 @@ export interface FriendRequestActivityLog extends SendNotificationActivityLog {
     data: FriendRequestInviteData;
 }
 
+export type AccessScope = "invite" | "invite+" | "friends" | "friends+" | "public" | "unknown";
+
 interface UserData {
     userName: string;
 }
@@ -53,7 +55,7 @@ interface UserData {
 interface WorldData {
     worldName: string;
     worldId: string;
-    access: string;
+    access: AccessScope;
     instanceId: string;
     instanceOwner?: string;
     nonce?: string;
