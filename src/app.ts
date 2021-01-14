@@ -1,5 +1,5 @@
 import * as path from "path";
-import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog } from "./type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "./type";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
 import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";
@@ -63,7 +63,6 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
     const rangeMillisecond = (param.range ? parseInt(param.range, 10) : 24) * 60 * 60 * 1000;
     const showLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
     showLog.forEach(e => {
-        const date = new Date(e.date);
         let message = "";
         switch (e.activityType) {
             case ActivityType.Join:
@@ -81,6 +80,9 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
                 break;
             case ActivityType.CheckBuild:
                 message = generateCheckBuildMessage(e as CheckBuildActivityLog);
+                break;
+            case ActivityType.Shutdown:
+                message = generateShutdownMessage(e as ShutdownActivityLog);
                 break;
         }
         if (param.filter && message.indexOf(param.filter) === -1) return;
@@ -140,6 +142,7 @@ function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
     const message =
         date.toLocaleDateString() + " " + 
         date.toLocaleTimeString() + " " +
+        "login " +
         log.username;
     return message;
 }
@@ -149,6 +152,16 @@ function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
     const message =
         date.toLocaleDateString() + " " + 
         date.toLocaleTimeString() + " " +
+        "build " +
         log.buildName;
     return message;
+}
+
+function generateShutdownMessage(log: ShutdownActivityLog): string {
+    const date = new Date(log.date);
+    const message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        "shutdown";
+    return message;   
 }

@@ -17,7 +17,8 @@ export const ActivityType = {
     Send: "send",
     Receive: "receive",
     Authentication: "authentication", // ログイン成功,
-    CheckBuild: "checkBuild"
+    CheckBuild: "checkBuild", // ビルド番号
+    Shutdown: "shutdown" // 終了
 } as const;
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
@@ -33,8 +34,7 @@ const ReceiveActivityType = {
     RequestInvite: "requestInvite",
     FriendRequest: "friendrequest"
 } as const;
-export type ReceiveActivityType = typeof ReceiveActivityType[keyof typeof SendActivityType];
-
+export type ReceiveActivityType = typeof ReceiveActivityType[keyof typeof ReceiveActivityType];
 
 // join or leave
 export interface MoveActivityLog extends ActivityLog {
@@ -46,8 +46,6 @@ export interface EnterActivityLog extends ActivityLog {
     worldData: WorldData;
 }
 
-export type SendNotificationType = "invite" | "requestInvite" | "friendRequest";
-
 // send
 export interface SendNotificationActivityLog extends ActivityLog {
     data: SendNotificationData;
@@ -55,23 +53,49 @@ export interface SendNotificationActivityLog extends ActivityLog {
 }
 
 // send invite
-export interface InviteActivityLog extends SendNotificationActivityLog {
-    data: InviteData;
+export interface SendInviteActivityLog extends SendNotificationActivityLog {
+    data: SendInviteData;
 }
 
 // send reqest invite
-export interface RequestInviteActivityLog extends SendNotificationActivityLog {
-    data: RequestInviteData;
+export interface SendRequestInviteActivityLog extends SendNotificationActivityLog {
+    data: SendRequestInviteData;
 }
 
 // send friend request
-export interface FriendRequestActivityLog extends SendNotificationActivityLog {
-    data: FriendRequestInviteData;
+export interface SendFriendRequestActivityLog extends SendNotificationActivityLog {
+    data: SendFriendRequestInviteData;
+}
+
+// receive
+export interface ReceiveNotificationActivityLog extends ActivityLog {
+    data: ReceiveNotificationData;
+    receiveActivityType: ReceiveActivityType;
+}
+
+// receive invite
+export interface ReceiveInviteActivityLog extends ReceiveNotificationActivityLog {
+    data: ReceiveInviteData;
+}
+
+// receive reqest invite
+export interface ReceiveRequestInviteActivityLog extends ReceiveNotificationActivityLog {
+    data: ReceiveRequestInviteData;
+}
+
+// receive friend request
+export interface ReceiveFriendRequestActivityLog extends ReceiveNotificationActivityLog {
+    data: ReceiveFriendRequestInviteData;
 }
 
 // login
 export interface AuthenticationActivityLog extends ActivityLog {
     username: string;
+}
+
+// shotdown
+export interface ShutdownActivityLog extends ActivityLog {
+    // nothing
 }
 
 export interface CheckBuildActivityLog extends ActivityLog {
@@ -94,6 +118,8 @@ interface WorldData {
     nonce?: string;
 }
 
+export type SendNotificationType = "invite" | "requestInvite" | "friendRequest";
+
 interface SendNotificationData {
     from: {
         userName: string;
@@ -111,17 +137,52 @@ interface SendNotificationData {
     type: SendNotificationType;
 }
 
-interface InviteData extends SendNotificationData {
+interface SendInviteData extends SendNotificationData {
     type: "invite";
     senderType: "invite";
 }
 
-interface RequestInviteData extends SendNotificationData {
+interface SendRequestInviteData extends SendNotificationData {
     type: "requestInvite";
     senderType: "requestInvite";
 }
 
-interface FriendRequestInviteData extends SendNotificationData {
+interface SendFriendRequestInviteData extends SendNotificationData {
+    type: "friendRequest";
+    senderType: "friendRequest";
+}
+
+
+export type ReceiveNotificationType = "invite" | "requestInvite" | "friendRequest";
+
+interface ReceiveNotificationData {
+    from: {
+        userName: string;
+        id: string;
+    };
+    to: {
+        id: string;
+    };
+    senderType: ReceiveNotificationType;
+    created: {
+        date: string;
+        time: string;
+    };
+    details: string;
+    type: ReceiveNotificationType;
+}
+
+interface ReceiveInviteData extends ReceiveNotificationData {
+    type: "invite";
+    senderType: "invite";
+}
+
+interface ReceiveRequestInviteData extends ReceiveNotificationData {
+    type: "requestInvite";
+    senderType: "requestInvite";
+}
+
+interface ReceiveFriendRequestInviteData extends ReceiveNotificationData {
     type: "friendRequest";
     senderType: "friendRequest";
 }

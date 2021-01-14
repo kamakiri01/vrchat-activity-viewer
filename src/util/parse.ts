@@ -1,4 +1,4 @@
-import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, SendNotificationType, SendActivityType, CheckBuildActivityLog } from "../type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, SendNotificationType, SendActivityType, CheckBuildActivityLog, ShutdownActivityLog } from "../type";
 
 export function parseVRChatLog(logString: string): ActivityLog[] {
     const lineSymbol = "\n";
@@ -115,7 +115,6 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             username: /^User Authenticated:\s(.+)/.exec(message)![1]
         };
         activityLog = activity;
-
     // check build
     } else if (message.indexOf("VRChat Build") != -1) {
         const activity: CheckBuildActivityLog = {
@@ -124,7 +123,14 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             buildName: /^VRChat Build: ([\w\-\.\s]+), \w+/.exec(message)![1]
         };
         activityLog = activity;
-    }    
+    // shutdown
+    } else if (message.indexOf("shutdown") != -1) {
+        const activity: ShutdownActivityLog = {
+            date: utcTime,
+            activityType: ActivityType.Shutdown
+        }
+        activityLog = activity;
+    }
 
     if (activityLog) return activityLog;
     // console.log("unsupported log: " + message);
