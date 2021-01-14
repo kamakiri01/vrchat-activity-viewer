@@ -1,5 +1,5 @@
 import * as path from "path";
-import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog } from "./type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog } from "./type";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
 import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";
@@ -66,17 +66,21 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
         const date = new Date(e.date);
         let message = "";
         switch (e.activityType) {
-            case "join":
-            case "leave":
-                message = generateMoveActivityMessage(e as MoveActivityLog, !!param.verbose);
+            case ActivityType.Join:
+            case ActivityType.Leave:
+                message = generateMoveActivityMessage(e as MoveActivityLog);
                 break;
-            case "enter":
+            case ActivityType.Enter:
                 message = generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
                 break;
-            case "invite":
-            case "requestInvite":
-            case "friendrequest":
+            case ActivityType.Send:
                 message = generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
+                break;
+            case ActivityType.Authentication:
+                message = generateAuthenticationMessage(e as AuthenticationActivityLog);
+                break;
+            case ActivityType.CheckBuild:
+                message = generateCheckBuildMessage(e as CheckBuildActivityLog);
                 break;
         }
         if (param.filter && message.indexOf(param.filter) === -1) return;
@@ -84,7 +88,7 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
     });
 }
 
-function generateMoveActivityMessage(log: MoveActivityLog, verbose: boolean): string {
+function generateMoveActivityMessage(log: MoveActivityLog): string {
     const date = new Date(log.date);
     let message =
         date.toLocaleDateString() + " " + 
@@ -122,11 +126,29 @@ function generateSendNotificationMessage(log: SendNotificationActivityLog, verbo
         date.toLocaleDateString() + " " + 
         date.toLocaleTimeString() + " " +
         "send " +
-        log.activityType + " " +
+        log.sendActivityType + " " +
         data.type;
     if (verbose) {
         message +=
             " (to " + data.to.id + ")"; 
     }
+    return message;
+}
+
+function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
+    const date = new Date(log.date);
+    const message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        log.username;
+    return message;
+}
+
+function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
+    const date = new Date(log.date);
+    const message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        log.buildName;
     return message;
 }

@@ -1,4 +1,4 @@
-import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, InviteActivityLog, AccessScope } from "../type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, SendNotificationType, SendActivityType, CheckBuildActivityLog } from "../type";
 
 export function parseVRChatLog(logString: string): ActivityLog[] {
     const lineSymbol = "\n";
@@ -35,7 +35,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
     if (message.indexOf("OnPlayerJoined") != -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
-            activityType: "join",
+            activityType: ActivityType.Join,
             userData: {
                 userName: /^OnPlayerJoined\s(.+)/.exec(message)![1]
             }
@@ -45,7 +45,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
     } else if (message.indexOf("OnPlayerLeft") != -1 && message.indexOf("OnPlayerLeftRoom") === -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
-            activityType: "leave",
+            activityType: ActivityType.Leave,
             userData: {
                 userName: /^OnPlayerLeft\s(.+)/.exec(message)![1]
             }
@@ -56,7 +56,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
         const worldInfo = parseEnterActivityJoinLine(rawActivities[index+1])!;
         const activity: EnterActivityLog = {
             date: utcTime,
-            activityType: "enter",
+            activityType: ActivityType.Enter,
             worldData: {
                 worldName: /^Entering\sRoom:\s(.+)/.exec(message)![1],
                 worldId: worldInfo.worldId,
@@ -67,12 +67,25 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             }
         };
         activityLog = activity;
-    // friendRequest, invite, requestInvite
+    // send: friendRequest, invite, requestInvite
     } else if (message.indexOf("Send notification") != -1) {
         const info = parseSendNotificationMessage(message)!;
+        let sendActivityType: SendActivityType;
+        switch (info.type) {
+            case "invite":
+                sendActivityType = SendActivityType.Invite;
+                break;
+            case "requestInvite":
+                sendActivityType = SendActivityType.RequestInvite;
+                break;
+            case "friendRequest":
+                sendActivityType = SendActivityType.FriendRequest;
+                break;
+        }
         const activity: SendNotificationActivityLog = {
             date: utcTime,
-            activityType: "invite",
+            activityType: ActivityType.Send,
+            sendActivityType: sendActivityType,
             data: {
                 from: {
                     userName: info.from.userName,
@@ -91,7 +104,27 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             }
         };
         activityLog = activity;
-    }
+    // receive: friendRequest, invite, requestInvite
+    } else if (false) {
+
+    // login
+    } else if (message.indexOf("User Authenticated") != -1) {
+        const activity: AuthenticationActivityLog = {
+            date: utcTime,
+            activityType: ActivityType.Authentication,
+            username: /^User Authenticated:\s(.+)/.exec(message)![1]
+        };
+        activityLog = activity;
+
+    // check build
+    } else if (message.indexOf("VRChat Build") != -1) {
+        const activity: CheckBuildActivityLog = {
+            date: utcTime,
+            activityType: ActivityType.CheckBuild,
+            buildName: /^VRChat Build: ([\w\-\.\s]+), \w+/.exec(message)![1]
+        };
+        activityLog = activity;
+    }    
 
     if (activityLog) return activityLog;
     // console.log("unsupported log: " + message);
@@ -139,8 +172,8 @@ function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
     };
 }
 
-function getWorldScope(access: string, canRequestInvite: string): AccessScope {
-    let result: AccessScope;
+function getWorldScope(access: string, canRequestInvite: string): WorldAccessScope {
+    let result: WorldAccessScope;
     if (access === "hidden") {
         result = "friends+";
     } else if (access === "friends") {
@@ -180,13 +213,11 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 interface WorldEnterInfo {
     worldId: string;
     instanceId: string;
-    access: AccessScope;
+    access: WorldAccessScope;
     instanceOwner?: string;
     canRequestInvite?: string;
     nonce?: string;
 }
-
-type SendNotificationType = "invite" | "requestInvite" | "friendRequest";
 
 interface SendNotificationInfo {
     from: {
