@@ -1,5 +1,5 @@
 import * as path from "path";
-import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "./type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationActivityLog } from "./type";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
 import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";
@@ -75,6 +75,9 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
             case ActivityType.Send:
                 message = generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
                 break;
+            case ActivityType.Receive:
+                message = generateReceiveNotificationMessage(e as ReceiveNotificationActivityLog, !!param.verbose);
+                break;      
             case ActivityType.Authentication:
                 message = generateAuthenticationMessage(e as AuthenticationActivityLog);
                 break;
@@ -128,22 +131,35 @@ function generateSendNotificationMessage(log: SendNotificationActivityLog, verbo
         date.toLocaleDateString() + " " + 
         date.toLocaleTimeString() + " " +
         "send " +
-        log.sendActivityType + " " +
-        data.type;
+        log.sendActivityType + " ";
     if (verbose) {
         message +=
             " (to " + data.to.id + ")"; 
     }
     return message;
 }
-
+function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog, verbose: boolean): string {
+    const date = new Date(log.date);
+    const data = log.data;
+    let message =
+        date.toLocaleDateString() + " " + 
+        date.toLocaleTimeString() + " " +
+        "receive " +
+        log.receiveActivityType + " " +
+        "from " + data.from.userName;
+    if (verbose) {
+        message +=
+            "(" + data.from.id + ") ";
+    }
+    return message;
+}
 function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
     const date = new Date(log.date);
     const message =
         date.toLocaleDateString() + " " + 
         date.toLocaleTimeString() + " " +
         "login " +
-        log.username;
+        log.userName;
     return message;
 }
 

@@ -2,6 +2,7 @@
 export interface Database {
     vrchatHomePath: string;
     log: ActivityLog[];
+    // userTable: UserTable;
 }
 
 // 書き込まれるログの基底
@@ -29,7 +30,7 @@ export const SendActivityType = {
 } as const;
 export type SendActivityType = typeof SendActivityType[keyof typeof SendActivityType];
 
-const ReceiveActivityType = {
+export const ReceiveActivityType = {
     Invite: "invite",
     RequestInvite: "requestInvite",
     FriendRequest: "friendrequest"
@@ -38,59 +39,59 @@ export type ReceiveActivityType = typeof ReceiveActivityType[keyof typeof Receiv
 
 // join or leave
 export interface MoveActivityLog extends ActivityLog {
-    userData: UserData;
+    userData: UserLogData;
 }
 
 // world in
 export interface EnterActivityLog extends ActivityLog {
-    worldData: WorldData;
+    worldData: WorldLogData;
 }
 
 // send
 export interface SendNotificationActivityLog extends ActivityLog {
-    data: SendNotificationData;
+    data: NotificationLogData;
     sendActivityType: SendActivityType;
 }
 
 // send invite
 export interface SendInviteActivityLog extends SendNotificationActivityLog {
-    data: SendInviteData;
+    data: SendInviteLogData;
 }
 
 // send reqest invite
 export interface SendRequestInviteActivityLog extends SendNotificationActivityLog {
-    data: SendRequestInviteData;
+    data: SendRequestInviteLogData;
 }
 
 // send friend request
 export interface SendFriendRequestActivityLog extends SendNotificationActivityLog {
-    data: SendFriendRequestInviteData;
+    data: SendFriendRequestInviteLogData;
 }
 
 // receive
 export interface ReceiveNotificationActivityLog extends ActivityLog {
-    data: ReceiveNotificationData;
+    data: ReceiveNotificationLogData;
     receiveActivityType: ReceiveActivityType;
 }
 
 // receive invite
 export interface ReceiveInviteActivityLog extends ReceiveNotificationActivityLog {
-    data: ReceiveInviteData;
+    data: ReceiveInviteLogData;
 }
 
 // receive reqest invite
 export interface ReceiveRequestInviteActivityLog extends ReceiveNotificationActivityLog {
-    data: ReceiveRequestInviteData;
+    data: ReceiveRequestInviteLogData;
 }
 
 // receive friend request
 export interface ReceiveFriendRequestActivityLog extends ReceiveNotificationActivityLog {
-    data: ReceiveFriendRequestInviteData;
+    data: ReceiveFriendRequestInviteLogData;
 }
 
 // login
 export interface AuthenticationActivityLog extends ActivityLog {
-    username: string;
+    userName: string;
 }
 
 // shotdown
@@ -105,11 +106,11 @@ export interface CheckBuildActivityLog extends ActivityLog {
 // world scope
 export type WorldAccessScope = "invite" | "invite+" | "friends" | "friends+" | "public" | "unknown";
 
-interface UserData {
+interface UserLogData {
     userName: string;
 }
 
-interface WorldData {
+interface WorldLogData {
     worldName: string;
     worldId: string;
     access: WorldAccessScope;
@@ -118,9 +119,9 @@ interface WorldData {
     nonce?: string;
 }
 
-export type SendNotificationType = "invite" | "requestInvite" | "friendRequest";
+export type NotificationType = "invite" | "requestInvite" | "friendRequest";
 
-interface SendNotificationData {
+interface NotificationLogData {
     from: {
         userName: string;
         id: string;
@@ -128,26 +129,26 @@ interface SendNotificationData {
     to: {
         id: string;
     };
-    senderType: SendNotificationType;
+    senderType: NotificationType;
     created: {
         date: string;
         time: string;
     };
     details: string;
-    type: SendNotificationType;
+    type: NotificationType;
 }
 
-interface SendInviteData extends SendNotificationData {
+interface SendInviteLogData extends NotificationLogData {
     type: "invite";
     senderType: "invite";
 }
 
-interface SendRequestInviteData extends SendNotificationData {
+interface SendRequestInviteLogData extends NotificationLogData {
     type: "requestInvite";
     senderType: "requestInvite";
 }
 
-interface SendFriendRequestInviteData extends SendNotificationData {
+interface SendFriendRequestInviteLogData extends NotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
 }
@@ -155,7 +156,7 @@ interface SendFriendRequestInviteData extends SendNotificationData {
 
 export type ReceiveNotificationType = "invite" | "requestInvite" | "friendRequest";
 
-interface ReceiveNotificationData {
+interface ReceiveNotificationLogData {
     from: {
         userName: string;
         id: string;
@@ -172,17 +173,24 @@ interface ReceiveNotificationData {
     type: ReceiveNotificationType;
 }
 
-interface ReceiveInviteData extends ReceiveNotificationData {
+interface ReceiveInviteLogData extends ReceiveNotificationLogData {
     type: "invite";
     senderType: "invite";
 }
 
-interface ReceiveRequestInviteData extends ReceiveNotificationData {
+interface ReceiveRequestInviteLogData extends ReceiveNotificationLogData {
     type: "requestInvite";
     senderType: "requestInvite";
 }
 
-interface ReceiveFriendRequestInviteData extends ReceiveNotificationData {
+interface ReceiveFriendRequestInviteLogData extends ReceiveNotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
+}
+
+type UserTable = { [key:string] : UserTableData };
+
+interface UserTableData {
+    userId: string;
+    userNames: string[]; // [新 -> 旧]
 }

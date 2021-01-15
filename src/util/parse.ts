@@ -1,4 +1,4 @@
-import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, SendNotificationType, SendActivityType, CheckBuildActivityLog, ShutdownActivityLog } from "../type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, NotificationType, SendActivityType, CheckBuildActivityLog, ShutdownActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog } from "../type";
 
 export function parseVRChatLog(logString: string): ActivityLog[] {
     const lineSymbol = "\n";
@@ -22,7 +22,7 @@ export function parseVRChatLog(logString: string): ActivityLog[] {
 
 // 次行のインスタンスIDを取るため全部引数に渡す
 function parseRawActivityToActivity(rawActivity: string, index: number, rawActivities: string[]): ActivityLog | null {
-    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2})\s.+\[.+\]\s(.+)/.exec(rawActivity)!;
+    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2}) Log\s{8}-\s{2}(.+)/.exec(rawActivity)!;
     if (!reg || reg.length < 4) return null;
     const mmmmyydd = reg[1];
     const hhmmss = reg[2];
@@ -37,7 +37,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             date: utcTime,
             activityType: ActivityType.Join,
             userData: {
-                userName: /^OnPlayerJoined\s(.+)/.exec(message)![1]
+                userName: /^\[NetworkManager\] OnPlayerJoined\s(.+)/.exec(message)![1]
             }
         };
         activityLog = activity;
@@ -47,7 +47,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             date: utcTime,
             activityType: ActivityType.Leave,
             userData: {
-                userName: /^OnPlayerLeft\s(.+)/.exec(message)![1]
+                userName: /^\[NetworkManager\] OnPlayerLeft\s(.+)/.exec(message)![1]
             }
         };
         activityLog = activity;
@@ -58,7 +58,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
             date: utcTime,
             activityType: ActivityType.Enter,
             worldData: {
-                worldName: /^Entering\sRoom:\s(.+)/.exec(message)![1],
+                worldName: /^\[RoomManager\] Entering\sRoom:\s(.+)/.exec(message)![1],
                 worldId: worldInfo.worldId,
                 instanceId: worldInfo.instanceId,
                 access: worldInfo.access,
@@ -105,14 +105,50 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
         };
         activityLog = activity;
     // receive: friendRequest, invite, requestInvite
-    } else if (false) {
+    } else if (message.indexOf("Received Notification") != -1) {
+        const info = parseReceiveNotificationMessage(message)!;
 
+        if (!info.to.id) return null; // pending friend request
+        let receiveActivityType: ReceiveActivityType;
+        switch (info.type) {
+            case "invite":
+                receiveActivityType = ReceiveActivityType.Invite;
+                break;
+            case "requestInvite":
+                receiveActivityType = ReceiveActivityType.RequestInvite;
+                break;
+            case "friendRequest":
+                receiveActivityType = ReceiveActivityType.FriendRequest;
+                break;
+        }
+        const activity: ReceiveNotificationActivityLog = {
+            date: utcTime,
+            activityType: ActivityType.Receive,
+            receiveActivityType: receiveActivityType,
+            data: {
+                from: {
+                    userName: info.from.userName,
+                    id: info.from.id
+                },
+                to: {
+                    id: info.to.id
+                },
+                created: {
+                    date: info.created.date,
+                    time: info.created.time
+                },
+                details: info.details,
+                type: info.type,
+                senderType: info.senderType
+            }
+        };
+        activityLog = activity;
     // login
     } else if (message.indexOf("User Authenticated") != -1) {
         const activity: AuthenticationActivityLog = {
             date: utcTime,
             activityType: ActivityType.Authentication,
-            username: /^User Authenticated:\s(.+)/.exec(message)![1]
+            userName: /^User Authenticated:\s(.+)/.exec(message)![1]
         };
         activityLog = activity;
     // check build
@@ -120,7 +156,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
         const activity: CheckBuildActivityLog = {
             date: utcTime,
             activityType: ActivityType.CheckBuild,
-            buildName: /^VRChat Build: ([\w\-\.\s]+), \w+/.exec(message)![1]
+            buildName: /^\[VRCApplicationSetup\] VRChat Build: ([\w\-\.\s]+), \w+/.exec(message)![1]
         };
         activityLog = activity;
     // shutdown
@@ -194,8 +230,8 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
     return result;
 }
 
-function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
-    const reg = /^Send notification:<Notification from username:(\w+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+) of type: ([\w]+), id: (\w*), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+)/.exec(message);
+function parseSendNotificationMessage(message: string): NotificationInfo | null {
+    const reg = /^Send notification:<Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+) of type: ([\w]+), id: (\w*), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+)/.exec(message);
 
     if (!reg) return null;
     return {
@@ -206,13 +242,34 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
         to: {
             id: reg[3],
         },
-        senderType: reg[4] as SendNotificationType,
+        senderType: reg[4] as NotificationType,
         created: {
             date: reg[6],
             time: reg[7]
         },
         details: reg[8],
-        type: reg[9] as SendNotificationType
+        type: reg[9] as NotificationType
+    };
+}
+
+function parseReceiveNotificationMessage(message: string): NotificationInfo | null {
+    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+)? of type: ([\w]+), id: ([\w\-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+)/.exec(message);
+    if (!reg) return null;
+    return {
+        from: {
+            userName: reg[1],
+            id: reg[2],
+        },
+        to: {
+            id: reg[3],
+        },
+        senderType: reg[4] as NotificationType,
+        created: {
+            date: reg[6],
+            time: reg[7]
+        },
+        details: reg[8],
+        type: reg[9] as NotificationType
     };
 }
 
@@ -225,7 +282,7 @@ interface WorldEnterInfo {
     nonce?: string;
 }
 
-interface SendNotificationInfo {
+interface NotificationInfo {
     from: {
         userName: string;
         id: string;
@@ -233,11 +290,11 @@ interface SendNotificationInfo {
     to: {
         id: string;
     };
-    senderType: SendNotificationType;
+    senderType: NotificationType;
     created: {
         date: string;
         time: string;
     };
     details: string;
-    type: SendNotificationType;
+    type: NotificationType;
 }
