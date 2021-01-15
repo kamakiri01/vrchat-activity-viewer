@@ -33,7 +33,7 @@ export type SendActivityType = typeof SendActivityType[keyof typeof SendActivity
 export const ReceiveActivityType = {
     Invite: "invite",
     RequestInvite: "requestInvite",
-    FriendRequest: "friendrequest"
+    FriendRequest: "friendRequest"
 } as const;
 export type ReceiveActivityType = typeof ReceiveActivityType[keyof typeof ReceiveActivityType];
 

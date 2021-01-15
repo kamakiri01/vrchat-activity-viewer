@@ -42,7 +42,7 @@ function updateDb(db: Database, dbPath: string, vrchaLogPath: string) {
     const filePaths = findVRChatLogFilesFromDirPath(vrchaLogPath);
     console.log("find "  + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
     const logs = filePaths.map((filePath) => {
-        return parseVRChatLog(loadVRChatLogFile(path.join(vrchaLogPath, filePath)));
+        return parseVRChatLog(loadVRChatLogFile(path.join(vrchaLogPath, filePath)), filePath);
     });
     const newLog: ActivityLog[] = Array.prototype.concat.apply([], logs);
     const currentLogLength = db.log.length;

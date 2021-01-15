@@ -1,6 +1,6 @@
 import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, NotificationType, SendActivityType, CheckBuildActivityLog, ShutdownActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog } from "../type";
 
-export function parseVRChatLog(logString: string): ActivityLog[] {
+export function parseVRChatLog(logString: string, logPath: string): ActivityLog[] {
     const lineSymbol = "\n";
     const rawActivities = logString.split(lineSymbol).filter((line) => {
         return line.length > 1; // 空行フィルタ
@@ -12,6 +12,7 @@ export function parseVRChatLog(logString: string): ActivityLog[] {
             const activity = parseRawActivityToActivity(rawActivity, index, rawActivities);
             if (activity) activityLog.push(activity);
         } catch (error) {
+            console.log("catch error, log file: " + logPath);
             console.log("catch error, log: " + rawActivity);
             console.log("catch error, log next: " + rawActivities[index+1]);
             console.log(error);
@@ -32,7 +33,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
     let activityLog: ActivityLog = null!;
 
     // join
-    if (message.indexOf("OnPlayerJoined") != -1) {
+    if (message.indexOf("[NetworkManager] OnPlayerJoined") != -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
             activityType: ActivityType.Join,
@@ -42,7 +43,7 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
         };
         activityLog = activity;
     // leave
-    } else if (message.indexOf("OnPlayerLeft") != -1 && message.indexOf("OnPlayerLeftRoom") === -1) {
+    } else if (message.indexOf("[NetworkManager] OnPlayerLeft") != -1 && message.indexOf("OnPlayerLeftRoom") === -1) {
         const activity: MoveActivityLog = {
             date: utcTime,
             activityType: ActivityType.Leave,
@@ -144,11 +145,11 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
         };
         activityLog = activity;
     // login
-    } else if (message.indexOf("User Authenticated") != -1) {
+    } else if (message.indexOf("[VRCFlowManagerVRC] User Authenticated") != -1) {
         const activity: AuthenticationActivityLog = {
             date: utcTime,
             activityType: ActivityType.Authentication,
-            userName: /^User Authenticated:\s(.+)/.exec(message)![1]
+            userName: /^\[VRCFlowManagerVRC\] User Authenticated:\s(.+)/.exec(message)![1]
         };
         activityLog = activity;
     // check build
