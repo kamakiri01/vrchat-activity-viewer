@@ -200,7 +200,7 @@ function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
 }
 
 function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w\-]+):(\w+)~(\w+)\((usr_[\w\-]+)\)(~canRequestInvite)?~nonce\((\w+)\)/.exec(message);
+    const reg = /^Joining\s(wrld_[\w\-]+):(\w+)~(\w+)\((usr_[\w\-]+)\)(~canRequestInvite)?~nonce\(([\w\-]+)\)/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
