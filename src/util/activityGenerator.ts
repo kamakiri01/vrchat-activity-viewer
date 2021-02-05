@@ -8,7 +8,6 @@ export function createJoinActivityLog(utcTime: number, message: string): MoveAct
         date: utcTime,
         activityType: ActivityType.Join,
         userData: {
-            // userName: /^\[NetworkManager\] OnPlayerJoined\s(.+)/.exec(message)![1]
             userName: /^OnPlayerJoined\s(.+)/.exec(reg[3])![1]
         }
     };
@@ -21,7 +20,6 @@ export function createLeaveActivityLog(utcTime: number, message: string): MoveAc
         date: utcTime,
         activityType: ActivityType.Leave,
         userData: {
-            // userName: /^\[NetworkManager\] OnPlayerLeft\s(.+)/.exec(message)![1]
             userName: /^OnPlayerLeft\s(.+)/.exec(reg[3])![1]
         }
     };
@@ -34,7 +32,6 @@ export function createEnterActivityLog(utcTime: number, message: string, worldIn
         date: utcTime,
         activityType: ActivityType.Enter,
         worldData: {
-            // worldName: /^\[RoomManager\] Entering\sRoom:\s(.+)/.exec(message)![1],
             worldName: /^Entering\sRoom:\s(.+)/.exec(reg[3])![1],
             worldId: worldInfo.worldId,
             instanceId: worldInfo.instanceId,
@@ -125,7 +122,6 @@ export function createAuthenticationActivityLog(utcTime: number, message: string
     const activity: AuthenticationActivityLog = {
         date: utcTime,
         activityType: ActivityType.Authentication,
-        // userName: /^\[VRCFlowManagerVRC\] User Authenticated:\s(.+)/.exec(message)![1]
         userName: /^User Authenticated:\s(.+)/.exec(reg[3])![1]
     };
     return activity;
@@ -136,7 +132,6 @@ export function createCheckBuildActivityLog(utcTime: number, message: string) {
     const activity: CheckBuildActivityLog = {
         date: utcTime,
         activityType: ActivityType.CheckBuild,
-        // buildName: /^\[VRCApplicationSetup\] VRChat Build: ([\w\-\.\s]+), \w+/.exec(message)![1]
         buildName: /^VRChat Build: ([\w\-\.\s]+), \w+/.exec(reg[3])![1]
     };
     return activity;

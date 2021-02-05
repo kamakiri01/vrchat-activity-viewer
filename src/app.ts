@@ -138,6 +138,7 @@ function generateSendNotificationMessage(log: SendNotificationActivityLog, verbo
     }
     return message;
 }
+
 function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog, verbose: boolean): string {
     const date = new Date(log.date);
     const data = log.data;
@@ -153,6 +154,7 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
     }
     return message;
 }
+
 function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
     const date = new Date(log.date);
     const message =
