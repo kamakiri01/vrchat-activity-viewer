@@ -153,7 +153,6 @@ interface SendFriendRequestInviteLogData extends NotificationLogData {
     senderType: "friendRequest";
 }
 
-
 export type ReceiveNotificationType = "invite" | "requestInvite" | "friendRequest";
 
 interface ReceiveNotificationLogData {
@@ -186,11 +185,4 @@ interface ReceiveRequestInviteLogData extends ReceiveNotificationLogData {
 interface ReceiveFriendRequestInviteLogData extends ReceiveNotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
-}
-
-type UserTable = { [key:string] : UserTableData };
-
-interface UserTableData {
-    userId: string;
-    userNames: string[]; // [新 -> 旧]
 }

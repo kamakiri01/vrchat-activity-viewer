@@ -1,5 +1,5 @@
 import * as path from "path";
-import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationActivityLog } from "./type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationActivityLog } from "./type/logType";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
 import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";

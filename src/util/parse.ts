@@ -1,20 +1,24 @@
-import { ActivityLog, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, WorldAccessScope, AuthenticationActivityLog, ActivityType, NotificationType, SendActivityType, CheckBuildActivityLog, ShutdownActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog } from "../type";
+import { ActivityLog, WorldAccessScope, NotificationType } from "../type/logType";
+import { WorldEnterInfo, NotificationInfo } from "../type/parseInfo";
+import { createAuthenticationActivityLog, createCheckBuildActivityLog, createEnterActivityLog, createJoinActivityLog, createLeaveActivityLog, createReceiveNotificationActivityLog, createSendNotificationActivityLog, createShutdownActivityLog } from "./activityGenerator";
+import { Judge } from "./judge";
+import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
 
 export function parseVRChatLog(logString: string, logPath: string): ActivityLog[] {
     const lineSymbol = "\n";
-    const rawActivities = logString.split(lineSymbol).filter((line) => {
+    const logLines = logString.split(lineSymbol).filter((line) => {
         return line.length > 1; // 空行フィルタ
     })
 
     const activityLog: ActivityLog[] = [];
-    rawActivities.forEach((rawActivity, index) => {
+    logLines.forEach((logLine, index) => {
         try {
-            const activity = parseRawActivityToActivity(rawActivity, index, rawActivities);
+            const activity = parseLogLineToActivity(logLine, index, logLines);
             if (activity) activityLog.push(activity);
         } catch (error) {
             console.log("catch error, log file: " + logPath);
-            console.log("catch error, log: " + rawActivity);
-            console.log("catch error, log next: " + rawActivities[index+1]);
+            console.log("catch error, log: " + logLine);
+            console.log("catch error, log next: " + logLines[index+1]);
             console.log(error);
         }
     });
@@ -22,8 +26,8 @@ export function parseVRChatLog(logString: string, logPath: string): ActivityLog[
 }
 
 // 次行のインスタンスIDを取るため全部引数に渡す
-function parseRawActivityToActivity(rawActivity: string, index: number, rawActivities: string[]): ActivityLog | null {
-    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2}) Log\s{8}-\s{2}(.+)/.exec(rawActivity)!;
+function parseLogLineToActivity(logLine: string, index: number, logLines: string[]): ActivityLog | null {
+    const reg = parseMessageBodyFromLogLine(logLine);
     if (!reg || reg.length < 4) return null;
     const mmmmyydd = reg[1];
     const hhmmss = reg[2];
@@ -32,152 +36,45 @@ function parseRawActivityToActivity(rawActivity: string, index: number, rawActiv
 
     let activityLog: ActivityLog = null!;
 
-    // join
-    if (message.indexOf("[NetworkManager] OnPlayerJoined") != -1) {
-        const activity: MoveActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Join,
-            userData: {
-                userName: /^\[NetworkManager\] OnPlayerJoined\s(.+)/.exec(message)![1]
-            }
-        };
-        activityLog = activity;
-    // leave
-    } else if (message.indexOf("[NetworkManager] OnPlayerLeft") != -1 && message.indexOf("OnPlayerLeftRoom") === -1) {
-        const activity: MoveActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Leave,
-            userData: {
-                userName: /^\[NetworkManager\] OnPlayerLeft\s(.+)/.exec(message)![1]
-            }
-        };
-        activityLog = activity;
-    // enter
-    } else if (message.indexOf("Entering Room") != -1) {
-        const worldInfo = parseEnterActivityJoinLine(rawActivities[index+1])!;
-        const activity: EnterActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Enter,
-            worldData: {
-                worldName: /^\[RoomManager\] Entering\sRoom:\s(.+)/.exec(message)![1],
-                worldId: worldInfo.worldId,
-                instanceId: worldInfo.instanceId,
-                access: worldInfo.access,
-                instanceOwner: worldInfo.instanceOwner,
-                nonce: worldInfo.nonce
-            }
-        };
-        activityLog = activity;
-    // send: friendRequest, invite, requestInvite
-    } else if (message.indexOf("Send notification") != -1) {
+    if (Judge.isOnPlayerJoined(message)) {
+        // join
+        activityLog = createJoinActivityLog(utcTime, message);
+    } else if (Judge.isOnPlayerLeft(message)) {
+        // leave
+        activityLog = createLeaveActivityLog(utcTime, message);
+    } else if (Judge.isEnter(message)) {
+        // enter
+        const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
+        activityLog = createEnterActivityLog(utcTime, message, worldInfo);
+    } else if (Judge.isSendNotification(message)) {
+        // send: friendRequest, invite, requestInvite
         const info = parseSendNotificationMessage(message)!;
-        let sendActivityType: SendActivityType;
-        switch (info.type) {
-            case "invite":
-                sendActivityType = SendActivityType.Invite;
-                break;
-            case "requestInvite":
-                sendActivityType = SendActivityType.RequestInvite;
-                break;
-            case "friendRequest":
-                sendActivityType = SendActivityType.FriendRequest;
-                break;
-        }
-        const activity: SendNotificationActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Send,
-            sendActivityType: sendActivityType,
-            data: {
-                from: {
-                    userName: info.from.userName,
-                    id: info.from.id
-                },
-                to: {
-                    id: info.to.id
-                },
-                created: {
-                    date: info.created.date,
-                    time: info.created.time
-                },
-                details: info.details,
-                type: info.type,
-                senderType: info.senderType
-            }
-        };
-        activityLog = activity;
-    // receive: friendRequest, invite, requestInvite
-    } else if (message.indexOf("Received Notification") != -1) {
+        activityLog = createSendNotificationActivityLog(utcTime, message, info);
+    } else if (Judge.isReceiveNotification(message)) {
+        // receive: friendRequest, invite, requestInvite
         const info = parseReceiveNotificationMessage(message)!;
-
         if (!info.to.id) return null; // pending friend request
-        let receiveActivityType: ReceiveActivityType;
-        switch (info.type) {
-            case "invite":
-                receiveActivityType = ReceiveActivityType.Invite;
-                break;
-            case "requestInvite":
-                receiveActivityType = ReceiveActivityType.RequestInvite;
-                break;
-            case "friendRequest":
-                receiveActivityType = ReceiveActivityType.FriendRequest;
-                break;
-        }
-        const activity: ReceiveNotificationActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Receive,
-            receiveActivityType: receiveActivityType,
-            data: {
-                from: {
-                    userName: info.from.userName,
-                    id: info.from.id
-                },
-                to: {
-                    id: info.to.id
-                },
-                created: {
-                    date: info.created.date,
-                    time: info.created.time
-                },
-                details: info.details,
-                type: info.type,
-                senderType: info.senderType
-            }
-        };
-        activityLog = activity;
-    // login
-    } else if (message.indexOf("[VRCFlowManagerVRC] User Authenticated") != -1) {
-        const activity: AuthenticationActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Authentication,
-            userName: /^\[VRCFlowManagerVRC\] User Authenticated:\s(.+)/.exec(message)![1]
-        };
-        activityLog = activity;
-    // check build
-    } else if (message.indexOf("VRChat Build") != -1) {
-        const activity: CheckBuildActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.CheckBuild,
-            buildName: /^\[VRCApplicationSetup\] VRChat Build: ([\w\-\.\s]+), \w+/.exec(message)![1]
-        };
-        activityLog = activity;
-    // shutdown
-    } else if (message.indexOf("shutdown") != -1) {
-        const activity: ShutdownActivityLog = {
-            date: utcTime,
-            activityType: ActivityType.Shutdown
-        }
-        activityLog = activity;
+        activityLog = createReceiveNotificationActivityLog(utcTime, message, info);
+    } else if (Judge.isAuthentication(message)) {
+        // login
+        activityLog = createAuthenticationActivityLog(utcTime, message);
+    } else if (Judge.isCheckBuild(message)) {
+        // check build
+        activityLog = createCheckBuildActivityLog(utcTime, message);
+    } else if (Judge.isShutdown(message)) {
+        // shutdown
+        activityLog = createShutdownActivityLog(utcTime, message);
     }
-
-    if (activityLog) return activityLog;
     // console.log("unsupported log: " + message);
-    return null;
+    return activityLog || null;
 }
 
 function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
-    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2})\s.+\[.+\]\s(.+)/.exec(joinLine);
-    if (!reg) return null;
-    const message = reg[3];
+    const reg = parseMessageBodyFromLogLine(joinLine);
+    if (!reg || reg.length < 4) return null;
+    const reg2 = parseSquareBrackets(reg[3]);
+    if (!reg2 || reg2.length < 4) return null;
+    const message = reg2[3];
 
     let worldEnterInfo: WorldEnterInfo | null;
     if (joinLine.indexOf("nonce") !== -1) {
@@ -272,30 +169,4 @@ function parseReceiveNotificationMessage(message: string): NotificationInfo | nu
         details: reg[8],
         type: reg[9] as NotificationType
     };
-}
-
-interface WorldEnterInfo {
-    worldId: string;
-    instanceId: string;
-    access: WorldAccessScope;
-    instanceOwner?: string;
-    canRequestInvite?: string;
-    nonce?: string;
-}
-
-interface NotificationInfo {
-    from: {
-        userName: string;
-        id: string;
-    };
-    to: {
-        id: string;
-    };
-    senderType: NotificationType;
-    created: {
-        date: string;
-        time: string;
-    };
-    details: string;
-    type: NotificationType;
 }
