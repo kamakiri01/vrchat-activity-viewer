@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { ActivityLog } from "../type";
+import { ActivityLog } from "../type/logType";
 
 export function loadVRChatLogFile(logPath: string): string {
     const logFile = fs.readFileSync(path.resolve(logPath), "utf8");

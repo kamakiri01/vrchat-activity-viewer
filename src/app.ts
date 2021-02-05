@@ -1,5 +1,5 @@
 import * as path from "path";
-import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationActivityLog } from "./type";
+import { ActivityLog, MoveActivityLog, EnterActivityLog, Database, SendNotificationActivityLog, ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationActivityLog } from "./type/logType";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
 import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";
@@ -138,6 +138,7 @@ function generateSendNotificationMessage(log: SendNotificationActivityLog, verbo
     }
     return message;
 }
+
 function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog, verbose: boolean): string {
     const date = new Date(log.date);
     const data = log.data;
@@ -153,6 +154,7 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
     }
     return message;
 }
+
 function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
     const date = new Date(log.date);
     const message =
