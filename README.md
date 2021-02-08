@@ -55,3 +55,8 @@ $ va
   output the current version
 * `-h --help`:
   display help for command
+  
+### Module
+
+コマンドラインクライアントとツール本体を分離しています。
+本体を直接読み込むことで、node.js向けログビューワモジュールとして利用することもできます。
