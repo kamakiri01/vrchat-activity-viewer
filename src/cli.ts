@@ -6,7 +6,7 @@ program
 
 program
     .description("VRChat log viewer")
-    .option("-f, --filter <name>", "filter  logs with name")
+    .option("-f, --filter <name...>", "filter  logs with name")
     .option("-i, --import <dir>", "log directory to import additional")
     .option("-V, --verbose", "display full log details")
     .option("-r, --range <hours>", "specify the range to display", "24")
