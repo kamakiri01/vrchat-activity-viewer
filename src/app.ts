@@ -8,7 +8,7 @@ const DEFAULT_VRCAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
 
 export interface appParameterObject {
     import?: string;
-    filter?: string;
+    filter?: string[];
     verbose?: boolean;
     range: string;
 }
@@ -88,9 +88,19 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
                 message = generateShutdownMessage(e as ShutdownActivityLog);
                 break;
         }
-        if (param.filter && message.indexOf(param.filter) === -1) return;
-        console.log(message);
+        if (!param.filter) {
+            console.log(message);
+        } else if (isMatchFilter(message, param.filter)) {
+            console.log(message);
+        }
     });
+}
+
+/**
+ * filterのいずれかにマッチする場合、真
+ */
+function isMatchFilter(message: string, filter: string[]): boolean {
+    return filter.find((e) => message.indexOf(e) !== -1) !== undefined;
 }
 
 function generateMoveActivityMessage(log: MoveActivityLog): string {

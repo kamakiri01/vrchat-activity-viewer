@@ -43,8 +43,8 @@ $ va
 
 ### Options
 
-* `-f --filter <name>`:
-  filter result with name
+* `-f --filter <words...>`:
+  filter result with words. when specify space separeted words, use "or" matching
 * `-i --import <dir>`:
   log directory to additional import
 * `-V, --verbose`:
