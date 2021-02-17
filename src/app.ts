@@ -62,30 +62,35 @@ function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
     const currentTime = Date.now();
     const rangeMillisecond = (param.range ? parseInt(param.range, 10) : 24) * 60 * 60 * 1000;
     const showLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
+    const dateOption = {
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
+    };
     showLog.forEach(e => {
-        let message = "";
+        const date = new Date(e.date);
+        let message = date.toLocaleString(undefined, dateOption) + " ";
         switch (e.activityType) {
             case ActivityType.Join:
             case ActivityType.Leave:
-                message = generateMoveActivityMessage(e as MoveActivityLog);
+                message += generateMoveActivityMessage(e as MoveActivityLog);
                 break;
             case ActivityType.Enter:
-                message = generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
+                message += generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
                 break;
             case ActivityType.Send:
-                message = generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
+                message += generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
                 break;
             case ActivityType.Receive:
-                message = generateReceiveNotificationMessage(e as ReceiveNotificationActivityLog, !!param.verbose);
+                message += generateReceiveNotificationMessage(e as ReceiveNotificationActivityLog, !!param.verbose);
                 break;      
             case ActivityType.Authentication:
-                message = generateAuthenticationMessage(e as AuthenticationActivityLog);
+                message += generateAuthenticationMessage(e as AuthenticationActivityLog);
                 break;
             case ActivityType.CheckBuild:
-                message = generateCheckBuildMessage(e as CheckBuildActivityLog);
+                message += generateCheckBuildMessage(e as CheckBuildActivityLog);
                 break;
             case ActivityType.Shutdown:
-                message = generateShutdownMessage(e as ShutdownActivityLog);
+                message += generateShutdownMessage(e as ShutdownActivityLog);
                 break;
         }
         if (!param.filter) {
@@ -104,21 +109,15 @@ function isMatchFilter(message: string, filter: string[]): boolean {
 }
 
 function generateMoveActivityMessage(log: MoveActivityLog): string {
-    const date = new Date(log.date);
     let message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
         log.activityType + " " +
         log.userData.userName;
     return message;
 }
 
 function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): string {
-    const date = new Date(log.date);
     const data = log.worldData;
     let message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
         log.activityType + " " +
         data.worldName + " (" +
         data.access + ")";
@@ -135,11 +134,8 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
 }
 
 function generateSendNotificationMessage(log: SendNotificationActivityLog, verbose: boolean): string {
-    const date = new Date(log.date);
     const data = log.data;
     let message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
         "send " +
         log.sendActivityType + " ";
     if (verbose) {
@@ -150,11 +146,8 @@ function generateSendNotificationMessage(log: SendNotificationActivityLog, verbo
 }
 
 function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog, verbose: boolean): string {
-    const date = new Date(log.date);
     const data = log.data;
     let message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
         "receive " +
         log.receiveActivityType + " " +
         "from " + data.from.userName;
@@ -166,30 +159,20 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
 }
 
 function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
-    const date = new Date(log.date);
     const message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
         "login " +
         log.userName;
     return message;
 }
 
 function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
-    const date = new Date(log.date);
     const message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
         "build " +
         log.buildName;
     return message;
 }
 
 function generateShutdownMessage(log: ShutdownActivityLog): string {
-    const date = new Date(log.date);
-    const message =
-        date.toLocaleDateString() + " " + 
-        date.toLocaleTimeString() + " " +
-        "shutdown";
+    const message = "shutdown";
     return message;   
 }
