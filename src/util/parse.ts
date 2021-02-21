@@ -1,5 +1,6 @@
-import { ActivityLog, WorldAccessScope, NotificationType } from "../type/logType";
-import { WorldEnterInfo, NotificationInfo } from "../type/parseInfo";
+import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
+import { ActivityLog, WorldAccessScope } from "../type/logType";
+import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
 import { createAuthenticationActivityLog, createCheckBuildActivityLog, createEnterActivityLog, createJoinActivityLog, createLeaveActivityLog, createReceiveNotificationActivityLog, createSendNotificationActivityLog, createShutdownActivityLog } from "./activityGenerator";
 import { Judge } from "./judge";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
@@ -53,8 +54,8 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
     } else if (Judge.isReceiveNotification(message)) {
         // receive: friendRequest, invite, requestInvite
         const info = parseReceiveNotificationMessage(message)!;
-        if (!info.to.id) return null; // pending friend request
-        activityLog = createReceiveNotificationActivityLog(utcTime, message, info);
+        if (!info || !info.to || !info.to.id) return null; // pending friend request
+        activityLog = createReceiveNotificationActivityLog(utcTime, message, <ReceiveNotificationInfo>info);
     } else if (Judge.isAuthentication(message)) {
         // login
         activityLog = createAuthenticationActivityLog(utcTime, message);
@@ -128,8 +129,8 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
     return result;
 }
 
-function parseSendNotificationMessage(message: string): NotificationInfo | null {
-    const reg = /^Send notification:<Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+) of type: ([\w]+), id: (\w*), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+)/.exec(message);
+function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
+    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w\-]+)? to (usr_[\w\-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
 
     if (!reg) return null;
     return {
@@ -140,18 +141,21 @@ function parseSendNotificationMessage(message: string): NotificationInfo | null 
         to: {
             id: reg[3],
         },
-        senderType: reg[4] as NotificationType,
+        senderType: reg[4] as SendNotificationType,
         created: {
             date: reg[6],
             time: reg[7]
         },
         details: reg[8],
-        type: reg[9] as NotificationType
+        type: reg[9] as SendNotificationType,
+        m_seen: reg[10],
+        message: reg[11],
+        imageLen: reg[13] // 12はImage Len不存在用
     };
 }
 
-function parseReceiveNotificationMessage(message: string): NotificationInfo | null {
-    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+)? of type: ([\w]+), id: ([\w\-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+)/.exec(message);
+function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
+    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+)? of type: ([\w]+), id: ([\w\-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
     return {
         from: {
@@ -161,12 +165,15 @@ function parseReceiveNotificationMessage(message: string): NotificationInfo | nu
         to: {
             id: reg[3],
         },
-        senderType: reg[4] as NotificationType,
+        senderType: reg[4] as ReceiveNotificationType,
         created: {
             date: reg[6],
             time: reg[7]
         },
         details: reg[8],
-        type: reg[9] as NotificationType
+        type: reg[9] as ReceiveNotificationType,
+        m_seen: reg[10],
+        message: reg[11],
+        imageLen: reg[13] // 12はImage Len不存在用
     };
 }

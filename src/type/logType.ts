@@ -1,3 +1,5 @@
+import { NotificationType, ReceiveNotificationType } from "./common/NotificationType";
+
 // ログ保存ファイルフォーマット
 export interface Database {
     vrchatHomePath: string;
@@ -11,6 +13,7 @@ export interface ActivityLog {
     activityType: ActivityType;
 }
 
+// ログの大別
 export const ActivityType = {
     Join: "join", // インスタンスへのユーザjoin
     Leave: "leave", // インスタンスへのユーザleave
@@ -23,17 +26,23 @@ export const ActivityType = {
 } as const;
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
+// Send系ログの種別
 export const SendActivityType = {
     Invite: "invite",
     RequestInvite: "requestInvite",
-    FriendRequest: "friendRequest"
+    FriendRequest: "friendRequest",
+    InviteResponse: "inviteResponse",
+    Unknown: "unknown"
 } as const;
 export type SendActivityType = typeof SendActivityType[keyof typeof SendActivityType];
 
+// Receive系ログの種別
 export const ReceiveActivityType = {
     Invite: "invite",
     RequestInvite: "requestInvite",
-    FriendRequest: "friendRequest"
+    FriendRequest: "friendRequest",
+    RequestInviteResponse: "requestInviteResponse",
+    Unknown: "unknown"
 } as const;
 export type ReceiveActivityType = typeof ReceiveActivityType[keyof typeof ReceiveActivityType];
 
@@ -119,8 +128,6 @@ interface WorldLogData {
     nonce?: string;
 }
 
-export type NotificationType = "invite" | "requestInvite" | "friendRequest";
-
 interface NotificationLogData {
     from: {
         userName: string;
@@ -152,8 +159,6 @@ interface SendFriendRequestInviteLogData extends NotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
 }
-
-export type ReceiveNotificationType = "invite" | "requestInvite" | "friendRequest";
 
 interface ReceiveNotificationLogData {
     from: {
