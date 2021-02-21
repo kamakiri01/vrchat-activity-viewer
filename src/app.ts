@@ -137,7 +137,12 @@ function generateSendNotificationMessage(log: SendNotificationActivityLog, verbo
     const data = log.data;
     let message =
         "send " +
-        log.sendActivityType + " ";
+        log.sendActivityType;
+    if (data.message) {
+        message += 
+            " message: " + data.message;
+    }
+
     if (verbose) {
         message +=
             " (to " + data.to.id + ")"; 
@@ -151,9 +156,23 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
         "receive " +
         log.receiveActivityType + " " +
         "from " + data.from.userName;
+
     if (verbose) {
-        message +=
-            "(" + data.from.id + ") ";
+        message += "(" + data.from.id + ") ";
+    }
+
+    if (data.details) {
+        // メッセージ
+        if (data.type === "requestInvite") {
+            if (data.details.requestMessage) message += " message: " + data.details.requestMessage;
+        } else if (data.type === "inviteResponse") {
+            if (data.details.responseMessage) message += " message: " + data.details.responseMessage;
+        }
+
+        // 画像
+        if (data.details.imageUrl) {
+            message += " imageUrl: " + data.details.imageUrl;
+        }
     }
     return message;
 }

@@ -1,3 +1,4 @@
+import { strict } from "assert";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
 import { ActivityLog, WorldAccessScope } from "../type/logType";
 import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
@@ -131,8 +132,8 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
 
 function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
     const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w\-]+)? to (usr_[\w\-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
-
     if (!reg) return null;
+
     return {
         from: {
             userName: reg[1],
@@ -146,7 +147,7 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
             date: reg[6],
             time: reg[7]
         },
-        details: reg[8],
+        detailsRaw: reg[8],
         type: reg[9] as SendNotificationType,
         m_seen: reg[10],
         message: reg[11],
@@ -157,6 +158,7 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
     const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+)? of type: ([\w]+), id: ([\w\-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
+    
     return {
         from: {
             userName: reg[1],
@@ -170,7 +172,7 @@ function parseReceiveNotificationMessage(message: string): ReceiveNotificationIn
             date: reg[6],
             time: reg[7]
         },
-        details: reg[8],
+        detailsRaw: reg[8],
         type: reg[9] as ReceiveNotificationType,
         m_seen: reg[10],
         message: reg[11],

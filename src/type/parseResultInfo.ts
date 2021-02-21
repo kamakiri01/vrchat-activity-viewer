@@ -1,4 +1,4 @@
-import { NotificationType, ReceiveNotificationType, SendNotificationType } from "./common/NotificationType";
+import { ReceiveNotificationType, SendNotificationType } from "./common/NotificationType";
 import { WorldAccessScope } from "./logType";
 
 // VRChatログファイルのパース結果の型
@@ -30,7 +30,7 @@ export interface NotificationInfo {
         date: string;
         time: string;
     };
-    details: string;
+    detailsRaw: string;
     m_seen: string;
     message: string;
     imageLen: string;

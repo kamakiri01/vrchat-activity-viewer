@@ -1,6 +1,6 @@
 import { ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, EnterActivityLog, MoveActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog, SendActivityType, SendNotificationActivityLog, ShutdownActivityLog } from "../type/logType";
 import { WorldEnterInfo, NotificationInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
-import { parseSquareBrackets } from "./reg";
+import { detailParse, parseSquareBrackets } from "./reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
     const reg = parseSquareBrackets(message)!; // [NetworkManager]
@@ -77,9 +77,11 @@ export function createSendNotificationActivityLog(utcTime: number, message: stri
                 date: info.created.date,
                 time: info.created.time
             },
-            details: info.details,
+            detailsRaw: info.detailsRaw,
             type: info.type,
-            senderType: info.senderType
+            senderType: info.senderType,
+            message: info.message,
+            imageLen: info.imageLen
         }
     };
     return activity;
@@ -97,12 +99,16 @@ export function createReceiveNotificationActivityLog(utcTime: number, message: s
         case "friendRequest":
             receiveActivityType = ReceiveActivityType.FriendRequest;
             break;
+        case "inviteResponse":
+            receiveActivityType = ReceiveActivityType.InviteResponse;
+            break;
         case "requestInviteResponse":
             receiveActivityType = ReceiveActivityType.RequestInviteResponse;
             break;
         default:
             receiveActivityType = ReceiveActivityType.Unknown;
     }
+
     const activity: ReceiveNotificationActivityLog = {
         date: utcTime,
         activityType: ActivityType.Receive,
@@ -119,11 +125,23 @@ export function createReceiveNotificationActivityLog(utcTime: number, message: s
                 date: info.created.date,
                 time: info.created.time
             },
-            details: info.details,
+            details: {},
+            detailsRaw: info.detailsRaw,
             type: info.type,
             senderType: info.senderType
         }
     };
+
+    const details = detailParse(info.detailsRaw);
+    if (details.responseMessage) {
+        activity.data.details.responseMessage = details.responseMessage;
+    }
+    if (details.requestMessage) {
+        activity.data.details.requestMessage = details.requestMessage;
+    }
+    if (details.imageUrl) {
+        activity.data.details.imageUrl = details.imageUrl;
+    }
     return activity;   
 }
 
