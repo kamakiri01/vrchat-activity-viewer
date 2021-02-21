@@ -1,5 +1,5 @@
 import { ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, EnterActivityLog, MoveActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog, SendActivityType, SendNotificationActivityLog, ShutdownActivityLog } from "../type/logType";
-import { WorldEnterInfo, NotificationInfo } from "../type/parseInfo";
+import { WorldEnterInfo, NotificationInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
 import { parseSquareBrackets } from "./reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
@@ -43,7 +43,7 @@ export function createEnterActivityLog(utcTime: number, message: string, worldIn
     return activity;
 }
 
-export function createSendNotificationActivityLog(utcTime: number, message: string, info: NotificationInfo) {
+export function createSendNotificationActivityLog(utcTime: number, message: string, info: SendNotificationInfo) {
     let sendActivityType: SendActivityType;
     switch (info.type) {
         case "invite":
@@ -55,6 +55,11 @@ export function createSendNotificationActivityLog(utcTime: number, message: stri
         case "friendRequest":
             sendActivityType = SendActivityType.FriendRequest;
             break;
+        case "inviteResponse":
+            sendActivityType = SendActivityType.InviteResponse;
+            break;
+        default:
+            sendActivityType = SendActivityType.Unknown;
     }
     const activity: SendNotificationActivityLog = {
         date: utcTime,
@@ -80,7 +85,7 @@ export function createSendNotificationActivityLog(utcTime: number, message: stri
     return activity;
 }
 
-export function createReceiveNotificationActivityLog(utcTime: number, message: string, info: NotificationInfo) {
+export function createReceiveNotificationActivityLog(utcTime: number, message: string, info: ReceiveNotificationInfo) {
     let receiveActivityType: ReceiveActivityType;
     switch (info.type) {
         case "invite":
@@ -92,6 +97,11 @@ export function createReceiveNotificationActivityLog(utcTime: number, message: s
         case "friendRequest":
             receiveActivityType = ReceiveActivityType.FriendRequest;
             break;
+        case "requestInviteResponse":
+            receiveActivityType = ReceiveActivityType.RequestInviteResponse;
+            break;
+        default:
+            receiveActivityType = ReceiveActivityType.Unknown;
     }
     const activity: ReceiveNotificationActivityLog = {
         date: utcTime,
