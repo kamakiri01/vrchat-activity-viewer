@@ -135,12 +135,11 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
 
 function generateSendNotificationMessage(log: SendNotificationActivityLog, verbose: boolean): string {
     const data = log.data;
-    let message =
-        "send " +
-        log.sendActivityType;
+    let message = "send " + log.sendActivityType;
+
+    // Sendのメッセージは直下のmessageに格納される
     if (data.message) {
-        message += 
-            " message: " + data.message;
+        message += " message: " + data.message;
     }
 
     if (verbose) {
@@ -162,14 +161,14 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
     }
 
     if (data.details) {
-        // メッセージ
+        // Receiveのメッセージはｄetailsに格納される
         if (data.type === "requestInvite") {
             if (data.details.requestMessage) message += " message: " + data.details.requestMessage;
         } else if (data.type === "inviteResponse") {
             if (data.details.responseMessage) message += " message: " + data.details.responseMessage;
         }
 
-        // 画像
+        // 画像を受け取った場合
         if (data.details.imageUrl) {
             message += " imageUrl: " + data.details.imageUrl;
         }
@@ -178,16 +177,12 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
 }
 
 function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
-    const message =
-        "login " +
-        log.userName;
+    const message = "login " + log.userName;
     return message;
 }
 
 function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
-    const message =
-        "build " +
-        log.buildName;
+    const message = "build " + log.buildName;
     return message;
 }
 
