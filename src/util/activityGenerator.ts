@@ -1,5 +1,5 @@
 import { ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, EnterActivityLog, MoveActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog, SendActivityType, SendNotificationActivityLog, ShutdownActivityLog } from "../type/logType";
-import { WorldEnterInfo, NotificationInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
+import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
 import { detailParse, parseSquareBrackets } from "./reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
@@ -142,7 +142,7 @@ export function createReceiveNotificationActivityLog(utcTime: number, message: s
     if (details.imageUrl) {
         activity.data.details.imageUrl = details.imageUrl;
     }
-    return activity;   
+    return activity;
 }
 
 export function createAuthenticationActivityLog(utcTime: number, message: string) {

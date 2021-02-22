@@ -1,4 +1,3 @@
-import { strict } from "assert";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
 import { ActivityLog, WorldAccessScope } from "../type/logType";
 import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";

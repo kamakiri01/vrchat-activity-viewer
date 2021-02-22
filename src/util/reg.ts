@@ -1,11 +1,11 @@
 /**
  * ログ1行から日付とメッセージを分離
- * 
+ *
  * Log以外のException/Error/Warning/にはnullを返す。
  *
  * ex:
  * 2021.01.01 00:00:00 Log        -  message
- * 
+ *
  * [1]: "2021.01.01"
  * [2]: "00:00:00"
  * [3]: "message"
@@ -34,7 +34,7 @@ export function detailParse(detailsRaw: string) {
     detailsRaw = detailsRaw.slice(2, detailsRaw.length - 2); // 両端の{{ }}を落とす
     const elements: string[] = [];
     const reg = /\w+=.+?,\s/g;
-    var xArray;
+    let xArray;
     let lastIndex = 0;
     while(xArray = reg.exec(detailsRaw)) {
         const element = xArray[0];
