@@ -30,7 +30,7 @@ export function parseSquareBrackets(message: string) {
 /**
  * details文字列をobject構造にして返す
  */
-export function detailParse(detailsRaw: string) {
+export function detailParse(detailsRaw: string): {[key: string]: string} {
     detailsRaw = detailsRaw.slice(2, detailsRaw.length - 2); // 両端の{{ }}を落とす
     const elements: string[] = [];
     const reg = /\w+=.+?,\s/g;
