@@ -41,6 +41,7 @@ export const ReceiveActivityType = {
     Invite: "invite",
     RequestInvite: "requestInvite",
     FriendRequest: "friendRequest",
+    InviteResponse: "inviteResponse",
     RequestInviteResponse: "requestInviteResponse",
     Unknown: "unknown"
 } as const;
@@ -141,8 +142,10 @@ interface NotificationLogData {
         date: string;
         time: string;
     };
-    details: string;
+    detailsRaw: string;
     type: NotificationType;
+    message: string;
+    imageLen: string;
 }
 
 interface SendInviteLogData extends NotificationLogData {
@@ -173,7 +176,8 @@ interface ReceiveNotificationLogData {
         date: string;
         time: string;
     };
-    details: string;
+    details: ReceiveNotificationDetails;
+    detailsRaw: string;
     type: ReceiveNotificationType;
 }
 
@@ -190,4 +194,10 @@ interface ReceiveRequestInviteLogData extends ReceiveNotificationLogData {
 interface ReceiveFriendRequestInviteLogData extends ReceiveNotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
+}
+
+interface ReceiveNotificationDetails {
+    responseMessage?: string;
+    requestMessage?: string;
+    imageUrl? : string;
 }
