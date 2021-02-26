@@ -47,9 +47,9 @@ $ va
   filter result with words. when specify space separeted words, use "or" matching
 * `-i --import <dir>`:
   log directory to additional import
-* `-V, --verbose`:
+* `-V --verbose`:
   display full log details
-* `-r, --range <hours>`:
+* `-r --range <hours>`:
   specify show range to display (default: "24")
 * `-v --version`:
   output the current version
