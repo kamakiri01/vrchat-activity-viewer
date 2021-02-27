@@ -2,14 +2,16 @@ import { appParameterObject } from "../app";
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "../type/logType";
 
 export function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
+    const matchedLogs: string[] = [];
+
     const currentTime = Date.now();
     const rangeMillisecond = (param.range ? parseInt(param.range, 10) : 24) * 60 * 60 * 1000;
-    const showLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
+    const showableRangeLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
     const dateOption = {
         year: "numeric", month: "2-digit", day: "2-digit",
         hour: "2-digit", minute: "2-digit", second: "2-digit"
     };
-    showLog.forEach(e => {
+    showableRangeLog.forEach(e => {
         const date = new Date(e.date);
         let message = date.toLocaleString(undefined, dateOption) + " ";
         switch (e.activityType) {
@@ -37,11 +39,12 @@ export function showLog(param: appParameterObject, activityLog: ActivityLog[]): 
                 break;
         }
         if (!param.filter) {
-            console.log(message);
+            matchedLogs.push(message);
         } else if (isMatchFilter(message, param.filter)) {
-            console.log(message);
+            matchedLogs.push(message);
         }
     });
+    console.log(matchedLogs.join("\n"));
 }
 
 /**
@@ -52,7 +55,7 @@ function isMatchFilter(message: string, filter: string[]): boolean {
 }
 
 function generateMoveActivityMessage(log: MoveActivityLog): string {
-    let message =
+    const message =
         log.activityType + " " +
         log.userData.userName;
     return message;
