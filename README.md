@@ -44,7 +44,9 @@ $ va
 ### Options
 
 * `-f --filter <words...>`:
-  filter result with words. when specify space separeted words, use "or" matching
+  filter result with ignore case words. when specify space separeted words, use "or" matching
+* `-cf --case-filter <words...>`:
+  filter result with no ignore case words. when specify space separeted words, use "or" matching
 * `-i --import <dir>`:
   log directory to additional import
 * `-V --verbose`:
