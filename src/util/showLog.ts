@@ -2,12 +2,14 @@ import { appParameterObject } from "../app";
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "../type/logType";
 
 export function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
+    console.log(param);
+    const ignoreCaseFilter = param.filter?.map(e => e.toLowerCase());
     const matchedLogs: string[] = [];
 
     const currentTime = Date.now();
     const rangeMillisecond = (param.range ? parseInt(param.range, 10) : 24) * 60 * 60 * 1000;
     const showableRangeLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
-    const dateOption = {
+    const dateOption: Intl.DateTimeFormatOptions = {
         year: "numeric", month: "2-digit", day: "2-digit",
         hour: "2-digit", minute: "2-digit", second: "2-digit"
     };
@@ -38,10 +40,14 @@ export function showLog(param: appParameterObject, activityLog: ActivityLog[]): 
                 message += generateShutdownMessage(e as ShutdownActivityLog);
                 break;
         }
-        if (!param.filter) {
+        if (!param.filter && !param.caseFilter) {
             matchedLogs.push(message);
-        } else if (isMatchFilter(message, param.filter)) {
-            matchedLogs.push(message);
+        } else if (param.caseFilter) {
+            if (isMatchFilter(message, param.caseFilter)) matchedLogs.push(message);
+        } else if (param.filter) {
+            const lowerMessage = message.toLowerCase();
+            // param.filterとignoreCaseFilterのnullableは同じ
+            if (isMatchFilter(lowerMessage, ignoreCaseFilter!)) matchedLogs.push(message);
         }
     });
     console.log(matchedLogs.join("\n"));

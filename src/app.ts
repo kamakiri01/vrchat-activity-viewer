@@ -10,6 +10,7 @@ const DEFAULT_VRCAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
 export interface appParameterObject {
     import?: string;
     filter?: string[];
+    caseFilter?: string[];
     verbose?: boolean;
     range: string;
 }
