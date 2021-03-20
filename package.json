@@ -1,6 +1,6 @@
 {
   "name": "vrchat-activity-viewer",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "VRChat log viewer",
   "main": "index.js",
   "scripts": {
