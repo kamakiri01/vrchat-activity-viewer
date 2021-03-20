@@ -2,7 +2,6 @@ import { appParameterObject } from "../app";
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "../type/logType";
 
 export function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
-    console.log(param);
     const ignoreCaseFilter = param.filter?.map(e => e.toLowerCase());
     const matchedLogs: string[] = [];
 
