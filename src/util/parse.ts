@@ -87,7 +87,7 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 }
 
 function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w\-]+):(\d+)/.exec(message);
+    const reg = /^Joining\s(wrld_[\w-]+):(\d+)/.exec(message);
 
     if (!reg) return null;
     return {
@@ -98,11 +98,11 @@ function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
 }
 
 function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w\-]+):(\w+)~(\w+)\((usr_[\w\-]+)\)(~canRequestInvite)?~nonce\(([\w\-]+)\)/.exec(message);
+    const reg = /^Joining\s(wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?~nonce\(([\w-]+)\)/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
-    let access = getWorldScope(reg[3], reg[5]);
+    const access = getWorldScope(reg[3], reg[5]);
     return {
         worldId: reg[1],
         instanceId: reg[2],
@@ -130,7 +130,7 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
 }
 
 function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
-    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w\-]+)? to (usr_[\w\-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
 
     return {
@@ -155,7 +155,7 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 }
 
 function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
-    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w\-]+) to (usr_[\w\-]+)? of type: ([\w]+), id: ([\w\-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
     
     return {

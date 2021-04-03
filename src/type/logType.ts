@@ -105,6 +105,7 @@ export interface AuthenticationActivityLog extends ActivityLog {
 }
 
 // shotdown
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ShutdownActivityLog extends ActivityLog {
     // nothing
 }
