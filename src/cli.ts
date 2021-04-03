@@ -21,4 +21,4 @@ export async function run(argv: any): Promise<void> {
         verbose: program["verbose"],
         range: program["range"]
     });
-};
+}

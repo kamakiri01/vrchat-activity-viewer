@@ -36,6 +36,7 @@ export function detailParse(detailsRaw: string): {[key: string]: string} {
     const reg = /\w+=.+?,\s/g;
     let xArray;
     let lastIndex = 0;
+    // eslint-disable-next-line no-cond-assign
     while(xArray = reg.exec(detailsRaw)) {
         const element = xArray[0];
         elements.push(element.slice(0, element.length - 2)); // 末尾の[ ,]を落とす

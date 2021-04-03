@@ -160,7 +160,7 @@ export function createCheckBuildActivityLog(utcTime: number, message: string) {
     const activity: CheckBuildActivityLog = {
         date: utcTime,
         activityType: ActivityType.CheckBuild,
-        buildName: /^VRChat Build: ([\w\-\.\s]+), \w+/.exec(reg[3])![1]
+        buildName: /^VRChat Build: ([\w\-.\s]+), \w+/.exec(reg[3])![1]
     };
     return activity;
 }
