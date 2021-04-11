@@ -1,8 +1,8 @@
 {
   "name": "vrchat-activity-viewer",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "VRChat log viewer",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "eslint \"./src/**/*.ts\""
@@ -10,6 +10,9 @@
   "bin": {
     "va": "bin/run"
   },
+  "files": [
+    "lib"
+  ],
   "keywords": [
     "vrchat"
   ],
