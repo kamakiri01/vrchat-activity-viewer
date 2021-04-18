@@ -15,7 +15,7 @@ export interface appParameterObject {
     range: string;
 }
 
-export function app(param: appParameterObject) {
+export function app(param: appParameterObject): void {
     const userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]!;
     const dbPath = path.join(userHome, ".vrchatActivityViewer", "db.json");
     if (!existDatabaseFile(dbPath)) {
