@@ -15,11 +15,11 @@ export interface appParameterObject {
     range: string;
 }
 
-export function app(param: appParameterObject) {
-    const dbPath = path.join(path.dirname(process.argv[1]), "..", "db.json"); // command root
+export function app(param: appParameterObject): void {
+    const userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]!;
+    const dbPath = path.join(userHome, ".vrchatActivityViewer", "db.json");
     if (!existDatabaseFile(dbPath)) {
         console.log("generate db.json in app dir...")
-        const userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]!;
         initDatabase(path.join(userHome, DEFAULT_VRCAT_PATH), dbPath);
     }
 
