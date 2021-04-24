@@ -14,14 +14,23 @@ $ va --filter myFriendName --range 48
 
 ### Install
 
-Node.js が必要です。
+GitHub Packages で公開されています。
+
+npm でインストールする場合は、
+
+```
+$ npm config set @kamakiri01:registry=https://npm.pkg.github.com # 初回のみ
+$ npm install @kamakiri01/vrchat-activity-viewer
+```
+
+GitHub からリポジトリを clone した場合は、
 
 ```
 $ npm install
 $ npm run build
 ```
 
-`va` コマンドとしてグローバルにインストールしたい場合、
+`va` コマンドとしてグローバルにインストールしたい場合は、
 
 ```
 $ npm install -g
@@ -58,7 +67,7 @@ $ va
 * `-h --help`:
   display help for command
   
-### Module
+### Note
 
-コマンドラインクライアントとツール本体を分離しています。
-本体を直接読み込むことで、node.js向けログビューワモジュールとして利用することもできます。
+VRChat ログファイルの仕様は公に定められていません。
+そのため、本モジュールの実行結果は、予期せぬタイミングで変わる・動作しなくなる可能性があります。
