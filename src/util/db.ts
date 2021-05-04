@@ -27,7 +27,7 @@ export function writeDatabase(dbPath: string, data: string): void {
 
 function createTemplateDb(vrchatHomePath: string): Database {
     return {
-        vrchatHomePath,
+        dbVersion: 2,
         log: []
     };
 }

@@ -1,48 +1,52 @@
 import * as path from "path";
 import { ActivityLog, Database } from "./type/logType";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
-import { findVRChatLogFilesFromDirPath, loadVRChatLogFile, mergeActivityLog } from "./util/log";
+import {  mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";
+import { DB_PATH, DEFAULT_VRCAT_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFilePaths, loadVRChatLogFile, USER_HOME } from "./util/pathUtil";
 import { showLog } from "./util/showLog";
 
-const DEFAULT_VRCAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
-
 export interface appParameterObject {
+    range: string;
     import?: string;
     filter?: string[];
     caseFilter?: string[];
     verbose?: boolean;
-    range: string;
+    watch?: boolean;
 }
 
 export function app(param: appParameterObject): void {
-    const userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]!;
-    const dbPath = path.join(userHome, ".vrchatActivityViewer", "db.json");
-    if (!existDatabaseFile(dbPath)) {
+    if (!existDatabaseFile(DB_PATH)) {
         console.log("generate db.json in app dir...")
-        initDatabase(path.join(userHome, DEFAULT_VRCAT_PATH), dbPath);
+        initDatabase(path.join(USER_HOME, DEFAULT_VRCAT_PATH), DB_PATH);
     }
 
-    const db = loadDatabase(dbPath);
-    let vrchaLogPath = db.vrchatHomePath;
+    const db = loadDatabase(DB_PATH);
 
     if (param.import) {
-        vrchaLogPath = path.join(process.cwd(), param.import);
-        console.log("search log files from " + vrchaLogPath);
+        const vrchaLogPath = path.join(process.cwd(), param.import);
+        console.log("search import log files from " + vrchaLogPath);
+        updateDb(db, DB_PATH, vrchaLogPath);
+        return;
     }
 
-    const newDbLog = updateDb(db, dbPath, vrchaLogPath);
-
-    if (param.import) return;
-
+    const newDbLog = updateDb(db, DB_PATH, DEFAULT_VRCHAT_FULL_PATH);
     console.log("--- Activity Log ---");
     showLog(param, newDbLog);
+
+    if (param.watch) {
+        console.log("watching...")
+        setInterval(() => {
+            const db = loadDatabase(DB_PATH);
+            updateDb(db, DB_PATH, DEFAULT_VRCHAT_FULL_PATH);
+        }, 10 * 1000);
+    }
 }
 
 function updateDb(db: Database, dbPath: string, vrchaLogPath: string) {
     console.log("searching vrchat log files...")
-    const filePaths = findVRChatLogFilesFromDirPath(vrchaLogPath);
-    console.log("find "  + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
+    const filePaths = findVRChatLogFilePaths(vrchaLogPath);
+    console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
     const logs = filePaths.map((filePath) => {
         return parseVRChatLog(loadVRChatLogFile(path.join(vrchaLogPath, filePath)), filePath);
     });

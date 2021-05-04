@@ -2,7 +2,7 @@ import { NotificationType, ReceiveNotificationType } from "./common/Notification
 
 // ログ保存ファイルフォーマット
 export interface Database {
-    vrchatHomePath: string;
+    dbVersion: 2;
     log: ActivityLog[];
     // userTable: UserTable;
 }

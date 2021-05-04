@@ -1,6 +1,6 @@
 {
   "name": "@kamakiri01/vrchat-activity-viewer",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "VRChat log viewer",
   "main": "lib/index.js",
   "scripts": {

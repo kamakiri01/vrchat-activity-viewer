@@ -8,3 +8,4 @@ export * from "./util/log";
 export * from "./util/parse";
 export * from "./util/reg";
 export * from "./util/showLog";
+export * from "./util/pathUtil";
