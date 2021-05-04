@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { program } from "commander";
 import { app } from "./app";
 
-const version = JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "..", "package.json"), "utf8")).version;
+const version = JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "package.json"), "utf8")).version;
 
 program
     .version(version, "-v, --version", "output the current version");
