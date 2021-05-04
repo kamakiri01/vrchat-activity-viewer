@@ -11,8 +11,8 @@ export function existDatabaseFile(dbPath: string): boolean {
     }
 }
 
-export function initDatabase(vrchatHomePath: string, dbPath: string): void {
-    const dbData = createTemplateDb(vrchatHomePath);
+export function initDatabase(dbPath: string): void {
+    const dbData = createTemplateDb();
     fs.writeFileSync(dbPath, JSON.stringify(dbData, null, 2), { encoding: "utf-8" });
 }
 
@@ -25,7 +25,7 @@ export function writeDatabase(dbPath: string, data: string): void {
     fs.writeFileSync(path.resolve(dbPath), data);
 }
 
-function createTemplateDb(vrchatHomePath: string): Database {
+function createTemplateDb(): Database {
     return {
         dbVersion: 2,
         log: []

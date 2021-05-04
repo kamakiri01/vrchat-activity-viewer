@@ -3,7 +3,6 @@ export * from "./type/parseResultInfo";
 export * from "./type/common/NotificationType";
 export * from "./util/activityGenerator";
 export * from "./util/db";
-export * from "./util/judge";
 export * from "./util/log";
 export * from "./util/parse";
 export * from "./util/reg";
