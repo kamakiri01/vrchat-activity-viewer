@@ -2,7 +2,6 @@ import { ReceiveNotificationType, SendNotificationType } from "../type/common/No
 import { ActivityLog, WorldAccessScope } from "../type/logType";
 import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
 import { createAuthenticationActivityLog, createCheckBuildActivityLog, createEnterActivityLog, createJoinActivityLog, createLeaveActivityLog, createReceiveNotificationActivityLog, createSendNotificationActivityLog, createShutdownActivityLog } from "./activityGenerator";
-import { Judge } from "./judge";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
 
 export function parseVRChatLog(logString: string, logPath: string): ActivityLog[] {
@@ -24,6 +23,17 @@ export function parseVRChatLog(logString: string, logPath: string): ActivityLog[
         }
     });
     return activityLog;
+}
+
+const Judge = {
+    isOnPlayerJoined: (message: string) => { return message.indexOf("OnPlayerJoined") !== -1 },
+    isOnPlayerLeft: (message: string) => { return (message.indexOf("OnPlayerLeft") !== -1 && message.indexOf("OnPlayerLeftRoom") === -1) },
+    isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
+    isSendNotification: (message: string) => { return message.indexOf("Send notification") !== -1 },
+    isReceiveNotification: (message: string) => { return message.indexOf("Received Notification") !== -1 },
+    isAuthentication: (message: string) => { return message.indexOf("User Authenticated") !== -1 },
+    isCheckBuild: (message: string) => { return message.indexOf("VRChat Build") !== -1 },
+    isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 }
 }
 
 // 次行のインスタンスIDを取るため全部引数に渡す
