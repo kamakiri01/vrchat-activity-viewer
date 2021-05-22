@@ -1,6 +1,7 @@
+import { ActivityLog } from "../type/ActivityLogType/common";
+import { WorldAccessScope } from "../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
-import { ActivityLog, WorldAccessScope } from "../type/logType";
-import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
+import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo } from "../type/LogType/ParsedInfo";
 import { createAuthenticationActivityLog, createCheckBuildActivityLog, createEnterActivityLog, createJoinActivityLog, createLeaveActivityLog, createReceiveNotificationActivityLog, createSendNotificationActivityLog, createShutdownActivityLog } from "./activityGenerator";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
 

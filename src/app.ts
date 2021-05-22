@@ -1,11 +1,11 @@
 import * as path from "path";
 import * as fs from "fs";
-import { ActivityLog, Database } from "./type/logType";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
 import {  mergeActivityLog } from "./util/log";
 import { parseVRChatLog } from "./util/parse";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./util/pathUtil";
 import { showLog } from "./util/showLog";
+import { Database, ActivityLog } from "./type/ActivityLogType/common";
 
 export interface appParameterObject {
     range: string;

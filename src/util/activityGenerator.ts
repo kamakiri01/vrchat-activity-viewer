@@ -1,5 +1,8 @@
-import { ActivityType, AuthenticationActivityLog, CheckBuildActivityLog, EnterActivityLog, MoveActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog, SendActivityType, SendNotificationActivityLog, ShutdownActivityLog } from "../type/logType";
-import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
+import { MoveActivityLog, ReceiveActivityType, ReceiveNotificationActivityLog } from "..";
+import { ActivityType } from "../type/ActivityLogType/common";
+import { SendActivityType, SendNotificationActivityLog } from "../type/ActivityLogType/sendType";
+import { EnterActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "../type/ActivityLogType/system";
+import { ReceiveNotificationInfo, SendNotificationInfo, WorldEnterInfo } from "../type/LogType/ParsedInfo";
 import { detailParse, parseSquareBrackets } from "./reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
