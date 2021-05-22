@@ -15,7 +15,7 @@ program
     .option("-i, --import <dir>", "log directory to import additional")
     .option("-V, --verbose", "display full log details")
     .option("-r, --range <hours>", "specify the range to display", "24")
-    .option("-w, --watch", "update db repeatedly(interval: 10sec)")
+    .option("-w, --watch <sec>", "update db repeatedly")
 
 export async function run(argv: any): Promise<void> {
     program.parse(argv);
