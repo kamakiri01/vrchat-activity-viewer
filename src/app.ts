@@ -13,7 +13,7 @@ export interface appParameterObject {
     filter?: string[];
     caseFilter?: string[];
     verbose?: boolean;
-    watch?: boolean;
+    watch?: string;
 }
 
 export function app(param: appParameterObject): void {
@@ -36,11 +36,12 @@ export function app(param: appParameterObject): void {
     showLog(param, newDbLog);
 
     if (param.watch) {
-        console.log("watching...")
+        console.log("watching...");
+        const interval = parseInt(param.watch, 10);
         setInterval(() => {
             const db = loadDatabase(DB_PATH);
             updateDb(db, DEFAULT_VRCHAT_FULL_PATH);
-        }, 10 * 1000);
+        }, interval * 1000);
     }
 }
 
