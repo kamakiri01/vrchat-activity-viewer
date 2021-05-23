@@ -1,3 +1,4 @@
+import { SendNotificationType } from "../..";
 import { ActivityLog, NotificationLogData } from "./common";
 
 // Send系ログの種別
@@ -12,7 +13,7 @@ export type SendActivityType = typeof SendActivityType[keyof typeof SendActivity
 
 // send
 export interface SendNotificationActivityLog extends ActivityLog {
-    data: NotificationLogData;
+    data: SendNotificationLogData;
     sendActivityType: SendActivityType;
 }
 
@@ -26,22 +27,30 @@ export interface SendRequestInviteActivityLog extends SendNotificationActivityLo
     data: SendRequestInviteLogData;
 }
 
+interface SendNotificationLogData extends NotificationLogData {
+    senderType: SendNotificationType;
+    // details: SendNotificationDetails;
+    imageLen: string;
+    message: string;
+    type: SendNotificationType;
+}
+
 // send friend request
 export interface SendFriendRequestActivityLog extends SendNotificationActivityLog {
     data: SendFriendRequestInviteLogData;
 }
 
-interface SendInviteLogData extends NotificationLogData {
+interface SendInviteLogData extends SendNotificationLogData {
     type: "invite";
     senderType: "invite";
 }
 
-interface SendRequestInviteLogData extends NotificationLogData {
+interface SendRequestInviteLogData extends SendNotificationLogData {
     type: "requestInvite";
     senderType: "requestInvite";
 }
 
-interface SendFriendRequestInviteLogData extends NotificationLogData {
+interface SendFriendRequestInviteLogData extends SendNotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
 }

@@ -1,5 +1,5 @@
 import { ReceiveNotificationType } from "../..";
-import { ActivityLog } from "./common";
+import { ActivityLog, NotificationLogData } from "./common";
 
 // Receive系ログの種別
 export const ReceiveActivityType = {
@@ -33,19 +33,8 @@ export interface ReceiveFriendRequestActivityLog extends ReceiveNotificationActi
     data: ReceiveFriendRequestInviteLogData;
 }
 
-interface ReceiveNotificationLogData {
-    from: {
-        userName: string;
-        id: string;
-    };
-    to: {
-        id: string;
-    };
+interface ReceiveNotificationLogData extends NotificationLogData {
     senderType: ReceiveNotificationType;
-    created: {
-        date: string;
-        time: string;
-    };
     details: ReceiveNotificationDetails;
     detailsRaw: string;
     type: ReceiveNotificationType;

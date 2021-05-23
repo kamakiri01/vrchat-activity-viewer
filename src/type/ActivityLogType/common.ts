@@ -27,6 +27,7 @@ export const ActivityType = {
 } as const;
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
+// 通知系ログの基底型
 export interface NotificationLogData {
     from: {
         userName: string;
@@ -42,6 +43,4 @@ export interface NotificationLogData {
     };
     detailsRaw: string;
     type: NotificationType;
-    message: string;
-    imageLen: string;
 }
