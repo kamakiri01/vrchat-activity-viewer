@@ -1,7 +1,7 @@
 import { ReceiveNotificationInfo, ReceiveActivityType, ReceiveNotificationActivityLog, ActivityType } from "../..";
 import { detailParse } from "../reg";
 
-export function createReceiveNotificationActivityLog(utcTime: number, message: string, info: ReceiveNotificationInfo) {
+export function createReceiveNotificationActivityLog(utcTime: number, message: string, info: ReceiveNotificationInfo): ReceiveNotificationActivityLog {
     let receiveActivityType: ReceiveActivityType;
     switch (info.type) {
         case "invite":

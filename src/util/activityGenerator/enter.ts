@@ -1,7 +1,7 @@
 import { WorldEnterInfo, EnterActivityLog, ActivityType } from "../..";
 import { parseSquareBrackets } from "../reg";
 
-export function createEnterActivityLog(utcTime: number, message: string, worldInfo: WorldEnterInfo) {
+export function createEnterActivityLog(utcTime: number, message: string, worldInfo: WorldEnterInfo): EnterActivityLog {
     const reg = parseSquareBrackets(message)!; // [RoomManager]
     const activity: EnterActivityLog = {
         date: utcTime,

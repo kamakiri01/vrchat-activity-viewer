@@ -5,7 +5,7 @@ export * from "./type/ActivityLogType/sendType";
 export * from "./type/ActivityLogType/system";
 export * from "./type/common/index";
 export * from "./type/common/NotificationType";
-export * from "./type/LogType/ParsedInfo";
+export * from "./type/LogType/ParseResult";
 export * from "./util/activityGenerator/authentication";
 export * from "./util/activityGenerator/build";
 export * from "./util/activityGenerator/enter";

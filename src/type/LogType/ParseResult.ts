@@ -1,5 +1,5 @@
 import { ReceiveNotificationType, RemoveNotificationType, SendNotificationType } from "../common/NotificationType";
-import { NotificationFromType, WorldAccessScope } from "../common/";
+import { NotificationFromType, WorldAccessScope } from "../common";
 
 // VRChatログファイルのパース結果の型
 

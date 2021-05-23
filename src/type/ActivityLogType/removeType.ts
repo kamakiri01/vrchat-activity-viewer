@@ -1,4 +1,4 @@
-import { RemoveNotificationType, SendNotificationType } from "../..";
+import { RemoveNotificationType } from "../..";
 import { ActivityLog, NotificationLogData } from "./common";
 
 // Remove Notification系ログの種別

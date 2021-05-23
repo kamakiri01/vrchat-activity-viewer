@@ -1,6 +1,6 @@
 import { SendNotificationInfo, SendActivityType, SendNotificationActivityLog, ActivityType } from "../..";
 
-export function createSendNotificationActivityLog(utcTime: number, message: string, info: SendNotificationInfo) {
+export function createSendNotificationActivityLog(utcTime: number, message: string, info: SendNotificationInfo): SendNotificationActivityLog {
     let sendActivityType: SendActivityType;
     switch (info.type) {
         case "invite":

@@ -2,7 +2,7 @@ import { RemoveNotificationInfo, ActivityType } from "../..";
 import { RemoveActivityType, RemoveNotificationActivityLog } from "../../type/ActivityLogType/removeType";
 import { detailParse } from "../reg";
 
-export function createRemoveNotificationActivityLog(utcTime: number, message: string, info: RemoveNotificationInfo) {
+export function createRemoveNotificationActivityLog(utcTime: number, message: string, info: RemoveNotificationInfo): RemoveNotificationActivityLog {
     let removeActivityType: RemoveActivityType;
     switch (info.type) {
         case "invite":
