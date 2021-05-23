@@ -1,4 +1,4 @@
-import { ReceiveNotificationType, SendNotificationType } from "../common/NotificationType";
+import { ReceiveNotificationType, RemoveNotificationType, SendNotificationType } from "../common/NotificationType";
 import { WorldAccessScope } from "../common/";
 
 // VRChatログファイルのパース結果の型
@@ -44,4 +44,9 @@ export interface ReceiveNotificationInfo extends NotificationInfo {
 export interface SendNotificationInfo extends NotificationInfo {
     senderType: SendNotificationType;
     type: SendNotificationType;
+}
+
+export interface RemoveNotificationInfo extends NotificationInfo {
+    senderType: RemoveNotificationType;
+    type: RemoveNotificationType;
 }
