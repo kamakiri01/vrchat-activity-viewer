@@ -1,4 +1,4 @@
-import { ActivityLog } from "../type/logType";
+import { ActivityLog } from "..";
 
 export function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
     const tmpNewLog = dbLog.concat(appendLog);

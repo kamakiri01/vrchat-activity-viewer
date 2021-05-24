@@ -1,5 +1,6 @@
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "..";
 import { appParameterObject } from "../app";
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "../type/logType";
+import { RemoveNotificationActivityLog } from "../type/ActivityLogType/removeType";
 
 export function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
     const ignoreCaseFilter = param.filter?.map(e => e.toLowerCase());
@@ -28,7 +29,10 @@ export function showLog(param: appParameterObject, activityLog: ActivityLog[]): 
                 break;
             case ActivityType.Receive:
                 message += generateReceiveNotificationMessage(e as ReceiveNotificationActivityLog, !!param.verbose);
-                break;      
+                break;
+            case ActivityType.Remove:
+                message += generateRemoveNotificationMessage(e as RemoveNotificationActivityLog, !!param.verbose);
+                break;
             case ActivityType.Authentication:
                 message += generateAuthenticationMessage(e as AuthenticationActivityLog);
                 break;
@@ -124,6 +128,36 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
     }
     return message;
 }
+
+function generateRemoveNotificationMessage(log: RemoveNotificationActivityLog, verbose: boolean): string {
+    const data = log.data;
+    let message =
+        "remove " +
+        log.removeActivityType + " " +
+        "from " + data.from.userName;
+
+    if (verbose) {
+        message += "(" + data.from.id + ") ";
+    }
+
+    /*
+    if (data.details) {
+        // Receiveのメッセージはｄetailsに格納される
+        if (data.type === "requestInvite") {
+            if (data.details.requestMessage) message += " message: " + data.details.requestMessage;
+        } else if (data.type === "inviteResponse") {
+            if (data.details.responseMessage) message += " message: " + data.details.responseMessage;
+        }
+
+        // 画像を受け取った場合
+        if (data.details.imageUrl) {
+            message += " imageUrl: " + data.details.imageUrl;
+        }
+    }
+    */
+    return message;
+}
+
 
 function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
     const message = "login " + log.userName;

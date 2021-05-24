@@ -1,7 +1,16 @@
+import { ActivityLog } from "../type/ActivityLogType/common";
+import { NotificationFromType, WorldAccessScope } from "../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
-import { ActivityLog, WorldAccessScope } from "../type/logType";
-import { WorldEnterInfo, ReceiveNotificationInfo, SendNotificationInfo } from "../type/parseResultInfo";
-import { createAuthenticationActivityLog, createCheckBuildActivityLog, createEnterActivityLog, createJoinActivityLog, createLeaveActivityLog, createReceiveNotificationActivityLog, createSendNotificationActivityLog, createShutdownActivityLog } from "./activityGenerator";
+import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../type/LogType/ParseResult";
+import { createAuthenticationActivityLog } from "./activityGenerator/authentication";
+import { createCheckBuildActivityLog } from "./activityGenerator/build";
+import { createEnterActivityLog } from "./activityGenerator/enter";
+import { createJoinActivityLog } from "./activityGenerator/join";
+import { createLeaveActivityLog } from "./activityGenerator/leave";
+import { createReceiveNotificationActivityLog } from "./activityGenerator/receive";
+import { createRemoveNotificationActivityLog } from "./activityGenerator/remove";
+import { createSendNotificationActivityLog } from "./activityGenerator/send";
+import { createShutdownActivityLog } from "./activityGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
 
 export function parseVRChatLog(logString: string, logPath: string): ActivityLog[] {
@@ -31,6 +40,7 @@ const Judge = {
     isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
     isSendNotification: (message: string) => { return message.indexOf("Send notification") !== -1 },
     isReceiveNotification: (message: string) => { return message.indexOf("Received Notification") !== -1 },
+    isRemoveNotification: (message: string) => { return message.indexOf("Remove notification") !== -1 },
     isAuthentication: (message: string) => { return message.indexOf("User Authenticated") !== -1 },
     isCheckBuild: (message: string) => { return message.indexOf("VRChat Build") !== -1 },
     isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 }
@@ -66,6 +76,11 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
         const info = parseReceiveNotificationMessage(message)!;
         if (!info || !info.to || !info.to.id) return null; // pending friend request
         activityLog = createReceiveNotificationActivityLog(utcTime, message, <ReceiveNotificationInfo>info);
+    } else if (Judge.isRemoveNotification(message)) {
+        // remove: friendRequest, invite, requestInvite
+        const info = parseRemoveNotificationMessage(message)!;
+        if (!info || !info.to || !info.to.id) return null;
+        activityLog = createRemoveNotificationActivityLog(utcTime, message, <RemoveNotificationInfo>info);
     } else if (Judge.isAuthentication(message)) {
         // login
         activityLog = createAuthenticationActivityLog(utcTime, message);
@@ -186,5 +201,32 @@ function parseReceiveNotificationMessage(message: string): ReceiveNotificationIn
         m_seen: reg[10],
         message: reg[11],
         imageLen: reg[13] // 12はImage Len不存在用
+    };
+}
+
+
+function parseRemoveNotificationMessage(message: string): RemoveNotificationInfo | null {
+    const reg = /^Remove notification from (\w+) notifications:<Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    if (!reg) return null;
+    
+    return {
+        fromType: reg[1] as NotificationFromType,
+        from: {
+            userName: reg[2],
+            id: reg[3],
+        },
+        to: {
+            id: reg[4],
+        },
+        senderType: reg[5] as ReceiveNotificationType,
+        created: {
+            date: reg[7],
+            time: reg[8]
+        },
+        detailsRaw: reg[9],
+        type: reg[10] as ReceiveNotificationType,
+        m_seen: reg[11],
+        message: reg[12],
+        imageLen: reg[14] // 13はImage Len不存在用
     };
 }
