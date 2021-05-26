@@ -41,7 +41,6 @@ export interface RemoveNotificationDetails {
     imageUrl?: string;
 }
 
-
 interface RemoveNotificationLogData extends NotificationLogData {
     senderType: RemoveNotificationType;
     details: RemoveNotificationDetails;

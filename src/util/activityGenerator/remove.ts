@@ -48,7 +48,6 @@ export function createRemoveNotificationActivityLog(utcTime: number, message: st
         }
     };
     const details = detailParse(info.detailsRaw);
-
     if (details.worldId) {
         activity.data.details.worldId = details.worldId;
     }
