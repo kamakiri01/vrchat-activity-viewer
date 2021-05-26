@@ -47,13 +47,16 @@ export function createRemoveNotificationActivityLog(utcTime: number, message: st
             message: info.message
         }
     };
-
     const details = detailParse(info.detailsRaw);
+
     if (details.worldId) {
         activity.data.details.worldId = details.worldId;
     }
     if (details.worldName) {
         activity.data.details.worldName = details.worldName;
     }
+    if (details.inviteMessage) activity.data.details.inviteMessage = details.inviteMessage;
+    if (details.requestMessage) activity.data.details.requestMessage = details.requestMessage;
+    if (details.imageUrl) activity.data.details.imageUrl = details.imageUrl;
     return activity;
 }

@@ -33,6 +33,12 @@ export interface ReceiveFriendRequestActivityLog extends ReceiveNotificationActi
     data: ReceiveFriendRequestInviteLogData;
 }
 
+export interface ReceiveNotificationDetails {
+    responseMessage?: string;
+    requestMessage?: string;
+    imageUrl? : string;
+}
+
 interface ReceiveNotificationLogData extends NotificationLogData {
     senderType: ReceiveNotificationType;
     details: ReceiveNotificationDetails;
@@ -53,10 +59,4 @@ interface ReceiveRequestInviteLogData extends ReceiveNotificationLogData {
 interface ReceiveFriendRequestInviteLogData extends ReceiveNotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
-}
-
-interface ReceiveNotificationDetails {
-    responseMessage?: string;
-    requestMessage?: string;
-    imageUrl? : string;
 }
