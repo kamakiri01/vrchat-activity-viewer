@@ -1,6 +1,6 @@
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog } from "..";
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails } from "..";
 import { appParameterObject } from "../app";
-import { RemoveNotificationActivityLog } from "../type/ActivityLogType/removeType";
+import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
 
 export function showLog(param: appParameterObject, activityLog: ActivityLog[]): void {
     const ignoreCaseFilter = param.filter?.map(e => e.toLowerCase());
@@ -111,19 +111,10 @@ function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog,
 
     if (verbose) {
         message += "(" + data.from.id + ") ";
-    }
-
-    if (data.details) {
-        // Receiveのメッセージはｄetailsに格納される
-        if (data.type === "requestInvite") {
-            if (data.details.requestMessage) message += " message: " + data.details.requestMessage;
-        } else if (data.type === "inviteResponse") {
-            if (data.details.responseMessage) message += " message: " + data.details.responseMessage;
-        }
-
-        // 画像を受け取った場合
-        if (data.details.imageUrl) {
-            message += " imageUrl: " + data.details.imageUrl;
+        if (data.details) {
+            (Object.keys(data.details) as (keyof ReceiveNotificationDetails)[]).forEach((key) => {
+                message += " " + key + ": " + data.details[key];
+            })
         }
     }
     return message;
@@ -138,23 +129,12 @@ function generateRemoveNotificationMessage(log: RemoveNotificationActivityLog, v
 
     if (verbose) {
         message += "(" + data.from.id + ") ";
-    }
-
-    /*
-    if (data.details) {
-        // Receiveのメッセージはｄetailsに格納される
-        if (data.type === "requestInvite") {
-            if (data.details.requestMessage) message += " message: " + data.details.requestMessage;
-        } else if (data.type === "inviteResponse") {
-            if (data.details.responseMessage) message += " message: " + data.details.responseMessage;
-        }
-
-        // 画像を受け取った場合
-        if (data.details.imageUrl) {
-            message += " imageUrl: " + data.details.imageUrl;
+        if (data.details) {
+            (Object.keys(data.details) as (keyof RemoveNotificationDetails)[]).forEach((key) => {
+                message += " " + key + ": " + data.details[key];
+            })
         }
     }
-    */
     return message;
 }
 
