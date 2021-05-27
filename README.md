@@ -49,7 +49,7 @@ $ ./bin/run
 $ va
 ```
 
-初回実行時、ツールのディレクトリに `db.json` を生成します。
+初回実行時、ホームディレクトリに `~/.vrchatActivityViewer/db.json` を生成します。
 
 ### Options
 
