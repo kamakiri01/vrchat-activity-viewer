@@ -1,6 +1,7 @@
 # VRChat Activity Viewer
 
-VRChat の ログファイルを読んで、履歴を表示するコマンドラインツールです。
+VRChat ログ情報の保存・表示機能を持つ node.js コマンドラインツールです。
+ログファイルから主要なログ情報の取得と保存、閲覧機能と型定義を提供します。
 
 ## Usage
 
@@ -67,7 +68,11 @@ $ va
   output the current version
 * `-h --help`:
   display help for command
-  
+
+### Module
+
+
+
 ### Note
 
 VRChat ログファイルの仕様は公に定められていません。
