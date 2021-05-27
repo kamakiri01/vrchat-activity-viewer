@@ -1,10 +1,9 @@
 import * as path from "path";
 import * as fs from "fs";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
-import {  mergeActivityLog } from "./util/log";
-import { parseVRChatLog } from "./util/parse";
+import { parseVRChatLog } from "./util/parseVRChatLog";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./util/pathUtil";
-import { showActivityLog } from "./util/showLog";
+import { showActivityLog } from "./util/showActivityLog";
 import { Database, ActivityLog } from "./type/ActivityLogType/common";
 
 export interface appParameterObject {
@@ -64,4 +63,19 @@ function updateDatabase(db: Database, vrchatLogDirPath: string): void {
         ) + " logs");
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
     console.log("update DB done");
+}
+
+function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
+    const tmpNewLog = dbLog.concat(appendLog);
+    const formattedLog = formatDBActivityLog(tmpNewLog);
+    return formattedLog;
+}
+
+function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
+    const deduplicateLog = Array.from(new Set(log.map(e => JSON.stringify(e)))).map(e => JSON.parse(e) as ActivityLog);
+    return deduplicateLog.sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        return 0;
+    })
 }

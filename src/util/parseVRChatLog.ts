@@ -2,15 +2,15 @@ import { ActivityLog } from "../type/ActivityLogType/common";
 import { NotificationFromType, WorldAccessScope } from "../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
 import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../type/parseResult";
-import { createAuthenticationActivityLog } from "./activityGenerator/authentication";
-import { createCheckBuildActivityLog } from "./activityGenerator/build";
-import { createEnterActivityLog } from "./activityGenerator/enter";
-import { createJoinActivityLog } from "./activityGenerator/join";
-import { createLeaveActivityLog } from "./activityGenerator/leave";
-import { createReceiveNotificationActivityLog } from "./activityGenerator/receive";
-import { createRemoveNotificationActivityLog } from "./activityGenerator/remove";
-import { createSendNotificationActivityLog } from "./activityGenerator/send";
-import { createShutdownActivityLog } from "./activityGenerator/shutdown";
+import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
+import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
+import { createEnterActivityLog } from "./activityLogGenerator/enter";
+import { createJoinActivityLog } from "./activityLogGenerator/join";
+import { createLeaveActivityLog } from "./activityLogGenerator/leave";
+import { createReceiveNotificationActivityLog } from "./activityLogGenerator/receive";
+import { createRemoveNotificationActivityLog } from "./activityLogGenerator/remove";
+import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
+import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
 
 /**
