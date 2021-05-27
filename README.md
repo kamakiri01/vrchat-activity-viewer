@@ -33,6 +33,7 @@ $ npm run build
 `va` コマンドとしてグローバルにインストールしたい場合は、
 
 ```
+$ npm config set @kamakiri01:registry=https://npm.pkg.github.com # 初回のみ
 $ npm install -g
 ```
 
