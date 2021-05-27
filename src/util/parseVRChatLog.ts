@@ -1,19 +1,24 @@
 import { ActivityLog } from "../type/ActivityLogType/common";
 import { NotificationFromType, WorldAccessScope } from "../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
-import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../type/LogType/ParseResult";
-import { createAuthenticationActivityLog } from "./activityGenerator/authentication";
-import { createCheckBuildActivityLog } from "./activityGenerator/build";
-import { createEnterActivityLog } from "./activityGenerator/enter";
-import { createJoinActivityLog } from "./activityGenerator/join";
-import { createLeaveActivityLog } from "./activityGenerator/leave";
-import { createReceiveNotificationActivityLog } from "./activityGenerator/receive";
-import { createRemoveNotificationActivityLog } from "./activityGenerator/remove";
-import { createSendNotificationActivityLog } from "./activityGenerator/send";
-import { createShutdownActivityLog } from "./activityGenerator/shutdown";
+import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../type/parseResult";
+import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
+import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
+import { createEnterActivityLog } from "./activityLogGenerator/enter";
+import { createJoinActivityLog } from "./activityLogGenerator/join";
+import { createLeaveActivityLog } from "./activityLogGenerator/leave";
+import { createReceiveNotificationActivityLog } from "./activityLogGenerator/receive";
+import { createRemoveNotificationActivityLog } from "./activityLogGenerator/remove";
+import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
+import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
 
-export function parseVRChatLog(logString: string, logPath: string): ActivityLog[] {
+/**
+ * parse output_log_xx_xx_xx.txt file
+ *
+ * @param logString raw vrchat log file stirng
+ */
+export function parseVRChatLog(logString: string): ActivityLog[] {
     const lineSymbol = "\n";
     const logLines = logString.split(lineSymbol).filter((line) => {
         return line.length > 1; // 空行フィルタ
@@ -25,7 +30,6 @@ export function parseVRChatLog(logString: string, logPath: string): ActivityLog[
             const activity = parseLogLineToActivity(logLine, index, logLines);
             if (activity) activityLog.push(activity);
         } catch (error) {
-            console.log("catch error, log file: " + logPath);
             console.log("catch error, log: " + logLine);
             console.log("catch error, log next: " + logLines[index+1]);
             console.log(error);

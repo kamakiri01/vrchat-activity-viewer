@@ -1,7 +1,7 @@
 import { ReceiveNotificationType, RemoveNotificationType, SendNotificationType } from "../common/NotificationType";
 import { NotificationFromType, WorldAccessScope } from "../common";
 
-// VRChatログファイルのパース結果の型
+// VRChatログファイルのパース結果を表現する中間型
 
 // ワールドin時のログのパース結果
 export interface WorldEnterInfo {

@@ -1,10 +1,9 @@
 import * as path from "path";
 import * as fs from "fs";
-import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
-import {  mergeActivityLog } from "./util/log";
-import { parseVRChatLog } from "./util/parse";
+import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/dbUtil";
+import { parseVRChatLog } from "./util/parseVRChatLog";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./util/pathUtil";
-import { showLog } from "./util/showLog";
+import { showActivityLog } from "./util/showActivityLog";
 import { Database, ActivityLog } from "./type/ActivityLogType/common";
 
 export interface appParameterObject {
@@ -27,43 +26,56 @@ export function app(param: appParameterObject): void {
     if (param.import) {
         const vrchatLogDirPath = path.join(process.cwd(), param.import);
         console.log("search import log files from " + vrchatLogDirPath);
-        updateDb(db, vrchatLogDirPath);
+        updateDatabase(db, vrchatLogDirPath);
         return;
     }
 
-    const newDbLog = updateDb(db, DEFAULT_VRCHAT_FULL_PATH);
+    updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH);
     console.log("--- Activity Log ---");
-    showLog(param, newDbLog);
+    showActivityLog(param, db.log);
 
     if (param.watch) {
         console.log("watching...");
         const interval = parseInt(param.watch, 10);
         setInterval(() => {
             const db = loadDatabase(DB_PATH);
-            updateDb(db, DEFAULT_VRCHAT_FULL_PATH);
+            updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH);
         }, interval * 1000);
     }
 }
 
-function updateDb(db: Database, vrchatLogDirPath: string) {
+function updateDatabase(db: Database, vrchatLogDirPath: string): void {
     console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
     console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
-    const logs = filePaths.map((filePath) => {
+    const activityLogs = filePaths.map((filePath) => {
         return parseVRChatLog(
             fs.readFileSync(path.resolve(path.join(vrchatLogDirPath, filePath)), "utf8"),
-            filePath);
+        );
     });
-    const newLog: ActivityLog[] = Array.prototype.concat.apply([], logs);
+    const newActivityLogs: ActivityLog[] = Array.prototype.concat.apply([], activityLogs);
     const currentLogLength = db.log.length;
-    const newDbLog = mergeActivityLog(db.log, newLog);
+    db.log = mergeActivityLog(db.log, newActivityLogs);
     console.log("update new " +
         (
-            (Number.isNaN(newDbLog.length) ? 0 : newDbLog.length) -
+            (Number.isNaN(db.log.length) ? 0 : db.log.length) -
             (Number.isNaN(currentLogLength) ? 0 : currentLogLength)
         ) + " logs");
-    db.log = newDbLog;
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
     console.log("update DB done");
-    return newDbLog;
+}
+
+function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
+    const tmpNewLog = dbLog.concat(appendLog);
+    const formattedLog = formatDBActivityLog(tmpNewLog);
+    return formattedLog;
+}
+
+function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
+    const deduplicateLog = Array.from(new Set(log.map(e => JSON.stringify(e)))).map(e => JSON.parse(e) as ActivityLog);
+    return deduplicateLog.sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        return 0;
+    })
 }

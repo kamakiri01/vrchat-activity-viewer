@@ -4,7 +4,6 @@ import { NotificationType } from "../common/NotificationType";
 export interface Database {
     dbVersion: 2;
     log: ActivityLog[];
-    // userTable: UserTable;
 }
 
 // 書き込まれるログの基底

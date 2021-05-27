@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Database } from "..";
+import { Database } from "../type/ActivityLogType/common";
 
 export function existDatabaseFile(dbPath: string): boolean {
     try {
