@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/db";
+import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/dbUtil";
 import { parseVRChatLog } from "./util/parseVRChatLog";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./util/pathUtil";
 import { showActivityLog } from "./util/showActivityLog";

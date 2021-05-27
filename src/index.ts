@@ -15,7 +15,7 @@ export * from "./util/activityLogGenerator/leave";
 export * from "./util/activityLogGenerator/receive";
 export * from "./util/activityLogGenerator/send";
 export * from "./util/activityLogGenerator/shutdown";
-export * from "./util/db";
+export * from "./util/dbUtil";
 export * from "./util/parseVRChatLog";
 export * from "./util/reg";
 export * from "./util/showActivityLog";
