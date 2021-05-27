@@ -28,17 +28,25 @@ export interface RemoveRequestInviteActivityLog extends RemoveNotificationActivi
     data: RemoveRequestInviteLogData;
 }
 
+// send friend request
+export interface RemoveFriendRequestActivityLog extends RemoveNotificationActivityLog {
+    data: RemoveFriendRequestInviteLogData;
+}
+
+export interface RemoveNotificationDetails {
+    worldId?: string;
+    worldName?: string;
+    requestMessage?: string;
+    inviteMessage?: string;
+    imageUrl?: string;
+}
+
 interface RemoveNotificationLogData extends NotificationLogData {
     senderType: RemoveNotificationType;
     details: RemoveNotificationDetails;
     detailsRaw: string;
     message: string;
     type: RemoveNotificationType;
-}
-
-// send friend request
-export interface RemoveFriendRequestActivityLog extends RemoveNotificationActivityLog {
-    data: RemoveFriendRequestInviteLogData;
 }
 
 interface RemoveInviteLogData extends RemoveNotificationLogData {
@@ -54,9 +62,4 @@ interface RemoveRequestInviteLogData extends RemoveNotificationLogData {
 interface RemoveFriendRequestInviteLogData extends RemoveNotificationLogData {
     type: "friendRequest";
     senderType: "friendRequest";
-}
-
-interface RemoveNotificationDetails {
-    worldId?: string;
-    worldName?: string;
 }
