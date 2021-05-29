@@ -69,10 +69,6 @@ $ va
 * `-h --help`:
   display help for command
 
-### Module
-
-
-
 ### Note
 
 VRChat ログファイルの仕様は公に定められていません。
