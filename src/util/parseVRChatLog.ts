@@ -18,7 +18,7 @@ import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
  *
  * @param logString raw vrchat log file stirng
  */
-export function parseVRChatLog(logString: string): ActivityLog[] {
+export function parseVRChatLog(logString: string, isDebugLog: boolean): ActivityLog[] {
     const lineSymbol = "\n";
     const logLines = logString.split(lineSymbol).filter((line) => {
         return line.length > 1; // 空行フィルタ
@@ -30,6 +30,7 @@ export function parseVRChatLog(logString: string): ActivityLog[] {
             const activity = parseLogLineToActivity(logLine, index, logLines);
             if (activity) activityLog.push(activity);
         } catch (error) {
+            if (!isDebugLog) return;
             console.log("catch error, log: " + logLine);
             console.log("catch error, log next: " + logLines[index+1]);
             console.log(error);

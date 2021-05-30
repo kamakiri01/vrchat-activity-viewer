@@ -6,16 +6,17 @@ import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./uti
 import { showActivityLog } from "./util/showActivityLog";
 import { Database, ActivityLog } from "./type/ActivityLogType/common";
 
-export interface appParameterObject {
+export interface AppParameterObject {
     range: string;
     import?: string;
     filter?: string[];
     caseFilter?: string[];
     verbose?: boolean;
     watch?: string;
+    debug?: boolean;
 }
 
-export function app(param: appParameterObject): void {
+export function app(param: AppParameterObject): void {
     if (!existDatabaseFile(DB_PATH)) {
         console.log("generate db.json in app dir...")
         initDatabase(DB_PATH);
@@ -26,11 +27,11 @@ export function app(param: appParameterObject): void {
     if (param.import) {
         const vrchatLogDirPath = path.join(process.cwd(), param.import);
         console.log("search import log files from " + vrchatLogDirPath);
-        updateDatabase(db, vrchatLogDirPath);
+        updateDatabase(db, vrchatLogDirPath, param);
         return;
     }
 
-    updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH);
+    updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
     console.log("--- Activity Log ---");
     showActivityLog(param, db.log);
 
@@ -39,18 +40,19 @@ export function app(param: appParameterObject): void {
         const interval = parseInt(param.watch, 10);
         setInterval(() => {
             const db = loadDatabase(DB_PATH);
-            updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH);
+            updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
         }, interval * 1000);
     }
 }
 
-function updateDatabase(db: Database, vrchatLogDirPath: string): void {
+function updateDatabase(db: Database, vrchatLogDirPath: string, param: AppParameterObject): void {
     console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
     console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
     const activityLogs = filePaths.map((filePath) => {
         return parseVRChatLog(
             fs.readFileSync(path.resolve(path.join(vrchatLogDirPath, filePath)), "utf8"),
+            !!param.debug
         );
     });
     const newActivityLogs: ActivityLog[] = Array.prototype.concat.apply([], activityLogs);

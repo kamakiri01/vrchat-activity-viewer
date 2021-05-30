@@ -16,6 +16,7 @@ program
     .option("-V, --verbose", "display full log details")
     .option("-r, --range <hours>", "specify the range to display", "24")
     .option("-w, --watch <sec>", "update db repeatedly")
+    .option("-d, --debug", "show console log")
 
 export async function run(argv: any): Promise<void> {
     program.parse(argv);
@@ -25,6 +26,7 @@ export async function run(argv: any): Promise<void> {
         caseFilter: program["caseFilter"],
         verbose: program["verbose"],
         range: program["range"],
-        watch: program["watch"]
+        watch: program["watch"],
+        debug: program["debug"]
     });
 }
