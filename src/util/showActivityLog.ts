@@ -1,8 +1,8 @@
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails } from "..";
-import { appParameterObject } from "../app";
+import { AppParameterObject } from "../app";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
 
-export function showActivityLog(param: appParameterObject, activityLog: ActivityLog[]): void {
+export function showActivityLog(param: AppParameterObject, activityLog: ActivityLog[]): void {
     const ignoreCaseFilter = param.filter?.map(e => e.toLowerCase());
     const matchedLogs: string[] = [];
 
