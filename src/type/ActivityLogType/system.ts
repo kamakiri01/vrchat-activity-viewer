@@ -1,4 +1,4 @@
-import { WorldAccessScope } from "../common";
+import { RegionType, WorldAccessScope } from "../common";
 import { ActivityLog } from "./common";
 
 // world in
@@ -28,5 +28,6 @@ interface WorldLogData {
     access: WorldAccessScope;
     instanceId: string;
     instanceOwner?: string;
+    region?: RegionType;
     nonce?: string;
 }

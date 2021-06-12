@@ -1,5 +1,5 @@
 import { ActivityLog } from "../type/ActivityLogType/common";
-import { NotificationFromType, WorldAccessScope } from "../type/common";
+import { NotificationFromType, RegionType, WorldAccessScope } from "../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
 import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../type/parseResult";
 import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
@@ -117,18 +117,19 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 }
 
 function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w-]+):(\d+)/.exec(message);
+    const reg = /^Joining\s(wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
 
     if (!reg) return null;
     return {
         worldId: reg[1],
         instanceId: reg[2],
-        access: "public"
+        access: "public",
+        region: reg[4] as RegionType
     };
 }
 
 function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?~nonce\(([\w-]+)\)/.exec(message);
+    const reg = /^Joining\s(wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
@@ -139,7 +140,8 @@ function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
         access: access,
         instanceOwner: reg[4],
         canRequestInvite: reg[5],
-        nonce: reg[6]
+        region: reg[7] as RegionType,
+        nonce: reg[8]
     };
 }
 
