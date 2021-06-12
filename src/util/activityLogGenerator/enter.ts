@@ -12,6 +12,7 @@ export function createEnterActivityLog(utcTime: number, message: string, worldIn
             instanceId: worldInfo.instanceId,
             access: worldInfo.access,
             instanceOwner: worldInfo.instanceOwner,
+            region: worldInfo.region,
             nonce: worldInfo.nonce
         }
     };

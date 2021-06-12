@@ -1,5 +1,5 @@
 import { ReceiveNotificationType, RemoveNotificationType, SendNotificationType } from "../common/NotificationType";
-import { NotificationFromType, WorldAccessScope } from "../common";
+import { NotificationFromType, RegionType, WorldAccessScope } from "../common";
 
 // VRChatログファイルのパース結果を表現する中間型
 
@@ -9,6 +9,7 @@ export interface WorldEnterInfo {
     instanceId: string;
     access: WorldAccessScope;
     instanceOwner?: string;
+    region?: RegionType;
     canRequestInvite?: string;
     nonce?: string;
 }

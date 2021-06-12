@@ -77,10 +77,11 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
         data.worldName + " (" +
         data.access + ")";
     if (verbose) {
+        if (data.region) message += " (" + data.region + ")";
         message += 
             " (" + data.instanceId + ") " +
             "https://www.vrchat.com/home/launch?worldId=" + data.worldId + "&instanceId=" + data.instanceId;
-        if (data.access) {
+        if (data.access) { // no public instance
             message += "~" + data.access + "(" + data.instanceOwner + ")~nonce(" + data.nonce + ")";
         }
     }
