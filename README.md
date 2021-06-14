@@ -5,6 +5,7 @@ VRChat ログ情報の保存・表示機能を持つ node.js コマンドライ�
 
 ## Usage
 
+### CLI
 ```
 $ va --filter myFriendName --range 48
 2021-1-1 00:00:00 join myFriendName
@@ -13,7 +14,16 @@ $ va --filter myFriendName --range 48
 2021-1-2 00:00:05 leave myFriendName
 ```
 
-### Install
+### TypeScript / JavaScript
+```
+import { findLatestVRChatLogFullPath, parseVRChatLog } from "@kamakiri01/vrchat-activity-viewer";
+const filePath = findLatestVRChatLogFullPath();
+const latestLog = parseVRChatLog(
+    fs.readFileSync(path.resolve(filePath), "utf8"), false); // you can get ActivityLog[]
+```
+
+
+## Install
 
 GitHub Packages で公開されています。 `npm` コマンドでインストールする場合、 `npm install` を実行する前に、 以下の手順が必要です。
 
@@ -46,7 +56,7 @@ $ npm install
 $ npm run build
 ```
 
-### Run
+## Run
 
 ```
 $ ./bin/run
@@ -77,7 +87,7 @@ $ va
 * `-h --help`:
   display help for command
 
-### Note
+## Note
 
 VRChat ログファイルの仕様は公に定められていません。
 そのため、本モジュールの実行結果は、予期せぬタイミングで変わる・動作しなくなる可能性があります。
