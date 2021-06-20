@@ -42,7 +42,7 @@ $ npm config set @kamakiri01:registry=https://npm.pkg.github.com # 初回のみ
 $ npm install @kamakiri01/vrchat-activity-viewer
 ```
 
-`va` コマンドとしてグローバルにインストールしたい場合は、
+`va` コマンドとしてグローバルにインストールする場合は、
 
 ```
 $ npm config set @kamakiri01:registry=https://npm.pkg.github.com # 初回のみ
