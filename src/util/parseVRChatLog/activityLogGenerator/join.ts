@@ -1,5 +1,5 @@
-import { ActivityType, MoveActivityLog } from "../..";
-import { parseSquareBrackets } from "../parseVRChatLog/reg";
+import { ActivityType, MoveActivityLog } from "../../..";
+import { parseSquareBrackets } from "../reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
     const reg = parseSquareBrackets(message)!; // [NetworkManager]

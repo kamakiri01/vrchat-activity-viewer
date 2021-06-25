@@ -27,7 +27,7 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): Activity
     const activityLog: ActivityLog[] = [];
     logLines.forEach((logLine, index) => {
         try {
-            const activity = _parseLogLineToActivity(logLine, index, logLines);
+            const activity = parseLogLineToActivity(logLine, index, logLines);
             if (activity) activityLog.push(activity);
         } catch (error) {
             if (!isDebugLog) return;
@@ -52,7 +52,7 @@ const Judge = {
 }
 
 // 次行のインスタンスIDを取るため全部引数に渡す
-function _parseLogLineToActivity(logLine: string, index: number, logLines: string[]): ActivityLog | null {
+function parseLogLineToActivity(logLine: string, index: number, logLines: string[]): ActivityLog | null {
     const reg = parseMessageBodyFromLogLine(logLine);
     if (!reg || reg.length < 4) return null;
     const mmmmyydd = reg[1];
@@ -70,20 +70,20 @@ function _parseLogLineToActivity(logLine: string, index: number, logLines: strin
         activityLog = createLeaveActivityLog(utcTime, message);
     } else if (Judge.isEnter(message)) {
         // enter
-        const worldInfo = _parseEnterActivityJoinLine(logLines[index+1])!;
+        const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
         activityLog = createEnterActivityLog(utcTime, message, worldInfo);
     } else if (Judge.isSendNotification(message)) {
         // send: friendRequest, invite, requestInvite
-        const info = _parseSendNotificationMessage(message)!;
+        const info = parseSendNotificationMessage(message)!;
         activityLog = createSendNotificationActivityLog(utcTime, message, info);
     } else if (Judge.isReceiveNotification(message)) {
         // receive: friendRequest, invite, requestInvite
-        const info = _parseReceiveNotificationMessage(message)!;
+        const info = parseReceiveNotificationMessage(message)!;
         if (!info || !info.to || !info.to.id) return null; // pending friend request
         activityLog = createReceiveNotificationActivityLog(utcTime, message, <ReceiveNotificationInfo>info);
     } else if (Judge.isRemoveNotification(message)) {
         // remove: friendRequest, invite, requestInvite
-        const info = _parseRemoveNotificationMessage(message)!;
+        const info = parseRemoveNotificationMessage(message)!;
         if (!info || !info.to || !info.to.id) return null;
         activityLog = createRemoveNotificationActivityLog(utcTime, message, <RemoveNotificationInfo>info);
     } else if (Judge.isAuthentication(message)) {
@@ -100,7 +100,7 @@ function _parseLogLineToActivity(logLine: string, index: number, logLines: strin
     return activityLog || null;
 }
 
-function _parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
+function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
     const reg = parseMessageBodyFromLogLine(joinLine);
     if (!reg || reg.length < 4) return null;
     const reg2 = parseSquareBrackets(reg[3]);
@@ -109,14 +109,14 @@ function _parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 
     let worldEnterInfo: WorldEnterInfo | null;
     if (joinLine.indexOf("nonce") !== -1) {
-        worldEnterInfo = _parseScopeEnterMessage(message);
+        worldEnterInfo = parseScopeEnterMessage(message);
     } else {
-        worldEnterInfo = _parsePublicEnterMessage(message);
+        worldEnterInfo = parsePublicEnterMessage(message);
     }
     return worldEnterInfo;
 }
 
-function _parsePublicEnterMessage(message: string): WorldEnterInfo | null {
+function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
     const reg = /^Joining\s(wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
 
     if (!reg) return null;
@@ -128,12 +128,12 @@ function _parsePublicEnterMessage(message: string): WorldEnterInfo | null {
     };
 }
 
-function _parseScopeEnterMessage(message: string): WorldEnterInfo | null {
+function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
     const reg = /^Joining\s(wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
-    const access = _getWorldScope(reg[3], reg[5]);
+    const access = getWorldScope(reg[3], reg[5]);
     return {
         worldId: reg[1],
         instanceId: reg[2],
@@ -145,7 +145,7 @@ function _parseScopeEnterMessage(message: string): WorldEnterInfo | null {
     };
 }
 
-function _getWorldScope(access: string, canRequestInvite: string): WorldAccessScope {
+function getWorldScope(access: string, canRequestInvite: string): WorldAccessScope {
     let result: WorldAccessScope;
     if (access === "hidden") {
         result = "friends+";
@@ -161,7 +161,7 @@ function _getWorldScope(access: string, canRequestInvite: string): WorldAccessSc
     return result;
 }
 
-function _parseSendNotificationMessage(message: string): SendNotificationInfo | null {
+function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
     const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
 
@@ -186,7 +186,7 @@ function _parseSendNotificationMessage(message: string): SendNotificationInfo | 
     };
 }
 
-function _parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
+function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
     const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
     
@@ -212,7 +212,7 @@ function _parseReceiveNotificationMessage(message: string): ReceiveNotificationI
 }
 
 
-function _parseRemoveNotificationMessage(message: string): RemoveNotificationInfo | null {
+function parseRemoveNotificationMessage(message: string): RemoveNotificationInfo | null {
     const reg = /^Remove notification from (\w+) notifications:<Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
     

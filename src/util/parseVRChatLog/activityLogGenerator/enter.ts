@@ -1,5 +1,5 @@
-import { WorldEnterInfo, EnterActivityLog, ActivityType } from "../..";
-import { parseSquareBrackets } from "../parseVRChatLog/reg";
+import { WorldEnterInfo, EnterActivityLog, ActivityType } from "../../..";
+import { parseSquareBrackets } from "../reg";
 
 export function createEnterActivityLog(utcTime: number, message: string, worldInfo: WorldEnterInfo): EnterActivityLog {
     const reg = parseSquareBrackets(message)!; // [RoomManager]

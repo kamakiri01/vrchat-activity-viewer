@@ -19,38 +19,38 @@ export function showActivityLog(param: AppParameterObject, activityLog: Activity
         switch (e.activityType) {
             case ActivityType.Join:
             case ActivityType.Leave:
-                message += _generateMoveActivityMessage(e as MoveActivityLog);
+                message += generateMoveActivityMessage(e as MoveActivityLog);
                 break;
             case ActivityType.Enter:
-                message += _generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
+                message += generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
                 break;
             case ActivityType.Send:
-                message += _generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
+                message += generateSendNotificationMessage(e as SendNotificationActivityLog, !!param.verbose);
                 break;
             case ActivityType.Receive:
-                message += _generateReceiveNotificationMessage(e as ReceiveNotificationActivityLog, !!param.verbose);
+                message += generateReceiveNotificationMessage(e as ReceiveNotificationActivityLog, !!param.verbose);
                 break;
             case ActivityType.Remove:
-                message += _generateRemoveNotificationMessage(e as RemoveNotificationActivityLog, !!param.verbose);
+                message += generateRemoveNotificationMessage(e as RemoveNotificationActivityLog, !!param.verbose);
                 break;
             case ActivityType.Authentication:
-                message += _generateAuthenticationMessage(e as AuthenticationActivityLog);
+                message += generateAuthenticationMessage(e as AuthenticationActivityLog);
                 break;
             case ActivityType.CheckBuild:
-                message += _generateCheckBuildMessage(e as CheckBuildActivityLog);
+                message += generateCheckBuildMessage(e as CheckBuildActivityLog);
                 break;
             case ActivityType.Shutdown:
-                message += _generateShutdownMessage(e as ShutdownActivityLog);
+                message += generateShutdownMessage(e as ShutdownActivityLog);
                 break;
         }
         if (!param.filter && !param.caseFilter) {
             matchedLogs.push(message);
         } else if (param.caseFilter) {
-            if (_isMatchFilter(message, param.caseFilter)) matchedLogs.push(message);
+            if (isMatchFilter(message, param.caseFilter)) matchedLogs.push(message);
         } else if (param.filter) {
             const lowerMessage = message.toLowerCase();
             // param.filterとignoreCaseFilterのnullableは同じ
-            if (_isMatchFilter(lowerMessage, ignoreCaseFilter!)) matchedLogs.push(message);
+            if (isMatchFilter(lowerMessage, ignoreCaseFilter!)) matchedLogs.push(message);
         }
     });
     console.log(matchedLogs.join("\n"));
@@ -59,18 +59,18 @@ export function showActivityLog(param: AppParameterObject, activityLog: Activity
 /**
  * filterのいずれかにマッチする場合、真
  */
-function _isMatchFilter(message: string, filter: string[]): boolean {
+function isMatchFilter(message: string, filter: string[]): boolean {
     return filter.find((e) => message.indexOf(e) !== -1) !== undefined;
 }
 
-function _generateMoveActivityMessage(log: MoveActivityLog): string {
+function generateMoveActivityMessage(log: MoveActivityLog): string {
     const message =
         log.activityType + " " +
         log.userData.userName;
     return message;
 }
 
-function _generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): string {
+function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): string {
     const data = log.worldData;
     let message =
         log.activityType + " " +
@@ -88,7 +88,7 @@ function _generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean):
     return message;
 }
 
-function _generateSendNotificationMessage(log: SendNotificationActivityLog, verbose: boolean): string {
+function generateSendNotificationMessage(log: SendNotificationActivityLog, verbose: boolean): string {
     const data = log.data;
     let message = "send " + log.sendActivityType;
 
@@ -103,7 +103,7 @@ function _generateSendNotificationMessage(log: SendNotificationActivityLog, verb
     return message;
 }
 
-function _generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog, verbose: boolean): string {
+function generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog, verbose: boolean): string {
     const data = log.data;
     let message =
         "receive " +
@@ -121,7 +121,7 @@ function _generateReceiveNotificationMessage(log: ReceiveNotificationActivityLog
     return message;
 }
 
-function _generateRemoveNotificationMessage(log: RemoveNotificationActivityLog, verbose: boolean): string {
+function generateRemoveNotificationMessage(log: RemoveNotificationActivityLog, verbose: boolean): string {
     const data = log.data;
     let message =
         "remove " +
@@ -139,17 +139,17 @@ function _generateRemoveNotificationMessage(log: RemoveNotificationActivityLog, 
     return message;
 }
 
-function _generateAuthenticationMessage(log: AuthenticationActivityLog): string {
+function generateAuthenticationMessage(log: AuthenticationActivityLog): string {
     const message = "login " + log.userName;
     return message;
 }
 
-function _generateCheckBuildMessage(log: CheckBuildActivityLog): string {
+function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
     const message = "build " + log.buildName;
     return message;
 }
 
-function _generateShutdownMessage(log: ShutdownActivityLog): string {
+function generateShutdownMessage(log: ShutdownActivityLog): string {
     const message = "shutdown";
     return message;   
 }

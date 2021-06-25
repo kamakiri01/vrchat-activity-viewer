@@ -27,11 +27,11 @@ export function app(param: AppParameterObject): void {
     if (param.import) {
         const vrchatLogDirPath = path.join(process.cwd(), param.import);
         console.log("search import log files from " + vrchatLogDirPath);
-        _updateDatabase(db, vrchatLogDirPath, param);
+        updateDatabase(db, vrchatLogDirPath, param);
         return;
     }
 
-    _updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+    updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
     console.log("--- Activity Log ---");
     showActivityLog(param, db.log);
 
@@ -40,12 +40,13 @@ export function app(param: AppParameterObject): void {
         const interval = parseInt(param.watch, 10);
         setInterval(() => {
             const db = loadDatabase(DB_PATH);
-            _updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+            updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
         }, interval * 1000);
     }
 }
 
-function _updateDatabase(db: Database, vrchatLogDirPath: string, param: AppParameterObject): void {
+
+function updateDatabase(db: Database, vrchatLogDirPath: string, param: AppParameterObject): void {
     console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
     console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
@@ -57,7 +58,7 @@ function _updateDatabase(db: Database, vrchatLogDirPath: string, param: AppParam
     });
     const newActivityLogs: ActivityLog[] = Array.prototype.concat.apply([], activityLogs);
     const currentLogLength = db.log.length;
-    db.log = _mergeActivityLog(db.log, newActivityLogs);
+    db.log = mergeActivityLog(db.log, newActivityLogs);
     console.log("update new " +
         (
             (Number.isNaN(db.log.length) ? 0 : db.log.length) -
@@ -67,13 +68,13 @@ function _updateDatabase(db: Database, vrchatLogDirPath: string, param: AppParam
     console.log("update DB done");
 }
 
-function _mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
+function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
     const tmpNewLog = dbLog.concat(appendLog);
-    const formattedLog = _formatDBActivityLog(tmpNewLog);
+    const formattedLog = formatDBActivityLog(tmpNewLog);
     return formattedLog;
 }
 
-function _formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
+function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
     const deduplicateLog = Array.from(new Set(log.map(e => JSON.stringify(e)))).map(e => JSON.parse(e) as ActivityLog);
     return deduplicateLog.sort((a, b) => {
         if (a.date < b.date) return -1;

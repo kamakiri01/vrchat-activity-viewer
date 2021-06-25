@@ -1,5 +1,5 @@
-import { CheckBuildActivityLog, ActivityType } from "../..";
-import { parseSquareBrackets } from "../parseVRChatLog/reg";
+import { CheckBuildActivityLog, ActivityType } from "../../..";
+import { parseSquareBrackets } from "../reg";
 
 export function createCheckBuildActivityLog(utcTime: number, message: string): CheckBuildActivityLog {
     const reg = parseSquareBrackets(message)!; // [VRCApplicationSetup]
