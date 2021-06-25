@@ -5,18 +5,10 @@ import { parseVRChatLog } from "./util/parseVRChatLog";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./util/pathUtil";
 import { showActivityLog } from "./util/showActivityLog";
 import { Database, ActivityLog } from "./type/ActivityLogType/common";
+import { ViewerAppParameterObject } from "./type/AppConfig";
 
-export interface AppParameterObject {
-    range: string;
-    import?: string;
-    filter?: string[];
-    caseFilter?: string[];
-    verbose?: boolean;
-    watch?: string;
-    debug?: boolean;
-}
-
-export function app(param: AppParameterObject): void {
+export function app(param: ViewerAppParameterObject): void {
+    completeParameterObject(param);
     if (!existDatabaseFile(DB_PATH)) {
         console.log("generate db.json in app dir...")
         initDatabase(DB_PATH);
@@ -45,8 +37,41 @@ export function app(param: AppParameterObject): void {
     }
 }
 
+function completeParameterObject(param: ViewerAppParameterObject): void {
+    param.range = param.range ? parseRange(param.range) : 1000 * 60 * 60 * 24; // default 24h
+}
 
-function updateDatabase(db: Database, vrchatLogDirPath: string, param: AppParameterObject): void {
+function parseRange(range: string | number): number {
+    if (typeof range === "number") return range;
+    const timeBasis = range.slice(-1);
+    // string 型の場合は "number" + "basis" 形式を必須にする
+    if (!isNaN(parseInt(timeBasis, 10))) throw new Error("range must be size + time basis alphabet, when typeof string");
+
+    // 規定外の basis を許容しない
+    const allowBasis = ["y", "m", "w", "d", "h"];// year, mounth, week, day, hour
+    if (allowBasis.indexOf(timeBasis) === -1) throw new Error("range time basis must be year, mounth, week, day or hour");
+
+    let rangeTime = parseInt(range.slice(0, range.length - 1), 10) * 1000 * 60 * 60; // hours
+    switch (timeBasis) {
+        case "y":
+            rangeTime *= 24 * 365;
+            break;
+        case "m":
+            rangeTime *= 24 * 28;
+            break;
+        case "w":
+            rangeTime *= 24 * 7;
+            break
+        case "d":
+            rangeTime *= 24;
+            break;
+        case "h":
+            // do nothing
+    }
+    return rangeTime;
+}
+
+function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerAppParameterObject): void {
     console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
     console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));

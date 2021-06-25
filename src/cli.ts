@@ -14,7 +14,7 @@ program
     .option("-cf, --case-filter <word...>", "filter logs with no ignore case words")
     .option("-i, --import <dir>", "log directory to import additional")
     .option("-V, --verbose", "display full log details")
-    .option("-r, --range <hours>", "specify the range to display", "24")
+    .option("-r, --range <hours>", "specify the range to display")
     .option("-w, --watch <sec>", "update db repeatedly")
     .option("-d, --debug", "show console log")
 
