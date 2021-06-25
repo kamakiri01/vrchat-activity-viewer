@@ -6,7 +6,6 @@ export interface EnterActivityLog extends ActivityLog {
     worldData: WorldLogData;
 }
 
-
 // login
 export interface AuthenticationActivityLog extends ActivityLog {
     userName: string;

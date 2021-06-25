@@ -1,5 +1,5 @@
 import { MoveActivityLog, ActivityType } from "../..";
-import { parseSquareBrackets } from "../reg";
+import { parseSquareBrackets } from "../parseVRChatLog/reg";
 
 export function createLeaveActivityLog(utcTime: number, message: string): MoveActivityLog {
     const reg = parseSquareBrackets(message)!; // [NetworkManager]

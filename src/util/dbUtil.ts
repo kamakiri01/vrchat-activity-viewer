@@ -12,7 +12,7 @@ export function existDatabaseFile(dbPath: string): boolean {
 }
 
 export function initDatabase(dbPath: string): void {
-    const dbData = createTemplateDb();
+    const dbData = _createTemplateDb();
     fs.writeFileSync(dbPath, JSON.stringify(dbData, null, 2), { encoding: "utf-8" });
 }
 
@@ -25,7 +25,7 @@ export function writeDatabase(dbPath: string, data: string): void {
     fs.writeFileSync(path.resolve(dbPath), data);
 }
 
-function createTemplateDb(): Database {
+function _createTemplateDb(): Database {
     return {
         dbVersion: 2,
         log: []
