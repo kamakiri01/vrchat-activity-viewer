@@ -1,14 +1,13 @@
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails } from "..";
-import { AppParameterObject } from "../app";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
+import { ViewerAppParameterObject } from "../type/AppConfig";
 
-export function showActivityLog(param: AppParameterObject, activityLog: ActivityLog[]): void {
+export function showActivityLog(param: ViewerAppParameterObject, activityLog: ActivityLog[]): void {
     const ignoreCaseFilter = param.filter?.map(e => e.toLowerCase());
     const matchedLogs: string[] = [];
 
     const currentTime = Date.now();
-    const rangeMillisecond = (param.range ? parseInt(param.range, 10) : 24) * 60 * 60 * 1000;
-    const showableRangeLog = activityLog.filter(e => currentTime - e.date < rangeMillisecond);
+    const showableRangeLog = activityLog.filter(e => currentTime - e.date < param.range);
     const dateOption: Intl.DateTimeFormatOptions = {
         year: "numeric", month: "2-digit", day: "2-digit",
         hour: "2-digit", minute: "2-digit", second: "2-digit"
