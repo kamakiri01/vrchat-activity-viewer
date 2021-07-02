@@ -1,5 +1,4 @@
 import { CheckBuildActivityLog, ActivityType } from "../../..";
-import { parseSquareBrackets } from "../reg";
 
 export function createCheckBuildActivityLog(utcTime: number, buildLine: string): CheckBuildActivityLog {
     const reg = /VRChat Build: ([\w\-.\s]+)/.exec(buildLine)!;

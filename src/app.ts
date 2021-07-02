@@ -48,8 +48,8 @@ function parseRange(range: string | number): number {
     if (!isNaN(parseInt(timeBasis, 10))) throw new Error("range must be size + time basis alphabet, when typeof string");
 
     // 規定外の basis を許容しない
-    const allowBasis = ["y", "m", "w", "d", "h"];// year, mounth, week, day, hour
-    if (allowBasis.indexOf(timeBasis) === -1) throw new Error("range time basis must be year, mounth, week, day or hour");
+    const allowBasis = ["y", "m", "w", "d", "h"];// year, month, week, day, hour
+    if (allowBasis.indexOf(timeBasis) === -1) throw new Error("range time basis must be year, month, week, day or hour");
 
     let rangeTime = parseInt(range.slice(0, range.length - 1), 10) * 1000 * 60 * 60; // hours
     switch (timeBasis) {
