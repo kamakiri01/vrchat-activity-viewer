@@ -1,4 +1,4 @@
-import { ActivityType, MoveActivityLog } from "../..";
+import { ActivityType, MoveActivityLog } from "../../..";
 import { parseSquareBrackets } from "../reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {

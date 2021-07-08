@@ -1,4 +1,4 @@
-import { AuthenticationActivityLog, ActivityType } from "../..";
+import { AuthenticationActivityLog, ActivityType } from "../../..";
 import { parseSquareBrackets } from "../reg";
 
 export function createAuthenticationActivityLog(utcTime: number, message: string): AuthenticationActivityLog {

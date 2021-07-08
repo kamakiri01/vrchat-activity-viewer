@@ -1,4 +1,4 @@
-import { SendNotificationInfo, SendActivityType, SendNotificationActivityLog, ActivityType } from "../..";
+import { SendNotificationInfo, SendActivityType, SendNotificationActivityLog, ActivityType } from "../../..";
 
 export function createSendNotificationActivityLog(utcTime: number, message: string, info: SendNotificationInfo): SendNotificationActivityLog {
     let sendActivityType: SendActivityType;

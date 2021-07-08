@@ -1,7 +1,7 @@
 import { SendNotificationType } from "../..";
 import { ActivityLog, NotificationLogData } from "./common";
 
-// Send系ログの種別
+// send系ログの種別
 export const SendActivityType = {
     Invite: "invite",
     RequestInvite: "requestInvite",

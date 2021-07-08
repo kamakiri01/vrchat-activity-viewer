@@ -13,9 +13,9 @@ export function findVRChatLogFileNames(dirPath: string): string[] {
     return logFileNames;
 }
 
-export function findLatestVRChatLogFullPath(): string {
+export function findLatestVRChatLogFullPath(): string | null {
     let latestModifyTime = new Date(0);
-    let latestFilePath = "";
+    let latestFilePath: string = null!;
     findVRChatLogFileNames(DEFAULT_VRCHAT_FULL_PATH)
         .forEach((fileName) => {
             const mtime = fs.statSync(path.join(DEFAULT_VRCHAT_FULL_PATH, fileName)).mtime;
@@ -23,6 +23,6 @@ export function findLatestVRChatLogFullPath(): string {
                 latestModifyTime = mtime;
                 latestFilePath = fileName;
             }
-        })
-    return path.join(DEFAULT_VRCHAT_FULL_PATH, latestFilePath);
+        });
+    return latestFilePath ? path.join(DEFAULT_VRCHAT_FULL_PATH, latestFilePath) : null;
 }

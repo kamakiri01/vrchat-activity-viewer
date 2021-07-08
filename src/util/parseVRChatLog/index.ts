@@ -1,7 +1,7 @@
-import { ActivityLog } from "../type/ActivityLogType/common";
-import { NotificationFromType, RegionType, WorldAccessScope } from "../type/common";
-import { ReceiveNotificationType, SendNotificationType } from "../type/common/NotificationType";
-import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../type/parseResult";
+import { ActivityLog } from "../../type/ActivityLogType/common";
+import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
+import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
+import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResult";
 import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
 import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
 import { createEnterActivityLog } from "./activityLogGenerator/enter";
@@ -47,7 +47,7 @@ const Judge = {
     isReceiveNotification: (message: string) => { return message.indexOf("Received Notification") !== -1 },
     isRemoveNotification: (message: string) => { return message.indexOf("Remove notification") !== -1 },
     isAuthentication: (message: string) => { return message.indexOf("User Authenticated") !== -1 },
-    isCheckBuild: (message: string) => { return message.indexOf("VRChat Build") !== -1 },
+    isCheckBuild: (message: string) => { return message.indexOf("Environment Info") !== -1 },
     isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 }
 }
 
@@ -91,7 +91,7 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
         activityLog = createAuthenticationActivityLog(utcTime, message);
     } else if (Judge.isCheckBuild(message)) {
         // check build
-        activityLog = createCheckBuildActivityLog(utcTime, message);
+        activityLog = createCheckBuildActivityLog(utcTime, logLines[index+1]);
     } else if (Judge.isShutdown(message)) {
         // shutdown
         activityLog = createShutdownActivityLog(utcTime, message);
