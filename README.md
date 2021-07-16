@@ -16,7 +16,7 @@ $ va --filter myFriendName --range 48
 
 ### TypeScript / JavaScript
 ```
-import { findLatestVRChatLogFullPath, parseVRChatLog } from "@kamakiri01/vrchat-activity-viewer";
+import { findLatestVRChatLogFullPath, parseVRChatLog } from "vrchat-activity-viewer";
 const filePath = findLatestVRChatLogFullPath();
 const latestLog = parseVRChatLog(
     fs.readFileSync(path.resolve(filePath), "utf8"), false); // you can get ActivityLog[]
@@ -25,35 +25,14 @@ const latestLog = parseVRChatLog(
 
 ## Install
 
-GitHub Packages で公開されています。 `npm` コマンドでインストールする場合、 `npm install` を実行する前に、 以下の手順が必要です。
-
-1. GitHubアカウントの個人アクセストークンを準備します。トークンの権限は`read:packages` を含む必要があります。[参考](https://docs.github.com/ja/github/authenticating-to-github/creating-a-personal-access-token)
-2. .npmrc に以下の記述を追加します。
-[参考](https://docs.github.com/ja/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token)
-
 ```
-//npm.pkg.github.com/:_authToken=YOUR_TOKEN
-```
-
-その後、npm でインストールする場合は、
-
-```
-$ npm config set @kamakiri01:registry=https://npm.pkg.github.com # 初回のみ
-$ npm install @kamakiri01/vrchat-activity-viewer
+$ npm install vrchat-activity-viewer
 ```
 
 `va` コマンドとしてグローバルにインストールする場合は、
 
 ```
-$ npm config set @kamakiri01:registry=https://npm.pkg.github.com # 初回のみ
-$ npm install -g @kamakiri01/vrchat-activity-viewer
-```
-
-GitHub からリポジトリを clone した場合は、アクセストークンは不要です。
-
-```
-$ npm install
-$ npm run build
+$ npm install -g vrchat-activity-viewer
 ```
 
 ## Run
