@@ -1,6 +1,6 @@
 {
-  "name": "@kamakiri01/vrchat-activity-viewer",
-  "version": "4.0.1",
+  "name": "vrchat-activity-viewer",
+  "version": "5.0.0",
   "description": "VRChat log viewer",
   "main": "lib/index.js",
   "scripts": {
@@ -29,10 +29,11 @@
     "commander": "^6.2.1"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kamakiri01/vrchat-activity-viewer"
+    "url": "https://github.com/kamakiri01/vrchat-activity-viewer.git"
   }
 }
