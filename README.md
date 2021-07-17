@@ -9,7 +9,7 @@ Github Packages is Deprecated. Use from npm.
 
 ### CLI
 ```
-$ va --filter myFriendName --range 48
+$ va --filter myFriendName --range 24h
 2021-1-1 00:00:00 join myFriendName
 2021-1-1 00:00:05 leave myFriendName
 2021-1-2 00:00:00 join myFriendName
