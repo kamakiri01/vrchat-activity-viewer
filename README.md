@@ -3,6 +3,8 @@
 VRChat ログ情報の保存・表示機能を持つ node.js コマンドラインツールです。
 ログファイルから主要なログ情報の取得と保存、閲覧機能と型定義を提供します。
 
+Github Packages is Deprecated. Use from npm.
+
 ## Usage
 
 ### CLI
