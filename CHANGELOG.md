@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 5.1.0
+- join の MoveActivityLog に自身の join か判定する `access` を追加
+
 ## 5.0.0
 publish リポジトリを GitHub Packages から npm に変更
 
