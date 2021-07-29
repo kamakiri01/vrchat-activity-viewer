@@ -18,7 +18,7 @@ export function showActivityLog(param: ViewerAppParameterObject, activityLog: Ac
         switch (e.activityType) {
             case ActivityType.Join:
             case ActivityType.Leave:
-                message += generateMoveActivityMessage(e as MoveActivityLog);
+                message += generateMoveActivityMessage(e as MoveActivityLog, !!param.verbose);
                 break;
             case ActivityType.Enter:
                 message += generateEnterActivityMessage(e as EnterActivityLog, !!param.verbose);
@@ -62,11 +62,14 @@ function isMatchFilter(message: string, filter: string[]): boolean {
     return filter.find((e) => message.indexOf(e) !== -1) !== undefined;
 }
 
-function generateMoveActivityMessage(log: MoveActivityLog): string {
-    const message =
+function generateMoveActivityMessage(log: MoveActivityLog, verbose: boolean): string {
+    let message =
         log.activityType + " " +
         log.userData.userName;
-    return message;
+        if (verbose) {
+            if (log.userData.access === "local") message += " (self)";
+        }
+        return message;
 }
 
 function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): string {
