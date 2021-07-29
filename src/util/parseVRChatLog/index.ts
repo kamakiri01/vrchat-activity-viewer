@@ -40,7 +40,7 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): Activity
 }
 
 const Judge = {
-    isOnPlayerJoined: (message: string) => { return message.indexOf("OnPlayerJoined") !== -1 },
+    isOnPlayerJoined: (message: string) => { return message.indexOf("Initialized PlayerAPI") !== -1 },
     isOnPlayerLeft: (message: string) => { return (message.indexOf("OnPlayerLeft") !== -1 && message.indexOf("OnPlayerLeftRoom") === -1) },
     isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
     isSendNotification: (message: string) => { return message.indexOf("Send notification") !== -1 },
