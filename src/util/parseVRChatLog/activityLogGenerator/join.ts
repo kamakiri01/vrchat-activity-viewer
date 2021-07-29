@@ -1,5 +1,5 @@
 import { ActivityType, MoveActivityLog } from "../../..";
-import { PlayerAPIAccess } from "../../../type/ActivityLogType/moveType";
+import { PlayerAPIAccessType } from "../../../type/ActivityLogType/moveType";
 import { parseSquareBrackets } from "../reg";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
@@ -10,7 +10,7 @@ export function createJoinActivityLog(utcTime: number, message: string): MoveAct
         activityType: ActivityType.Join,
         userData: {
             userName: reg[1],
-            access: reg[2] as PlayerAPIAccess
+            access: reg[2] as PlayerAPIAccessType
         }
     };
     return activity;

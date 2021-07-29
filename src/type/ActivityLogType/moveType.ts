@@ -5,9 +5,9 @@ export interface MoveActivityLog extends ActivityLog {
     userData: UserLogData;
 }
 
-export type PlayerAPIAccess = "remote" | "local";
+export type PlayerAPIAccessType = "remote" | "local";
 
 interface UserLogData {
     userName: string;
-    access?: PlayerAPIAccess; // join のみ
+    access?: PlayerAPIAccessType; // join のみ
 }
