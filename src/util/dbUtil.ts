@@ -22,7 +22,16 @@ export function loadDatabase(dbPath: string): Database {
 }
 
 export function writeDatabase(dbPath: string, data: string): void {
-    fs.writeFileSync(path.resolve(dbPath), data);
+    const backupDbPath = path.resolve(path.join(dbPath, ".bkup"));
+
+    try {
+        fs.copyFileSync(path.resolve(dbPath), backupDbPath);
+        fs.writeFileSync(path.resolve(dbPath), data);
+        fs.rmSync(backupDbPath);
+    } catch (error) {
+        console.log("failed to write database. see db directory and restoration from .bkup file");
+        throw error;
+    }
 }
 
 function createTemplateDb(): Database {
