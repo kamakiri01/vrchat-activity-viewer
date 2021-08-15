@@ -22,10 +22,11 @@ export function loadDatabase(dbPath: string): Database {
 }
 
 export function writeDatabase(dbPath: string, data: string): void {
-    const backupDbPath = path.resolve(path.join(dbPath, ".bkup"));
+    const backupDbPath = path.resolve(dbPath + ".bkup");
+    const isExistDb = existDatabaseFile(dbPath);
 
     try {
-        fs.copyFileSync(path.resolve(dbPath), backupDbPath);
+        if (isExistDb) fs.copyFileSync(path.resolve(dbPath), backupDbPath);
         fs.writeFileSync(path.resolve(dbPath), data);
         fs.rmSync(backupDbPath);
     } catch (error) {
