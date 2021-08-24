@@ -1,12 +1,9 @@
-[JP README](./README_ja.md)
-
 # VRChat Activity Viewer
 
-This is a node.js command line tool with the ability to save and view VRChat log information.
-It provides functions for retrieving, saving, and viewing key log information from log files, as well as type definitions.
+VRChat ログ情報の保存・表示機能を持つ node.js コマンドラインツールです。
+ログファイルから主要なログ情報の取得と保存、閲覧機能と型定義を提供します。
 
-Github Packages `@kamakiri/vrchat-activity-viewer` is Deprecated.
-Use `vrchat-activity-viewer` from npm.
+Github Packages is Deprecated. Use from npm.
 
 ## Usage
 
@@ -20,7 +17,7 @@ $ va --filter myFriendName --range 24h
 ```
 
 ### TypeScript / JavaScript
-```javascript
+```
 import { findLatestVRChatLogFullPath, parseVRChatLog } from "vrchat-activity-viewer";
 const filePath = findLatestVRChatLogFullPath();
 const latestLog = parseVRChatLog(
@@ -34,7 +31,7 @@ const latestLog = parseVRChatLog(
 $ npm install vrchat-activity-viewer
 ```
 
- To install globally as a `va` command,
+`va` コマンドとしてグローバルにインストールする場合は、
 
 ```
 $ npm install -g vrchat-activity-viewer
@@ -46,13 +43,13 @@ $ npm install -g vrchat-activity-viewer
 $ ./bin/run
 ```
 
-When installed globally,
+または、グローバルにインストールした場合、
 
 ```
 $ va
 ```
 
-The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in your home directory.
+初回実行時、ホームディレクトリに `~/.vrchatActivityViewer/db.json` を生成します。
 
 ### Options
 
@@ -64,8 +61,8 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
   log directory to additional import
 * `-V --verbose`:
   display full log details
-* `-r --range <year/month/week/day/hour>`:
-  specify show range to display (default: "24h")
+* `-r --range <hours>`:
+  specify show range to display (default: "24")
 * `-v --version`:
   output the current version
 * `-h --help`:
@@ -73,5 +70,5 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
 
 ## Note
 
-The specifications of the VRChat log file have not been publicly defined.
-Therefore, the execution results of this module may change or stop working at unexpected times.
+VRChat ログファイルの仕様は公に定められていません。
+そのため、本モジュールの実行結果は、予期せぬタイミングで変わる・動作しなくなる可能性があります。
