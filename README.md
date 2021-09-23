@@ -6,7 +6,7 @@ This is a node.js command line tool with the ability to save and view VRChat log
 It provides functions for retrieving, saving, and viewing key log information from log files, as well as type definitions.
 
 Github Packages `@kamakiri/vrchat-activity-viewer` is Deprecated.
-Use `vrchat-activity-viewer` from npm.
+Use `vrchat-activity-viewer` from npm(npmjs).
 
 ## Usage
 
