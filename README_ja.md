@@ -4,7 +4,7 @@ VRChat ログ情報の保存・表示機能を持つ node.js コマンドライ�
 ログファイルから主要なログ情報の取得と保存、閲覧機能と型定義を提供します。
 
 Github Packages で公開されている `@kamakiri/vrchat-activity-viewer` は Deprecated です。
-新しい `vrchat-activity-viewer` パッケージを利用してください。
+新しい `vrchat-activity-viewer` パッケージを npm(npmjs) から利用してください。
 
 ## Usage
 
