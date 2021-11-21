@@ -63,9 +63,9 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
 * `-i --import <dir>`:
   log directory to additional import
 * `-V --verbose`:
-  display full log details
+  display full result details
 * `-r --range <year/month/week/day/hour>`:
-  specify show range to display (default: "24h")
+  specify show range to display (default: "24h")(ex: 1y, 2m, 3w, 4d, 5h)
 * `-v --version`:
   output the current version
 * `-h --help`:
