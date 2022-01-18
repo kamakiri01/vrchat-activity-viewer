@@ -10,9 +10,11 @@ program
 
 program
     .description("VRChat log viewer")
-    .option("-f, --filter <word...>", "filter logs with ignore case words")
-    .option("-cf, --case-filter <word...>", "filter logs with no ignore case words")
-    .option("-i, --import <dir>", "log directory to import additional")
+    .option("-f, --filter <word...>", "filter logs with any words")
+    .option("-cf, --case-filter", "use case sensitive filter")
+    .option("-au, --instance-all", "include same instance user names, world enter log") // --instance-all
+    .option("-aw, --instance-enter", "include world enter log") // --instance-enter
+    .option("-i, --import-dir <dir>", "specify log directory (default: VRChat App path)")
     .option("-V, --verbose", "display full log details")
     .option("-r, --range <range>", "specify the range to display with year/month/week/day/hour. (ex: 4w 7d 24h 60m)")
     .option("-w, --watch <sec>", "update db repeatedly")
@@ -21,9 +23,11 @@ program
 export async function run(argv: any): Promise<void> {
     program.parse(argv);
     app({
-        import: program["import"],
+        importDir: program["importDir"],
         filter: program["filter"],
         caseFilter: program["caseFilter"],
+        instanceAll: program["instanceAll"],
+        instanceEnter: program["instanceEnter"],
         verbose: program["verbose"],
         range: program["range"],
         watch: program["watch"],
