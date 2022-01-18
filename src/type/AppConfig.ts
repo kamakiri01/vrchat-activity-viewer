@@ -1,9 +1,11 @@
 export interface ViewerAppParameterObject {
     range: string | number;
-    import?: string;
+    importDir?: string;
     filter?: string[];
-    caseFilter?: string[];
+    caseFilter?: boolean;
     verbose?: boolean;
     watch?: string;
     debug?: boolean;
+    instanceAll?: boolean;
+    instanceEnter?: boolean;
 }
