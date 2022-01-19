@@ -11,7 +11,7 @@ import { createReceiveNotificationActivityLog } from "./activityLogGenerator/rec
 import { createRemoveNotificationActivityLog } from "./activityLogGenerator/remove";
 import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
 import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
-import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./reg";
+import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./parseUtil";
 
 /**
  * parse output_log_xx_xx_xx.txt file
@@ -39,7 +39,7 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): Activity
     return activityLog;
 }
 
-const Judge = {
+const JudgeLogType = {
     isOnPlayerJoined: (message: string) => { return message.indexOf("Initialized PlayerAPI") !== -1 },
     isOnPlayerLeft: (message: string) => { return (message.indexOf("OnPlayerLeft") !== -1 && message.indexOf("OnPlayerLeftRoom") === -1) },
     isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
@@ -62,37 +62,37 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
 
     let activityLog: ActivityLog = null!;
 
-    if (Judge.isOnPlayerJoined(message)) {
+    if (JudgeLogType.isOnPlayerJoined(message)) {
         // join
         activityLog = createJoinActivityLog(utcTime, message);
-    } else if (Judge.isOnPlayerLeft(message)) {
+    } else if (JudgeLogType.isOnPlayerLeft(message)) {
         // leave
         activityLog = createLeaveActivityLog(utcTime, message);
-    } else if (Judge.isEnter(message)) {
+    } else if (JudgeLogType.isEnter(message)) {
         // enter
         const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
         activityLog = createEnterActivityLog(utcTime, message, worldInfo);
-    } else if (Judge.isSendNotification(message)) {
+    } else if (JudgeLogType.isSendNotification(message)) {
         // send: friendRequest, invite, requestInvite
         const info = parseSendNotificationMessage(message)!;
         activityLog = createSendNotificationActivityLog(utcTime, message, info);
-    } else if (Judge.isReceiveNotification(message)) {
+    } else if (JudgeLogType.isReceiveNotification(message)) {
         // receive: friendRequest, invite, requestInvite
         const info = parseReceiveNotificationMessage(message)!;
         if (!info || !info.to || !info.to.id) return null; // pending friend request
         activityLog = createReceiveNotificationActivityLog(utcTime, message, <ReceiveNotificationInfo>info);
-    } else if (Judge.isRemoveNotification(message)) {
+    } else if (JudgeLogType.isRemoveNotification(message)) {
         // remove: friendRequest, invite, requestInvite
         const info = parseRemoveNotificationMessage(message)!;
         if (!info || !info.to || !info.to.id) return null;
         activityLog = createRemoveNotificationActivityLog(utcTime, message, <RemoveNotificationInfo>info);
-    } else if (Judge.isAuthentication(message)) {
+    } else if (JudgeLogType.isAuthentication(message)) {
         // login
         activityLog = createAuthenticationActivityLog(utcTime, message);
-    } else if (Judge.isCheckBuild(message)) {
+    } else if (JudgeLogType.isCheckBuild(message)) {
         // check build
         activityLog = createCheckBuildActivityLog(utcTime, logLines[index+1]);
-    } else if (Judge.isShutdown(message)) {
+    } else if (JudgeLogType.isShutdown(message)) {
         // shutdown
         activityLog = createShutdownActivityLog(utcTime, message);
     }
