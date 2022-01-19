@@ -12,8 +12,8 @@ program
     .description("VRChat log viewer")
     .option("-f, --filter <word...>", "filter logs with any words")
     .option("-cf, --case-filter", "use case sensitive filter")
-    .option("-au, --instance-all", "include same instance user names, world enter log") // --instance-all
-    .option("-aw, --instance-enter", "include world enter log") // --instance-enter
+    .option("-ia, --instance-all", "include same instance user names, world enter log") // --instance-all
+    .option("-ie, --instance-enter", "include world enter log") // --instance-enter
     .option("-i, --import-dir <dir>", "specify log directory (default: VRChat App path)")
     .option("-V, --verbose", "display full log details")
     .option("-r, --range <range>", "specify the range to display with year/month/week/day/hour. (ex: 4w 7d 24h 60m)")
