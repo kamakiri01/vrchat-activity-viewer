@@ -1,6 +1,6 @@
 import { ActivityType, MoveActivityLog } from "../../..";
 import { PlayerAPIAccessType } from "../../../type/ActivityLogType/moveType";
-import { parseSquareBrackets } from "../reg";
+import { parseSquareBrackets } from "../parseUtil";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {
     const messageText = parseSquareBrackets(message)!; // [NetworkManager]
