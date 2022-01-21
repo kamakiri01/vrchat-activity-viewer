@@ -58,10 +58,14 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
 
 * `-f --filter <words...>`:
   filter result with ignore case words. when specify space separeted words, use "or" matching
+* `-cf --case-filter`:
+  use case sensitive filter
 * `-V --verbose`:
   display full result details
 * `-r --range <year/month/week/day/hour>`:
   specify show range to display (default: "24h")(ex: 1y, 2m, 3w, 4d, 5h)
+* `-w --watch <sec>`:
+   update db repeatedly
 * `-v --version`:
   output the current version
 * `-h --help`:

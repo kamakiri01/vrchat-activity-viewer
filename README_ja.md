@@ -55,15 +55,19 @@ $ va
 ### Options
 
 * `-f --filter <words...>`:
-  filter result with ignore case words. when specify space separeted words, use "or" matching
+  指定された字句で検索結果をフィルタします。複数指定すると OR マッチングします
+* `-cf --case-filter`:
+  フィルタ時に単語の大文字小文字を区別します
 * `-V --verbose`:
-  display full log details
-* `-r --range <hours>`:
-  specify show range to display (default: "24")
+  詳細情報を表示します
+* `-r --range <year/month/week/day/hour>`:
+  検索範囲を指定します(ex: 1y, 2m, 3w, 4d, 5h)
+* `-w --watch <sec>`:
+   一定間隔で繰り返し実行します
 * `-v --version`:
-  output the current version
+  アプリケーションのバージョン情報を表示します
 * `-h --help`:
-  display help for command
+  ヘルプを表示します
 
 ## Note
 
