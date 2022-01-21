@@ -1,5 +1,5 @@
 import { AuthenticationActivityLog, ActivityType } from "../../..";
-import { parseSquareBrackets } from "../reg";
+import { parseSquareBrackets } from "../parseUtil";
 
 export function createAuthenticationActivityLog(utcTime: number, message: string): AuthenticationActivityLog {
     const reg = parseSquareBrackets(message)!; // [VRCFlowManagerVRC]

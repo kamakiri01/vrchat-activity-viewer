@@ -56,10 +56,6 @@ $ va
 
 * `-f --filter <words...>`:
   filter result with ignore case words. when specify space separeted words, use "or" matching
-* `-cf --case-filter <words...>`:
-  filter result with no ignore case words. when specify space separeted words, use "or" matching
-* `-i --import <dir>`:
-  log directory to additional import
 * `-V --verbose`:
   display full log details
 * `-r --range <hours>`:

@@ -1,44 +1,26 @@
 import * as path from "path";
 import * as fs from "fs";
-import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "./util/dbUtil";
-import { parseVRChatLog } from "./util/parseVRChatLog";
-import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "./util/pathUtil";
-import { showActivityLog } from "./util/showActivityLog";
-import { Database, ActivityLog } from "./type/ActivityLogType/common";
-import { ViewerAppParameterObject } from "./type/AppConfig";
+import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "../util/dbUtil";
+import { parseVRChatLog } from "../util/parseVRChatLog/parseVRChatLog";
+import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "../util/pathUtil";
+import { showActivityLog } from "./showActivityLog";
+import { Database, ActivityLog } from "../type/ActivityLogType/common";
+import { ViewerAppParameterObject } from "../type/AppConfig";
 
 export function app(param: ViewerAppParameterObject): void {
     completeParameterObject(param);
-    if (!existDatabaseFile(DB_PATH)) {
-        console.log("generate db.json in app dir...")
-        initDatabase(DB_PATH);
-    }
+    if (!existDatabaseFile(DB_PATH)) initDatabase(DB_PATH);
 
     const db = loadDatabase(DB_PATH);
-
-    if (param.import) {
-        const vrchatLogDirPath = path.join(process.cwd(), param.import);
-        console.log("search import log files from " + vrchatLogDirPath);
-        updateDatabase(db, vrchatLogDirPath, param);
-        return;
-    }
-
     updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
-    console.log("--- Activity Log ---");
     showActivityLog(param, db.log);
 
-    if (param.watch) {
-        console.log("watching...");
-        const interval = parseInt(param.watch, 10);
-        setInterval(() => {
-            const db = loadDatabase(DB_PATH);
-            updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
-        }, interval * 1000);
-    }
+    if (param.watch) watch(param);
 }
 
-function completeParameterObject(param: ViewerAppParameterObject): void {
+function completeParameterObject(param: ViewerAppParameterObject) {
     param.range = param.range ? parseRange(param.range) : 1000 * 60 * 60 * 24; // default 24h
+    param.importDir = param.importDir ? path.join(process.cwd(), param.importDir) : DEFAULT_VRCHAT_FULL_PATH;
 }
 
 function parseRange(range: string | number): number {
@@ -106,4 +88,13 @@ function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
         if (a.date > b.date) return 1;
         return 0;
     })
+}
+
+function watch(param: ViewerAppParameterObject){
+    console.log("watching...");
+    const interval = parseInt(param.watch!, 10);
+    setInterval(() => {
+        const db = loadDatabase(DB_PATH);
+        updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+    }, interval * 1000);
 }
