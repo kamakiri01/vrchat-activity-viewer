@@ -22,7 +22,9 @@ export const ActivityType = {
     Remove: "remove", // 通知の削除
     Authentication: "authentication", // ログイン成功,
     CheckBuild: "checkBuild", // ビルド番号
-    Shutdown: "shutdown" // 終了
+    Shutdown: "shutdown", // 終了
+    VideoPlay: "videoPlay", // 動画再生
+    USharpVideoStarted: "usharpVideoStarted" // USharpVideoの動画リクエスト
 } as const;
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 

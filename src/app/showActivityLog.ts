@@ -1,4 +1,4 @@
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails } from "..";
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog } from "..";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
@@ -90,6 +90,10 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateCheckBuildMessage(e as CheckBuildActivityLog);
         case ActivityType.Shutdown:
             return generateShutdownMessage(e as ShutdownActivityLog);
+        case ActivityType.VideoPlay:
+            return generateVideoPlayMessage(e as VideoPlayActivityLog, !!verbose);
+        case ActivityType.USharpVideoStarted:
+            return generateUSharpVideoStartedMessage(e as USharpVideoStartedActivityLog);
     }
 }
 
@@ -209,4 +213,16 @@ function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
 function generateShutdownMessage(log: ShutdownActivityLog): string {
     const message = "shutdown";
     return message;   
+}
+function generateVideoPlayMessage(log: VideoPlayActivityLog, verbose: boolean): string {
+    let message = "videoplay " + log.url;
+    if (verbose) {
+        message += " (" + log.resolvedUrl + ") ";
+    }
+    return message;   
+}
+
+function generateUSharpVideoStartedMessage(log: USharpVideoStartedActivityLog): string {
+    const message = "usharpvideo " + log.url + ", requested by" + log.requestedBy;
+    return message;
 }

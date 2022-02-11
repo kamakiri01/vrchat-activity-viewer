@@ -1,3 +1,4 @@
+import { createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
 import { ActivityLog } from "../../type/ActivityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
@@ -48,7 +49,9 @@ const JudgeLogType = {
     isRemoveNotification: (message: string) => { return message.indexOf("Remove notification") !== -1 },
     isAuthentication: (message: string) => { return message.indexOf("User Authenticated") !== -1 },
     isCheckBuild: (message: string) => { return message.indexOf("Environment Info") !== -1 },
-    isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 }
+    isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 },
+    isVideoPlay: (message: string) => { return message.indexOf("[Video Playback] URL") !== -1 },
+    isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 } 
 }
 
 // 次行のインスタンスIDを取るため全部引数に渡す
@@ -95,6 +98,12 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
     } else if (JudgeLogType.isShutdown(message)) {
         // shutdown
         activityLog = createShutdownActivityLog(utcTime, message);
+    } else if (JudgeLogType.isVideoPlay(message)) {
+        // video play
+        activityLog = createVideoPlayActivityLog(utcTime, message);
+    } else if (JudgeLogType.isUSharpVideoStarted(message)) {
+        // video start by usharp
+        activityLog = createUSharpVideoStartedActivityLog(utcTime, message);
     }
     // console.log("unsupported log: " + message);
     return activityLog || null;
