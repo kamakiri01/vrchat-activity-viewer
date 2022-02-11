@@ -13,8 +13,8 @@ export function showActivityLog(param: ViewerAppParameterObject, activityLog: Ac
     } else {
         resultLogs = pickFilteredLogs(showableRangeLogs, param);
     }
-    console.log("--- Activity Log ---");
-    console.log(resultLogs.join("\n"));
+    if (param.debug) console.log("--- Activity Log ---");
+    if (resultLogs.length > 0) console.log(resultLogs.join("\n"));
 }
 
 const dateOption: Intl.DateTimeFormatOptions = {

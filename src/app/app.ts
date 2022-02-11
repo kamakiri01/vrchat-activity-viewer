@@ -11,11 +11,13 @@ export function app(param: ViewerAppParameterObject): void {
     completeParameterObject(param);
     if (!existDatabaseFile(DB_PATH)) initDatabase(DB_PATH);
 
-    const db = loadDatabase(DB_PATH);
-    updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
-    showActivityLog(param, db.log);
-
-    if (param.watch) watch(param);
+    if (param.watch) {
+        watch(param);
+    } else {
+        const db = loadDatabase(DB_PATH);
+        updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+        showActivityLog(param, db.log);
+    }
 }
 
 function completeParameterObject(param: ViewerAppParameterObject) {
@@ -54,9 +56,9 @@ function parseRange(range: string | number): number {
 }
 
 function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerAppParameterObject): void {
-    console.log("searching vrchat log files...")
+    if (param.debug) console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
-    console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
+    if (param.debug) console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
     const activityLogs = filePaths.map((filePath) => {
         return parseVRChatLog(
             fs.readFileSync(path.resolve(path.join(vrchatLogDirPath, filePath)), "utf8"),
@@ -66,13 +68,13 @@ function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerApp
     const newActivityLogs: ActivityLog[] = Array.prototype.concat.apply([], activityLogs);
     const currentLogLength = db.log.length;
     db.log = mergeActivityLog(db.log, newActivityLogs);
-    console.log("update new " +
+    if (param.debug) console.log("update new " +
         (
             (Number.isNaN(db.log.length) ? 0 : db.log.length) -
             (Number.isNaN(currentLogLength) ? 0 : currentLogLength)
         ) + " logs");
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
-    console.log("update DB done");
+    if (param.debug) console.log("update DB done");
 }
 
 function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {
@@ -92,9 +94,15 @@ function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
 
 function watch(param: ViewerAppParameterObject){
     console.log("watching...");
+    let shownDate = 0;
     const interval = parseInt(param.watch!, 10);
     setInterval(() => {
         const db = loadDatabase(DB_PATH);
         updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+        const currentDate = db.log[db.log.length - 1].date;
+        const newLog = db.log.filter(e => e.date > shownDate);
+        shownDate = currentDate;
+        showActivityLog(param, newLog);
+
     }, interval * 1000);
 }
