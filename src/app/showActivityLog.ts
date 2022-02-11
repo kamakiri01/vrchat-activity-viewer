@@ -219,7 +219,7 @@ function generateVideoPlayMessage(log: VideoPlayActivityLog, verbose: boolean): 
     if (verbose) {
         message += " (" + log.resolvedUrl + ") ";
     }
-    return message;   
+    return message;
 }
 
 function generateUSharpVideoStartedMessage(log: USharpVideoStartedActivityLog): string {

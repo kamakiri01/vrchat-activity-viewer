@@ -51,7 +51,7 @@ const JudgeLogType = {
     isCheckBuild: (message: string) => { return message.indexOf("Environment Info") !== -1 },
     isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 },
     isVideoPlay: (message: string) => { return message.indexOf("[Video Playback] URL") !== -1 },
-    isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 } 
+    isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 }
 }
 
 // 次行のインスタンスIDを取るため全部引数に渡す
