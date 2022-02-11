@@ -96,13 +96,16 @@ function watch(param: ViewerAppParameterObject){
     console.log("watching...");
     let shownDate = 0;
     const interval = parseInt(param.watch!, 10);
-    setInterval(() => {
+
+    function loop() {
         const db = loadDatabase(DB_PATH);
         updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
         const currentDate = db.log[db.log.length - 1].date;
         const newLog = db.log.filter(e => e.date > shownDate);
         shownDate = currentDate;
         showActivityLog(param, newLog);
+    }
 
-    }, interval * 1000);
+    loop();
+    setInterval(loop, interval * 1000);
 }
