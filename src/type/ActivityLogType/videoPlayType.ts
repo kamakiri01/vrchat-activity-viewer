@@ -16,7 +16,7 @@ export interface USharpVideoStartedActivityLog extends ActivityLog {
     requestedBy: string;
 }
 
-// sdk2 video started log
+// sdk2 video player started log
 export interface SDK2PlayerStartedActivityLog extends ActivityLog {
     activityType: typeof ActivityType.SDK2PlayerStarted;
     url: string;

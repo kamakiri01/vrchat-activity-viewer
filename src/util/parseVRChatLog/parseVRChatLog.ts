@@ -106,6 +106,7 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
         // video start by usharp
         activityLog = createUSharpVideoStartedActivityLog(utcTime, message);
     } else if (JudgeLogType.isSDK2PlayerVideoStarted(message)) {
+        // sdk2 video player
         activityLog = createSDK2PlayerStartedActivityLog(utcTime, message);
     }
     // console.log("unsupported log: " + message);
