@@ -1,4 +1,4 @@
-import {  ActivityType, parseSquareBrackets, USharpVideoStartedActivityLog, VideoPlayActivityLog } from "../../..";
+import {  ActivityType, parseSquareBrackets, SDK2PlayerStartedActivityLog, USharpVideoStartedActivityLog, VideoPlayActivityLog } from "../../..";
 
 export function createVideoPlayActivityLog(utcTime: number, message: string): VideoPlayActivityLog {
     const reg = /\[Video Playback\] URL '(.+)' resolved to '(.+)'/.exec(message)!;
@@ -22,3 +22,13 @@ export function createUSharpVideoStartedActivityLog(utcTime: number, message: st
     return activity;
 }
 
+export function createSDK2PlayerStartedActivityLog(utcTime: number, message: string): SDK2PlayerStartedActivityLog {
+    const reg = /User (.+) added URL (http.+)/.exec(message)!;
+    const activity: SDK2PlayerStartedActivityLog = {
+        date: utcTime,
+        activityType: ActivityType.SDK2PlayerStarted,
+        url: reg[2],
+        requestedBy: reg[1]
+    };
+    return activity;
+}

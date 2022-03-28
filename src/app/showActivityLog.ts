@@ -1,4 +1,4 @@
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog } from "..";
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog } from "..";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
@@ -94,6 +94,8 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateVideoPlayMessage(e as VideoPlayActivityLog, !!verbose);
         case ActivityType.USharpVideoStarted:
             return generateUSharpVideoStartedMessage(e as USharpVideoStartedActivityLog);
+        case ActivityType.SDK2PlayerStarted:
+            return generateSDK2PlayerStartedMessage(e as SDK2PlayerStartedActivityLog);
     }
 }
 
@@ -224,5 +226,10 @@ function generateVideoPlayMessage(log: VideoPlayActivityLog, verbose: boolean): 
 
 function generateUSharpVideoStartedMessage(log: USharpVideoStartedActivityLog): string {
     const message = "usharpvideo " + log.url + ", requested by" + log.requestedBy;
+    return message;
+}
+
+function generateSDK2PlayerStartedMessage(log: SDK2PlayerStartedActivityLog): string {
+    const message = "sdk2player " + log.url + ", requested by" + log.requestedBy;
     return message;
 }
