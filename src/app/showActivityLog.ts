@@ -1,4 +1,4 @@
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog } from "..";
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog } from "..";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
@@ -78,6 +78,8 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateMoveActivityMessage(e as MoveActivityLog, !!verbose);
         case ActivityType.Enter:
             return generateEnterActivityMessage(e as EnterActivityLog, !!verbose);
+        case ActivityType.Exit:
+            return generateExitActivityMessage(e as ExitActivityLog, !!verbose);
         case ActivityType.Send:
             return generateSendNotificationMessage(e as SendNotificationActivityLog, !!verbose);
         case ActivityType.Receive:
@@ -148,6 +150,11 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
             message += "~" + data.access + "(" + data.instanceOwner + ")~nonce(" + data.nonce + ")";
         }
     }
+    return message;
+}
+
+function generateExitActivityMessage(log: ExitActivityLog, verbose: boolean): string {
+    const message = "exit";
     return message;
 }
 

@@ -7,6 +7,13 @@ export interface EnterActivityLog extends ActivityLog {
     worldData: WorldLogData;
 }
 
+// world out
+// NOTE: OnLeftRoomログはlocalプレイヤーのLeaveとほぼ同時刻に記録される。local/remoteプレイヤーのLeaveと順序が前後しうる
+// OnLeftRoomに対応する入室ログはOnJoinedRoomだが、ワールド名を取得するために使用しているEntering Roomに対応する退室ログは無い
+export interface ExitActivityLog extends ActivityLog {
+    activityType: typeof ActivityType.Exit;
+}
+
 // login
 export interface AuthenticationActivityLog extends ActivityLog {
     activityType: typeof ActivityType.Authentication;

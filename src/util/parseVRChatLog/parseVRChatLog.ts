@@ -5,7 +5,7 @@ import { ReceiveNotificationType, SendNotificationType } from "../../type/common
 import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResult";
 import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
 import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
-import { createEnterActivityLog } from "./activityLogGenerator/enter";
+import { createEnterActivityLog, createExitActivityLog } from "./activityLogGenerator/enter";
 import { createJoinActivityLog } from "./activityLogGenerator/join";
 import { createLeaveActivityLog } from "./activityLogGenerator/leave";
 import { createReceiveNotificationActivityLog } from "./activityLogGenerator/receive";
@@ -44,6 +44,7 @@ const JudgeLogType = {
     isOnPlayerJoined: (message: string) => { return message.indexOf("Initialized PlayerAPI") !== -1 },
     isOnPlayerLeft: (message: string) => { return (message.indexOf("OnPlayerLeft") !== -1 && message.indexOf("OnPlayerLeftRoom") === -1) },
     isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
+    isExit: (message: string) => { return message.indexOf("OnLeftRoom") !== -1},
     isSendNotification: (message: string) => { return message.indexOf("Send notification") !== -1 },
     isReceiveNotification: (message: string) => { return message.indexOf("Received Notification") !== -1 },
     isRemoveNotification: (message: string) => { return message.indexOf("Remove notification") !== -1 },
@@ -76,6 +77,9 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
         // enter
         const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
         activityLog = createEnterActivityLog(utcTime, message, worldInfo);
+    } else if (JudgeLogType.isExit(message)){
+        // exit
+        activityLog = createExitActivityLog(utcTime, message);
     } else if (JudgeLogType.isSendNotification(message)) {
         // send: friendRequest, invite, requestInvite
         const info = parseSendNotificationMessage(message)!;

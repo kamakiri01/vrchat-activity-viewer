@@ -16,7 +16,8 @@ export interface ActivityLog {
 export const ActivityType = {
     Join: "join", // インスタンスへのユーザjoin
     Leave: "leave", // インスタンスへのユーザleave
-    Enter: "enter", // ワールドへのin,
+    Enter: "enter", // ワールドへのin
+    Exit: "exit", // ワールドからのout
     Send: "send",
     Receive: "receive",
     Remove: "remove", // 通知の削除

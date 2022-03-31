@@ -1,8 +1,8 @@
-import { WorldEnterInfo, EnterActivityLog, ActivityType } from "../../..";
+import { WorldEnterInfo, EnterActivityLog, ActivityType, ExitActivityLog } from "../../..";
 import { parseSquareBrackets } from "../parseUtil";
 
 export function createEnterActivityLog(utcTime: number, message: string, worldInfo: WorldEnterInfo): EnterActivityLog {
-    const reg = parseSquareBrackets(message)!; // [RoomManager]
+    const reg = parseSquareBrackets(message)!; // [Behaviour]
     const activity: EnterActivityLog = {
         date: utcTime,
         activityType: ActivityType.Enter,
@@ -15,6 +15,15 @@ export function createEnterActivityLog(utcTime: number, message: string, worldIn
             region: worldInfo.region,
             nonce: worldInfo.nonce
         }
+    };
+    return activity;
+}
+
+export function createExitActivityLog(utcTime: number, message: string): ExitActivityLog {
+    const reg = parseSquareBrackets(message)!; // [Behaviour]
+    const activity: ExitActivityLog = {
+        date: utcTime,
+        activityType: ActivityType.Exit
     };
     return activity;
 }
