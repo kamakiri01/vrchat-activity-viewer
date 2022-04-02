@@ -1,5 +1,5 @@
 import { RemoveNotificationType } from "../..";
-import { ActivityLog, NotificationLogData } from "./common";
+import { ActivityLog, ActivityType, NotificationLogData } from "./common";
 
 // Remove Notification系ログの種別
 export const RemoveActivityType = {
@@ -14,6 +14,7 @@ export type RemoveActivityType = typeof RemoveActivityType[keyof typeof RemoveAc
 
 // send
 export interface RemoveNotificationActivityLog extends ActivityLog {
+    activityType: typeof ActivityType.Remove;
     data: RemoveNotificationLogData;
     removeActivityType: RemoveActivityType;
 }

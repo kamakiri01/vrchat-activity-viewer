@@ -1,7 +1,8 @@
-import { ActivityLog } from "./common";
+import { ActivityLog, ActivityType } from "./common";
 
 // join or leave
 export interface MoveActivityLog extends ActivityLog {
+    activityType: typeof ActivityType.Join | typeof ActivityType.Leave;
     userData: UserLogData;
 }
 

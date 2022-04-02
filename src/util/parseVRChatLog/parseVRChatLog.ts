@@ -1,10 +1,11 @@
+import { createSDK2PlayerStartedActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
 import { ActivityLog } from "../../type/ActivityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
 import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResult";
 import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
 import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
-import { createEnterActivityLog } from "./activityLogGenerator/enter";
+import { createEnterActivityLog, createExitActivityLog } from "./activityLogGenerator/enter";
 import { createJoinActivityLog } from "./activityLogGenerator/join";
 import { createLeaveActivityLog } from "./activityLogGenerator/leave";
 import { createReceiveNotificationActivityLog } from "./activityLogGenerator/receive";
@@ -43,12 +44,16 @@ const JudgeLogType = {
     isOnPlayerJoined: (message: string) => { return message.indexOf("Initialized PlayerAPI") !== -1 },
     isOnPlayerLeft: (message: string) => { return (message.indexOf("OnPlayerLeft") !== -1 && message.indexOf("OnPlayerLeftRoom") === -1) },
     isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
+    isExit: (message: string) => { return message.indexOf("OnLeftRoom") !== -1},
     isSendNotification: (message: string) => { return message.indexOf("Send notification") !== -1 },
     isReceiveNotification: (message: string) => { return message.indexOf("Received Notification") !== -1 },
     isRemoveNotification: (message: string) => { return message.indexOf("Remove notification") !== -1 },
     isAuthentication: (message: string) => { return message.indexOf("User Authenticated") !== -1 },
     isCheckBuild: (message: string) => { return message.indexOf("Environment Info") !== -1 },
-    isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 }
+    isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 },
+    isVideoPlay: (message: string) => { return message.indexOf("[Video Playback] URL") !== -1 },
+    isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 },
+    isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) }
 }
 
 // 次行のインスタンスIDを取るため全部引数に渡す
@@ -72,6 +77,9 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
         // enter
         const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
         activityLog = createEnterActivityLog(utcTime, message, worldInfo);
+    } else if (JudgeLogType.isExit(message)){
+        // exit
+        activityLog = createExitActivityLog(utcTime, message);
     } else if (JudgeLogType.isSendNotification(message)) {
         // send: friendRequest, invite, requestInvite
         const info = parseSendNotificationMessage(message)!;
@@ -95,6 +103,15 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
     } else if (JudgeLogType.isShutdown(message)) {
         // shutdown
         activityLog = createShutdownActivityLog(utcTime, message);
+    } else if (JudgeLogType.isVideoPlay(message)) {
+        // video play
+        activityLog = createVideoPlayActivityLog(utcTime, message);
+    } else if (JudgeLogType.isUSharpVideoStarted(message)) {
+        // video start by usharp
+        activityLog = createUSharpVideoStartedActivityLog(utcTime, message);
+    } else if (JudgeLogType.isSDK2PlayerVideoStarted(message)) {
+        // sdk2 video player
+        activityLog = createSDK2PlayerStartedActivityLog(utcTime, message);
     }
     // console.log("unsupported log: " + message);
     return activityLog || null;

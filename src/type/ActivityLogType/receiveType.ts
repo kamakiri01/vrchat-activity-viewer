@@ -1,5 +1,5 @@
 import { ReceiveNotificationType } from "../..";
-import { ActivityLog, NotificationLogData } from "./common";
+import { ActivityLog, ActivityType, NotificationLogData } from "./common";
 
 // Receive系ログの種別
 export const ReceiveActivityType = {
@@ -14,6 +14,7 @@ export type ReceiveActivityType = typeof ReceiveActivityType[keyof typeof Receiv
 
 // receive
 export interface ReceiveNotificationActivityLog extends ActivityLog {
+    activityType: typeof ActivityType.Receive;
     data: ReceiveNotificationLogData;
     receiveActivityType: ReceiveActivityType;
 }

@@ -1,5 +1,5 @@
 import { SendNotificationType } from "../..";
-import { ActivityLog, NotificationLogData } from "./common";
+import { ActivityLog, ActivityType, NotificationLogData } from "./common";
 
 // send系ログの種別
 export const SendActivityType = {
@@ -13,6 +13,7 @@ export type SendActivityType = typeof SendActivityType[keyof typeof SendActivity
 
 // send
 export interface SendNotificationActivityLog extends ActivityLog {
+    activityType: typeof ActivityType.Send;
     data: SendNotificationLogData;
     sendActivityType: SendActivityType;
 }

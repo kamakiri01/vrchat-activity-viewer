@@ -1,4 +1,4 @@
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails } from "..";
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog } from "..";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
@@ -13,8 +13,8 @@ export function showActivityLog(param: ViewerAppParameterObject, activityLog: Ac
     } else {
         resultLogs = pickFilteredLogs(showableRangeLogs, param);
     }
-    console.log("--- Activity Log ---");
-    console.log(resultLogs.join("\n"));
+    if (param.debug) console.log("--- Activity Log ---");
+    if (resultLogs.length > 0) console.log(resultLogs.join("\n"));
 }
 
 const dateOption: Intl.DateTimeFormatOptions = {
@@ -78,6 +78,8 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateMoveActivityMessage(e as MoveActivityLog, !!verbose);
         case ActivityType.Enter:
             return generateEnterActivityMessage(e as EnterActivityLog, !!verbose);
+        case ActivityType.Exit:
+            return generateExitActivityMessage(e as ExitActivityLog, !!verbose);
         case ActivityType.Send:
             return generateSendNotificationMessage(e as SendNotificationActivityLog, !!verbose);
         case ActivityType.Receive:
@@ -90,6 +92,12 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateCheckBuildMessage(e as CheckBuildActivityLog);
         case ActivityType.Shutdown:
             return generateShutdownMessage(e as ShutdownActivityLog);
+        case ActivityType.VideoPlay:
+            return generateVideoPlayMessage(e as VideoPlayActivityLog, !!verbose);
+        case ActivityType.USharpVideoStarted:
+            return generateUSharpVideoStartedMessage(e as USharpVideoStartedActivityLog);
+        case ActivityType.SDK2PlayerStarted:
+            return generateSDK2PlayerStartedMessage(e as SDK2PlayerStartedActivityLog);
     }
 }
 
@@ -142,6 +150,11 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
             message += "~" + data.access + "(" + data.instanceOwner + ")~nonce(" + data.nonce + ")";
         }
     }
+    return message;
+}
+
+function generateExitActivityMessage(log: ExitActivityLog, verbose: boolean): string {
+    const message = "exit";
     return message;
 }
 
@@ -209,4 +222,21 @@ function generateCheckBuildMessage(log: CheckBuildActivityLog): string {
 function generateShutdownMessage(log: ShutdownActivityLog): string {
     const message = "shutdown";
     return message;   
+}
+function generateVideoPlayMessage(log: VideoPlayActivityLog, verbose: boolean): string {
+    let message = "videoplay " + log.url;
+    if (verbose) {
+        message += " (" + log.resolvedUrl + ") ";
+    }
+    return message;
+}
+
+function generateUSharpVideoStartedMessage(log: USharpVideoStartedActivityLog): string {
+    const message = "usharpvideo " + log.url + ", requested by" + log.requestedBy;
+    return message;
+}
+
+function generateSDK2PlayerStartedMessage(log: SDK2PlayerStartedActivityLog): string {
+    const message = "sdk2player " + log.url + ", requested by" + log.requestedBy;
+    return message;
 }
