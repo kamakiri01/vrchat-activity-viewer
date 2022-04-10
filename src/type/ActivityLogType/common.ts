@@ -1,11 +1,5 @@
 import { NotificationType } from "../common/NotificationType";
 
-// ログ保存ファイルフォーマット
-export interface Database {
-    dbVersion: 2;
-    log: ActivityLog[];
-}
-
 // 書き込まれるログの基底
 export interface ActivityLog {
     date: number; // utc

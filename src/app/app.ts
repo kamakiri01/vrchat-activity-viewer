@@ -4,8 +4,9 @@ import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "..
 import { parseVRChatLog } from "../util/parseVRChatLog/parseVRChatLog";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "../util/pathUtil";
 import { showActivityLog } from "./showActivityLog";
-import { Database, ActivityLog } from "../type/ActivityLogType/common";
+import { ActivityLog } from "../type/ActivityLogType/common";
 import { ViewerAppParameterObject } from "../type/AppConfig";
+import { Database } from "../type/Database";
 
 export function app(param: ViewerAppParameterObject): void {
     completeParameterObject(param);

@@ -179,7 +179,7 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
 }
 
 function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
-    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const reg = /^\[API\] Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
 
     return {
@@ -204,7 +204,7 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 }
 
 function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
-    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const reg = /^\[API\] Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)?\s?of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)"> received at (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC/.exec(message);
     if (!reg) return null;
     
     return {
@@ -213,7 +213,7 @@ function parseReceiveNotificationMessage(message: string): ReceiveNotificationIn
             id: reg[2],
         },
         to: {
-            id: reg[3],
+            id: reg[3], // pending中のフレンドリクエストはto先が0文字空白になる。pendingログは起動の都度出力されるためこの上限でマッチングから除外する
         },
         senderType: reg[4] as ReceiveNotificationType,
         created: {

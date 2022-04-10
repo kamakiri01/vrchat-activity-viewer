@@ -4,11 +4,11 @@
  * Log以外のException/Error/Warning/にはnullを返す。
  *
  * ex:
- * 2021.01.01 00:00:00 Log        -  message
+ * 2021.01.01 00:00:00 Log        -  messageBody
  *
  * [1]: "2021.01.01"
  * [2]: "00:00:00"
- * [3]: "message"
+ * [3]: "messageBody"
  */
 export function parseMessageBodyFromLogLine(rawActivity: string) {
     return /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2}) Log\s{8}-\s{2}(.+)/.exec(rawActivity);
@@ -28,7 +28,7 @@ export function parseSquareBrackets(message: string) {
 }
 
 /**
- * details文字列をobject構造にして返す
+ * Notificationログのdetails文字列を構造体にして返す
  */
 export function detailParse(detailsRaw: string): {[key: string]: string} {
     detailsRaw = detailsRaw.slice(2, detailsRaw.length - 2); // 両端の{{ }}を落とす
