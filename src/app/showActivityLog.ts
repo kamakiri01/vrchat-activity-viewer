@@ -1,5 +1,5 @@
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog } from "..";
-import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/ActivityLogType/removeType";
+import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/activityLogType/removeType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
 export function showActivityLog(param: ViewerAppParameterObject, activityLog: ActivityLog[]): void {

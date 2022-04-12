@@ -1,5 +1,5 @@
 import { ActivityType, MoveActivityLog } from "../../..";
-import { PlayerAPIAccessType } from "../../../type/ActivityLogType/moveType";
+import { PlayerAPIAccessType } from "../../../type/activityLogType/moveType";
 import { parseSquareBrackets } from "../parseUtil";
 
 export function createJoinActivityLog(utcTime: number, message: string): MoveActivityLog {

@@ -1,5 +1,5 @@
 import { createSDK2PlayerStartedActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
-import { ActivityLog } from "../../type/ActivityLogType/common";
+import { ActivityLog } from "../../type/activityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
 import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResult";
