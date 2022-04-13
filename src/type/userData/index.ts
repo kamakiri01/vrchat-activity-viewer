@@ -2,8 +2,11 @@
  * UserData の最新状態と displayName の履歴
  */
 export interface UserDataLog {
-    latestUserData: UserData;
+    latestUserData: UserData; // 最新のみ保持
     history: {
+        /**
+         * displayName 履歴。末尾が最新
+         */
         displayName: string[];
     }
 }
@@ -39,7 +42,6 @@ export interface UserData {
     /**
      * ワールドインスタンスのフルパス
      * state が offline の場合、 "offline" 。 online の場合、 "private" or "woridId:instanceId"
-     *
      */
     location: string;
 
@@ -132,7 +134,7 @@ export interface UserData {
      * ユーザが設定したステータス
      * "active" or "ask me" or "join me" or "offline" or "busy"
      */
-    status: boolean;
+    status: string;
 
     /**
      * ユーザがwebで書き込めるステータス

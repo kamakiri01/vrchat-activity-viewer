@@ -38,6 +38,7 @@ export function writeDatabase(dbPath: string, data: string): void {
 function createTemplateDb(): Database {
     return {
         dbVersion: 2,
-        log: []
+        log: [],
+        userDataTable: {}
     };
 }

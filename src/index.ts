@@ -7,7 +7,7 @@ export * from "./type/activityLogType/systemType";
 export * from "./type/activityLogType/videoPlayType";
 export * from "./type/common/index";
 export * from "./type/common/NotificationType";
-export * from "./type/parseResult";
+export * from "./type/parseResultInfo/activityLogInfo";
 export * from "./util/parseVRChatLog/activityLogGenerator/authentication";
 export * from "./util/parseVRChatLog/activityLogGenerator/build";
 export * from "./util/parseVRChatLog/activityLogGenerator/enter";

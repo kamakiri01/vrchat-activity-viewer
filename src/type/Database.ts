@@ -5,5 +5,5 @@ import { UserDataLog } from "./userData";
 export interface Database {
     dbVersion: 2;
     log: ActivityLog[];
-    userDataTable: {[key: string]: UserDataLog};
+    userDataTable?: {[key: string]: UserDataLog}; // 後方互換性のため nullable
 }

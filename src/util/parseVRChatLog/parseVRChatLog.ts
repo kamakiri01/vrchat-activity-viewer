@@ -2,7 +2,8 @@ import { createSDK2PlayerStartedActivityLog, createUSharpVideoStartedActivityLog
 import { ActivityLog } from "../../type/activityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
-import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResult";
+import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResultInfo/activityLogInfo";
+import { UserData } from "../../type/userData";
 import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
 import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
 import { createEnterActivityLog, createExitActivityLog } from "./activityLogGenerator/enter";
@@ -13,23 +14,34 @@ import { createRemoveNotificationActivityLog } from "./activityLogGenerator/remo
 import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
 import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./parseUtil";
+import { parseUserDataMessage } from "./userDataGenerator";
+
+/**
+ * ログファイル全体のパース結果
+ */
+export interface ParseVRChatLogResult {
+    activityLogList: ActivityLog[];
+    userDataList: UserData[];
+}
 
 /**
  * parse output_log_xx_xx_xx.txt file
  *
  * @param logString raw vrchat log file stirng
  */
-export function parseVRChatLog(logString: string, isDebugLog: boolean): ActivityLog[] {
+export function parseVRChatLog(logString: string, isDebugLog: boolean): ParseVRChatLogResult {
     const lineSymbol = "\n";
     const logLines = logString.split(lineSymbol).filter((line) => {
         return line.length > 1; // 空行フィルタ
     })
 
-    const activityLog: ActivityLog[] = [];
+    const activityLogList: ActivityLog[] = [];
+    const userDataList: UserData[] = [];
     logLines.forEach((logLine, index) => {
         try {
-            const activity = parseLogLineToActivity(logLine, index, logLines);
-            if (activity) activityLog.push(activity);
+            const activityOrUserData = parseLogLineToActivityOrUserData(logLine, index, logLines);
+            if (activityOrUserData?.type === "ActivityLog") activityLogList.push(activityOrUserData.data);
+            if (activityOrUserData?.type === "UserData") userDataList.push(activityOrUserData.data);
         } catch (error) {
             if (!isDebugLog) return;
             console.log("catch error, log: " + logLine);
@@ -37,7 +49,10 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): Activity
             console.log(error);
         }
     });
-    return activityLog;
+    return {
+        activityLogList,
+        userDataList
+    };
 }
 
 const JudgeLogType = {
@@ -53,11 +68,16 @@ const JudgeLogType = {
     isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 },
     isVideoPlay: (message: string) => { return message.indexOf("[Video Playback] URL") !== -1 },
     isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 },
-    isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) }
+    isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) },
+    isFetchUserData: (message: string) => { return message.indexOf("Fetched APIUser") !== -1 }
 }
 
-// 次行のインスタンスIDを取るため全部引数に渡す
-function parseLogLineToActivity(logLine: string, index: number, logLines: string[]): ActivityLog | null {
+// ログ1行のパース結果
+type ParseLogLineResult = { data: ActivityLog, type: "ActivityLog" } | { data: UserData, type: "UserData" };
+
+// 次行が必要なログパターンで利用するためにlogLines全てを引数に渡す
+function parseLogLineToActivityOrUserData(
+    logLine: string, index: number, logLines: string[]): ParseLogLineResult | null {
     const reg = parseMessageBodyFromLogLine(logLine);
     if (!reg || reg.length < 4) return null;
     const mmmmyydd = reg[1];
@@ -66,6 +86,7 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
     const message = reg[3];
 
     let activityLog: ActivityLog = null!;
+    let userData: UserData = null!;
 
     if (JudgeLogType.isOnPlayerJoined(message)) {
         // join
@@ -112,9 +133,14 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
     } else if (JudgeLogType.isSDK2PlayerVideoStarted(message)) {
         // sdk2 video player
         activityLog = createSDK2PlayerStartedActivityLog(utcTime, message);
+    } else if (JudgeLogType.isFetchUserData(message)) {
+        // Fetched APIUser
+        userData = parseUserDataMessage(logLines[index+1])!;
     }
-    // console.log("unsupported log: " + message);
-    return activityLog || null;
+
+    if (activityLog) return { data: activityLog, type: "ActivityLog" };
+    if (userData) return { data: userData, type: "UserData" };
+    return null;
 }
 
 function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
