@@ -78,12 +78,10 @@ type ParseLogLineResult = { data: ActivityLog, type: "ActivityLog" } | { data: U
 // 次行が必要なログパターンで利用するためにlogLines全てを引数に渡す
 function parseLogLineToActivityOrUserData(
     logLine: string, index: number, logLines: string[]): ParseLogLineResult | null {
-    const reg = parseMessageBodyFromLogLine(logLine);
-    if (!reg || reg.length < 4) return null;
-    const mmmmyydd = reg[1];
-    const hhmmss = reg[2];
-    const utcTime = new Date(mmmmyydd + " " + hhmmss).getTime();
-    const message = reg[3];
+    const logParserResult = parseMessageBodyFromLogLine(logLine);
+    if (!logParserResult) return null;
+    const utcTime = logParserResult.utcTime;
+    const message = logParserResult.message; // 括弧を含むメッセージ
 
     let activityLog: ActivityLog = null!;
     let userData: UserData = null!;
@@ -96,7 +94,7 @@ function parseLogLineToActivityOrUserData(
         activityLog = createLeaveActivityLog(utcTime, message);
     } else if (JudgeLogType.isEnter(message)) {
         // enter
-        const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
+        const worldInfo = parseEnterActivityJoinLine(parseMessageBodyFromLogLine(logLines[index+1])!.message)!;
         activityLog = createEnterActivityLog(utcTime, message, worldInfo);
     } else if (JudgeLogType.isExit(message)){
         // exit
@@ -144,11 +142,9 @@ function parseLogLineToActivityOrUserData(
 }
 
 function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
-    const reg = parseMessageBodyFromLogLine(joinLine);
-    if (!reg || reg.length < 4) return null;
-    const reg2 = parseSquareBrackets(reg[3]);
-    if (!reg2 || reg2.length < 4) return null;
-    const message = reg2[3];
+    const logParserResult = parseMessageBodyFromLogLine(joinLine);
+    if (!logParserResult) return null;
+    const message = logParserResult.message;
 
     let worldEnterInfo: WorldEnterInfo | null;
     if (joinLine.indexOf("nonce") !== -1) {

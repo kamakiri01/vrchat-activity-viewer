@@ -67,12 +67,10 @@ function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerApp
             !!param.debug
         );
     });
-    console.log("parseResults", parseResults);
 
     updateDBActivityLog(db, parseResults, param.debug!!);
     updateDBUserDataTable(db, parseResults);
 
-    console.log("db.userdta", (db.userDataTable));
     return;
 
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
@@ -96,15 +94,17 @@ function updateDBUserDataTable(db: Database, parseResults: ParseVRChatLogResult[
     newSerializedUserDataList.forEach(userData => {
         const userId = userData.id;
         const userDataLog = userDataTable[userId] ? userDataTable[userId] : {
-            latestUserData: userData,
+            latestUserData: null!,
             history: {
                 displayName: []
             }
         };
+        userDataLog.latestUserData = userData;
+
         // 既存の displayName が空 or latestと異なる場合はpush
-        const latestLogDisplayName = userDataTable[userId].history.displayName.slice(-1)[0];
+        const latestLogDisplayName = userDataLog.history.displayName.slice(-1)[0];
         if (latestLogDisplayName!! && latestLogDisplayName !== userData.displayName) userDataLog.history.displayName.push(userData.displayName);
-        userDataTable[userId].latestUserData = userData;
+        userDataTable[userId] = userDataLog;
     });
     db.userDataTable = userDataTable;
 }

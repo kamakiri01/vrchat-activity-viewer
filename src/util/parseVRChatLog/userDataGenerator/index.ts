@@ -1,12 +1,10 @@
 import { UserData } from "../../../type/userData";
-import { parseMessageBodyFromLogLine, parseSquareBrackets } from "../parseUtil";
+import { parseMessageBodyFromLogLine } from "../parseUtil";
 
 export function parseUserDataMessage(userDataLine: string): UserData | null {
-    const reg = parseMessageBodyFromLogLine(userDataLine);
-    if (!reg || reg.length < 4) return null;
-    const reg2 = parseSquareBrackets(reg[3]);
-    if (!reg2 || reg2.length < 4) return null;
-    const message = reg2[3];
+    const logParserResult = parseMessageBodyFromLogLine(userDataLine);
+    if (!logParserResult) return null;
+    const message = logParserResult.message;
 
     try {
         const reg = /\{(\{[^]+\})\}/.exec(message)!;
@@ -33,6 +31,5 @@ function convertRawJsonToUserData(rawUserDataText: string): UserData {
 
 function convertBoolStringToBool(text: string): boolean {
     if (text.toLowerCase() === "true") return true;
-    return false; // TODO: 意図しない無効文字列時にどうするか検討
+    return false; // TODO: 意図しない無効な文字列時にどうするか検討
 }
-
