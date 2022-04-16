@@ -71,8 +71,6 @@ function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerApp
     updateDBActivityLog(db, parseResults, param.debug!!);
     updateDBUserDataTable(db, parseResults);
 
-    return;
-
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
     if (param.debug) console.log("update DB done");
 }
@@ -100,10 +98,8 @@ function updateDBUserDataTable(db: Database, parseResults: ParseVRChatLogResult[
             }
         };
         userDataLog.latestUserData = userData;
-
-        // 既存の displayName が空 or latestと異なる場合はpush
         const latestLogDisplayName = userDataLog.history.displayName.slice(-1)[0];
-        if (latestLogDisplayName!! && latestLogDisplayName !== userData.displayName) userDataLog.history.displayName.push(userData.displayName);
+        if (latestLogDisplayName !== userData.displayName) userDataLog.history.displayName.push(userData.displayName);
         userDataTable[userId] = userDataLog;
     });
     db.userDataTable = userDataTable;
