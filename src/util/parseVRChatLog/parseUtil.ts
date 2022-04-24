@@ -1,6 +1,12 @@
 export interface LogLineParseResult {
     utcTime: number;
+
+    /**
+     * 括弧を含むメッセージ
+     */
     message: string;
+    //noBracketMessage: string;
+    bracket?: string;
 }
 
 /**
@@ -20,10 +26,19 @@ export function parseMessageBodyFromLogLine(rawActivity: string): LogLineParseRe
     const hhmmss = reg[2];
     const utcTime = new Date(mmmmyydd + " " + hhmmss).getTime();
     const message = reg[3]; // 括弧を含むメッセージ
+
+    const parsedMessage = parseSquareBrackets(message);
     return {
         utcTime,
-        message
+        message,
+        bracket: parsedMessage ? parsedMessage.bracket : undefined
+
     };
+}
+
+export interface BracketMessageParseResult {
+    bracket?: string;
+    message: string;
 }
 
 /**
@@ -34,8 +49,16 @@ export function parseMessageBodyFromLogLine(rawActivity: string): LogLineParseRe
  * [2]: "abcde"
  * [3]: "efghi"
  */
-export function parseSquareBrackets(message: string) {
-    return /^(\[(.+)\]\s)?(.+)/.exec(message);
+export function parseSquareBrackets(messageWithTag: string): BracketMessageParseResult | null {
+    const reg = /^(\[(.+)\]\s)?(.+)/.exec(messageWithTag);
+    if (!reg || reg.length < 4) return null;
+    const bracket: string | undefined = reg[2];
+    const message = reg[3];
+
+    return {
+        bracket,
+        message
+    };
 }
 
 /**

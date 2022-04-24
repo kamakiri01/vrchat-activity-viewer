@@ -201,7 +201,7 @@ export interface OwnUserData extends UserData {
     /**
      * 空オブジェクト以外未確認
      */
-    steamDetails: {};
+    steamDetails: Record<never, never>;
 
     /**
      * 先頭1文字と @ ドメイン以下のみ表示されたメールアドレス文字列

@@ -68,7 +68,7 @@ function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerApp
         );
     });
 
-    updateDBActivityLog(db, parseResults, param.debug!!);
+    updateDBActivityLog(db, parseResults, !!param.debug);
     updateDBUserDataTable(db, parseResults);
 
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));

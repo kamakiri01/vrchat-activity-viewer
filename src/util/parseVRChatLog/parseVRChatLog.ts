@@ -1,3 +1,4 @@
+import { join } from "path";
 import { createSDK2PlayerStartedActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
 import { ActivityLog } from "../../type/activityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
@@ -39,6 +40,7 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): ParseVRC
     const userDataList: UserData[] = [];
     logLines.forEach((logLine, index) => {
         try {
+            // パース対象でないlineはnullを返し、パースエラーはcatchで拾う
             const activityOrUserData = parseLogLineToActivityOrUserData(logLine, index, logLines);
             if (activityOrUserData?.type === "ActivityLog") activityLogList.push(activityOrUserData.data);
             if (activityOrUserData?.type === "UserData") userDataList.push(activityOrUserData.data);
@@ -80,8 +82,7 @@ function parseLogLineToActivityOrUserData(
     logLine: string, index: number, logLines: string[]): ParseLogLineResult | null {
     const logParserResult = parseMessageBodyFromLogLine(logLine);
     if (!logParserResult) return null;
-    const utcTime = logParserResult.utcTime;
-    const message = logParserResult.message; // 括弧を含むメッセージ
+    const { message, utcTime } = logParserResult;
 
     let activityLog: ActivityLog = null!;
     let userData: UserData = null!;
@@ -94,7 +95,7 @@ function parseLogLineToActivityOrUserData(
         activityLog = createLeaveActivityLog(utcTime, message);
     } else if (JudgeLogType.isEnter(message)) {
         // enter
-        const worldInfo = parseEnterActivityJoinLine(parseMessageBodyFromLogLine(logLines[index+1])!.message)!;
+        const worldInfo = parseEnterActivityJoinLine(logLines[index+1])!;
         activityLog = createEnterActivityLog(utcTime, message, worldInfo);
     } else if (JudgeLogType.isExit(message)){
         // exit
@@ -144,7 +145,8 @@ function parseLogLineToActivityOrUserData(
 function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
     const logParserResult = parseMessageBodyFromLogLine(joinLine);
     if (!logParserResult) return null;
-    const message = logParserResult.message;
+    const message = parseSquareBrackets(logParserResult.message)?.message;
+    if (!message) return null;
 
     let worldEnterInfo: WorldEnterInfo | null;
     if (joinLine.indexOf("nonce") !== -1) {
@@ -156,7 +158,7 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 }
 
 function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
+    const reg = /^Joining (wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
 
     if (!reg) return null;
     return {
@@ -168,7 +170,7 @@ function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
 }
 
 function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
+    const reg = /^Joining (wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
@@ -201,7 +203,8 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
 }
 
 function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
-    const reg = /^\[API\] Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const messageText = parseSquareBrackets(message)!.message; // [API]
+    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(messageText);
     if (!reg) return null;
 
     return {
@@ -226,7 +229,8 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 }
 
 function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
-    const reg = /^\[API\] Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)?\s?of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)"> received at (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC/.exec(message);
+    const messageText = parseSquareBrackets(message)!.message; // [API]
+    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)?\s?of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)"> received at (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC/.exec(messageText);
     if (!reg) return null;
     
     return {
@@ -252,7 +256,7 @@ function parseReceiveNotificationMessage(message: string): ReceiveNotificationIn
 
 
 function parseRemoveNotificationMessage(message: string): RemoveNotificationInfo | null {
-    const reg = /^Remove notification from (\w+) notifications:<Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const reg = /^Remove notification from (\w+) notifications:<Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
     
     return {
