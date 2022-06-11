@@ -232,11 +232,11 @@ function generateVideoPlayMessage(log: VideoPlayActivityLog, verbose: boolean): 
 }
 
 function generateUSharpVideoStartedMessage(log: USharpVideoStartedActivityLog): string {
-    const message = "usharpvideo " + log.url + ", requested by" + log.requestedBy;
+    const message = `usharpvideo ${log.url}, requested by ${log.requestedBy}`;
     return message;
 }
 
 function generateSDK2PlayerStartedMessage(log: SDK2PlayerStartedActivityLog): string {
-    const message = "sdk2player " + log.url + ", requested by" + log.requestedBy;
+    const message = `sdk2player ${log.url}, requested by ${log.requestedBy}`;
     return message;
 }
