@@ -245,6 +245,6 @@ function generateSDK2PlayerStartedMessage(log: SDK2PlayerStartedActivityLog): st
 }
 
 function generateTopazPlayMessage(log: TopazPlayActivityLog): string {
-    let message = "topazchat play " + log.url;
+    const message = "topazchat play " + log.url;
     return message;
 }
