@@ -20,3 +20,9 @@ export interface SDK2PlayerStartedActivityLog extends ActivityLog {
     url: string;
     requestedBy: string;
 }
+
+// play topaz chat player log
+export interface TopazPlayActivityLog extends ActivityLog {
+    activityType: typeof ActivityType.TopazPlay;
+    url: string;
+}

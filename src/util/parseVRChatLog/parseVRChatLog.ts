@@ -1,5 +1,5 @@
 import { join } from "path";
-import { createSDK2PlayerStartedActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
+import { createSDK2PlayerStartedActivityLog, createTopazPlayActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
 import { ActivityLog } from "../../type/activityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
@@ -71,6 +71,7 @@ const JudgeLogType = {
     isVideoPlay: (message: string) => { return message.indexOf("[Video Playback] URL") !== -1 },
     isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 },
     isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) },
+    isTopazPlay: (message: string) => { return message.indexOf("[Video Playback] Resolving URL") !== -1 },
     isFetchUserData: (message: string) => { return message.indexOf("Fetched APIUser") !== -1 }
 }
 
@@ -132,6 +133,9 @@ function parseLogLineToActivityOrUserData(
     } else if (JudgeLogType.isSDK2PlayerVideoStarted(message)) {
         // sdk2 video player
         activityLog = createSDK2PlayerStartedActivityLog(utcTime, message);
+    } else if (JudgeLogType.isTopazPlay(message)) {
+        // Topaz chat player
+        activityLog = createTopazPlayActivityLog(utcTime, message);
     } else if (JudgeLogType.isFetchUserData(message)) {
         // Fetched APIUser
         userData = parseUserDataMessage(logLines[index+1])!;

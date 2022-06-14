@@ -1,5 +1,6 @@
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog } from "..";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/activityLogType/removeType";
+import { TopazPlayActivityLog } from "../type/activityLogType/videoPlayType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
 export function showActivityLog(param: ViewerAppParameterObject, activityLog: ActivityLog[]): void {
@@ -98,6 +99,8 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateUSharpVideoStartedMessage(e as USharpVideoStartedActivityLog);
         case ActivityType.SDK2PlayerStarted:
             return generateSDK2PlayerStartedMessage(e as SDK2PlayerStartedActivityLog);
+        case ActivityType.TopazPlay:
+            return generateTopazPlayMessage(e as TopazPlayActivityLog);
     }
 }
 
@@ -238,5 +241,10 @@ function generateUSharpVideoStartedMessage(log: USharpVideoStartedActivityLog): 
 
 function generateSDK2PlayerStartedMessage(log: SDK2PlayerStartedActivityLog): string {
     const message = `sdk2player ${log.url}, requested by ${log.requestedBy}`;
+    return message;
+}
+
+function generateTopazPlayMessage(log: TopazPlayActivityLog): string {
+    let message = "topazchat play " + log.url;
     return message;
 }
