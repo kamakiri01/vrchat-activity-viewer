@@ -1,5 +1,5 @@
 import { RemoveNotificationInfo, ActivityType } from "../../..";
-import { RemoveActivityType, RemoveNotificationActivityLog } from "../../../type/ActivityLogType/removeType";
+import { RemoveActivityType, RemoveNotificationActivityLog } from "../../../type/activityLogType/removeType";
 import { detailParse } from "../parseUtil";
 
 export function createRemoveNotificationActivityLog(utcTime: number, message: string, info: RemoveNotificationInfo): RemoveNotificationActivityLog {

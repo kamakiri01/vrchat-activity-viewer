@@ -1,11 +1,13 @@
 import * as path from "path";
 import * as fs from "fs";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "../util/dbUtil";
-import { parseVRChatLog } from "../util/parseVRChatLog/parseVRChatLog";
+import { parseVRChatLog, ParseVRChatLogResult } from "../util/parseVRChatLog/parseVRChatLog";
 import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "../util/pathUtil";
 import { showActivityLog } from "./showActivityLog";
-import { Database, ActivityLog } from "../type/ActivityLogType/common";
+import { ActivityLog } from "../type/activityLogType/common";
 import { ViewerAppParameterObject } from "../type/AppConfig";
+import { Database } from "../type/Database";
+import { UserData, UserDataLog } from "../type/userData";
 
 export function app(param: ViewerAppParameterObject): void {
     completeParameterObject(param);
@@ -59,22 +61,48 @@ function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerApp
     if (param.debug) console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
     if (param.debug) console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
-    const activityLogs = filePaths.map((filePath) => {
+    const parseResults = filePaths.map((filePath) => {
         return parseVRChatLog(
             fs.readFileSync(path.resolve(path.join(vrchatLogDirPath, filePath)), "utf8"),
             !!param.debug
         );
     });
-    const newActivityLogs: ActivityLog[] = Array.prototype.concat.apply([], activityLogs);
+
+    updateDBActivityLog(db, parseResults, !!param.debug);
+    updateDBUserDataTable(db, parseResults);
+
+    writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
+    if (param.debug) console.log("update DB done");
+}
+
+function updateDBActivityLog(db: Database, parseResults: ParseVRChatLogResult[], isDebug: boolean): void {
+    const newSerializedActivityLogList: ActivityLog[] = Array.prototype.concat.apply([], parseResults.map(result => result.activityLogList));
     const currentLogLength = db.log.length;
-    db.log = mergeActivityLog(db.log, newActivityLogs);
-    if (param.debug) console.log("update new " +
+    db.log = mergeActivityLog(db.log, newSerializedActivityLogList);
+    if (isDebug) console.log("update new " +
         (
             (Number.isNaN(db.log.length) ? 0 : db.log.length) -
             (Number.isNaN(currentLogLength) ? 0 : currentLogLength)
         ) + " logs");
-    writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
-    if (param.debug) console.log("update DB done");
+}
+
+function updateDBUserDataTable(db: Database, parseResults: ParseVRChatLogResult[]) {
+    const userDataTable: {[key: string]: UserDataLog} = db.userDataTable ? db.userDataTable : {};
+    const newSerializedUserDataList: UserData[] = Array.prototype.concat.apply([], parseResults.map(result => result.userDataList));
+    newSerializedUserDataList.forEach(userData => {
+        const userId = userData.id;
+        const userDataLog = userDataTable[userId] ? userDataTable[userId] : {
+            latestUserData: null!,
+            history: {
+                displayName: []
+            }
+        };
+        userDataLog.latestUserData = userData;
+        const latestLogDisplayName = userDataLog.history.displayName.slice(-1)[0];
+        if (latestLogDisplayName !== userData.displayName) userDataLog.history.displayName.push(userData.displayName);
+        userDataTable[userId] = userDataLog;
+    });
+    db.userDataTable = userDataTable;
 }
 
 function mergeActivityLog(dbLog: ActivityLog[], appendLog: ActivityLog[]) {

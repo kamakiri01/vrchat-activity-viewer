@@ -1,8 +1,10 @@
-import { createSDK2PlayerStartedActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
-import { ActivityLog } from "../../type/ActivityLogType/common";
+import { join } from "path";
+import { createSDK2PlayerStartedActivityLog, createTopazPlayActivityLog, createUSharpVideoStartedActivityLog, createVideoPlayActivityLog } from "../..";
+import { ActivityLog } from "../../type/activityLogType/common";
 import { NotificationFromType, RegionType, WorldAccessScope } from "../../type/common";
 import { ReceiveNotificationType, SendNotificationType } from "../../type/common/NotificationType";
-import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResult";
+import { ReceiveNotificationInfo, WorldEnterInfo, SendNotificationInfo, RemoveNotificationInfo } from "../../type/parseResultInfo/activityLogInfo";
+import { UserData } from "../../type/userData";
 import { createAuthenticationActivityLog } from "./activityLogGenerator/authentication";
 import { createCheckBuildActivityLog } from "./activityLogGenerator/build";
 import { createEnterActivityLog, createExitActivityLog } from "./activityLogGenerator/enter";
@@ -13,23 +15,35 @@ import { createRemoveNotificationActivityLog } from "./activityLogGenerator/remo
 import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
 import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./parseUtil";
+import { parseUserDataMessage } from "./userDataGenerator";
+
+/**
+ * ログファイル全体のパース結果
+ */
+export interface ParseVRChatLogResult {
+    activityLogList: ActivityLog[];
+    userDataList: UserData[];
+}
 
 /**
  * parse output_log_xx_xx_xx.txt file
  *
  * @param logString raw vrchat log file stirng
  */
-export function parseVRChatLog(logString: string, isDebugLog: boolean): ActivityLog[] {
+export function parseVRChatLog(logString: string, isDebugLog: boolean): ParseVRChatLogResult {
     const lineSymbol = "\n";
     const logLines = logString.split(lineSymbol).filter((line) => {
         return line.length > 1; // 空行フィルタ
     })
 
-    const activityLog: ActivityLog[] = [];
+    const activityLogList: ActivityLog[] = [];
+    const userDataList: UserData[] = [];
     logLines.forEach((logLine, index) => {
         try {
-            const activity = parseLogLineToActivity(logLine, index, logLines);
-            if (activity) activityLog.push(activity);
+            // パース対象でないlineはnullを返し、パースエラーはcatchで拾う
+            const activityOrUserData = parseLogLineToActivityOrUserData(logLine, index, logLines);
+            if (activityOrUserData?.type === "ActivityLog") activityLogList.push(activityOrUserData.data);
+            if (activityOrUserData?.type === "UserData") userDataList.push(activityOrUserData.data);
         } catch (error) {
             if (!isDebugLog) return;
             console.log("catch error, log: " + logLine);
@@ -37,7 +51,10 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): Activity
             console.log(error);
         }
     });
-    return activityLog;
+    return {
+        activityLogList,
+        userDataList
+    };
 }
 
 const JudgeLogType = {
@@ -53,19 +70,23 @@ const JudgeLogType = {
     isShutdown: (message: string) => { return message.indexOf("shutdown") !== -1 },
     isVideoPlay: (message: string) => { return message.indexOf("[Video Playback] URL") !== -1 },
     isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 },
-    isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) }
+    isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) },
+    isTopazPlay: (message: string) => { return message.indexOf("[Video Playback] Resolving URL") !== -1 },
+    isFetchUserData: (message: string) => { return message.indexOf("Fetched APIUser") !== -1 }
 }
 
-// 次行のインスタンスIDを取るため全部引数に渡す
-function parseLogLineToActivity(logLine: string, index: number, logLines: string[]): ActivityLog | null {
-    const reg = parseMessageBodyFromLogLine(logLine);
-    if (!reg || reg.length < 4) return null;
-    const mmmmyydd = reg[1];
-    const hhmmss = reg[2];
-    const utcTime = new Date(mmmmyydd + " " + hhmmss).getTime();
-    const message = reg[3];
+// ログ1行のパース結果
+type ParseLogLineResult = { data: ActivityLog, type: "ActivityLog" } | { data: UserData, type: "UserData" };
+
+// 次行が必要なログパターンで利用するためにlogLines全てを引数に渡す
+function parseLogLineToActivityOrUserData(
+    logLine: string, index: number, logLines: string[]): ParseLogLineResult | null {
+    const logParserResult = parseMessageBodyFromLogLine(logLine);
+    if (!logParserResult) return null;
+    const { message, utcTime } = logParserResult;
 
     let activityLog: ActivityLog = null!;
+    let userData: UserData = null!;
 
     if (JudgeLogType.isOnPlayerJoined(message)) {
         // join
@@ -112,17 +133,24 @@ function parseLogLineToActivity(logLine: string, index: number, logLines: string
     } else if (JudgeLogType.isSDK2PlayerVideoStarted(message)) {
         // sdk2 video player
         activityLog = createSDK2PlayerStartedActivityLog(utcTime, message);
+    } else if (JudgeLogType.isTopazPlay(message)) {
+        // Topaz chat player
+        activityLog = createTopazPlayActivityLog(utcTime, message);
+    } else if (JudgeLogType.isFetchUserData(message)) {
+        // Fetched APIUser
+        userData = parseUserDataMessage(logLines[index+1])!;
     }
-    // console.log("unsupported log: " + message);
-    return activityLog || null;
+
+    if (activityLog) return { data: activityLog, type: "ActivityLog" };
+    if (userData) return { data: userData, type: "UserData" };
+    return null;
 }
 
 function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
-    const reg = parseMessageBodyFromLogLine(joinLine);
-    if (!reg || reg.length < 4) return null;
-    const reg2 = parseSquareBrackets(reg[3]);
-    if (!reg2 || reg2.length < 4) return null;
-    const message = reg2[3];
+    const logParserResult = parseMessageBodyFromLogLine(joinLine);
+    if (!logParserResult) return null;
+    const message = parseSquareBrackets(logParserResult.message)?.message;
+    if (!message) return null;
 
     let worldEnterInfo: WorldEnterInfo | null;
     if (joinLine.indexOf("nonce") !== -1) {
@@ -134,7 +162,7 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 }
 
 function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
+    const reg = /^Joining (wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
 
     if (!reg) return null;
     return {
@@ -146,7 +174,7 @@ function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
 }
 
 function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining\s(wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
+    const reg = /^Joining (wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
@@ -179,7 +207,8 @@ function getWorldScope(access: string, canRequestInvite: string): WorldAccessSco
 }
 
 function parseSendNotificationMessage(message: string): SendNotificationInfo | null {
-    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const messageText = parseSquareBrackets(message)!.message; // [API]
+    const reg = /^Send notification:<Notification from username:(.*?), sender user id:(usr_[\w-]+)? to (usr_[\w-]+)? of type: ([\w]+), id: (.*?), created at: (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(messageText);
     if (!reg) return null;
 
     return {
@@ -204,7 +233,8 @@ function parseSendNotificationMessage(message: string): SendNotificationInfo | n
 }
 
 function parseReceiveNotificationMessage(message: string): ReceiveNotificationInfo | null {
-    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const messageText = parseSquareBrackets(message)!.message; // [API]
+    const reg = /^Received Notification: <Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)?\s?of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)"> received at (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC/.exec(messageText);
     if (!reg) return null;
     
     return {
@@ -213,7 +243,7 @@ function parseReceiveNotificationMessage(message: string): ReceiveNotificationIn
             id: reg[2],
         },
         to: {
-            id: reg[3],
+            id: reg[3], // pending中のフレンドリクエストはto先が0文字空白になる。pendingログは起動の都度出力されるためこの上限でマッチングから除外する
         },
         senderType: reg[4] as ReceiveNotificationType,
         created: {
@@ -230,7 +260,7 @@ function parseReceiveNotificationMessage(message: string): ReceiveNotificationIn
 
 
 function parseRemoveNotificationMessage(message: string): RemoveNotificationInfo | null {
-    const reg = /^Remove notification from (\w+) notifications:<Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4})\s(\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
+    const reg = /^Remove notification from (\w+) notifications:<Notification from username:(.+), sender user id:(usr_[\w-]+) to (usr_[\w-]+)? of type: ([\w]+), id: ([\w-]+), created at: (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2}) UTC, details: ({{.*?}}), type:(\w+), m seen:(\w+), message: "(.*?)">( Image Len:(\d+))?/.exec(message);
     if (!reg) return null;
     
     return {

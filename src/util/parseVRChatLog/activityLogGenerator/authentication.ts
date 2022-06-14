@@ -2,11 +2,11 @@ import { AuthenticationActivityLog, ActivityType } from "../../..";
 import { parseSquareBrackets } from "../parseUtil";
 
 export function createAuthenticationActivityLog(utcTime: number, message: string): AuthenticationActivityLog {
-    const reg = parseSquareBrackets(message)!; // [VRCFlowManagerVRC]
+    const messageText = parseSquareBrackets(message)!.message; // [Behavior]
     const activity: AuthenticationActivityLog = {
         date: utcTime,
         activityType: ActivityType.Authentication,
-        userName: /^User Authenticated:\s(.+)/.exec(reg[3])![1]
+        userName: /^User Authenticated: (.+)/.exec(messageText)![1]
     };
     return activity;
 }

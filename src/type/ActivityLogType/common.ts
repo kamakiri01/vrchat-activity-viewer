@@ -1,11 +1,5 @@
 import { NotificationType } from "../common/NotificationType";
 
-// ログ保存ファイルフォーマット
-export interface Database {
-    dbVersion: 2;
-    log: ActivityLog[];
-}
-
 // 書き込まれるログの基底
 export interface ActivityLog {
     date: number; // utc
@@ -25,6 +19,7 @@ export const ActivityType = {
     CheckBuild: "checkBuild", // ビルド番号
     Shutdown: "shutdown", // 終了
     VideoPlay: "videoPlay", // 動画再生
+    TopazPlay: "topazPlay", // TopazChatによる動画再生
     USharpVideoStarted: "usharpVideoStarted", // USharpVideoの動画リクエスト
     SDK2PlayerStarted: "sdk2PlayerStarted" // SDK2プレイヤーの動画リクエストと再生
 } as const;

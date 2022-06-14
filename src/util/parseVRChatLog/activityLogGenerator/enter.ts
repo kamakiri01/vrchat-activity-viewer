@@ -2,12 +2,12 @@ import { WorldEnterInfo, EnterActivityLog, ActivityType, ExitActivityLog } from 
 import { parseSquareBrackets } from "../parseUtil";
 
 export function createEnterActivityLog(utcTime: number, message: string, worldInfo: WorldEnterInfo): EnterActivityLog {
-    const reg = parseSquareBrackets(message)!; // [Behaviour]
+    const parseResult = parseSquareBrackets(message)!; // [Behaviour]
     const activity: EnterActivityLog = {
         date: utcTime,
         activityType: ActivityType.Enter,
         worldData: {
-            worldName: /^Entering\sRoom:\s(.+)/.exec(reg[3])![1],
+            worldName: /^Entering Room: (.+)/.exec(parseResult.message)![1],
             worldId: worldInfo.worldId,
             instanceId: worldInfo.instanceId,
             access: worldInfo.access,
@@ -20,7 +20,6 @@ export function createEnterActivityLog(utcTime: number, message: string, worldIn
 }
 
 export function createExitActivityLog(utcTime: number, message: string): ExitActivityLog {
-    const reg = parseSquareBrackets(message)!; // [Behaviour]
     const activity: ExitActivityLog = {
         date: utcTime,
         activityType: ActivityType.Exit

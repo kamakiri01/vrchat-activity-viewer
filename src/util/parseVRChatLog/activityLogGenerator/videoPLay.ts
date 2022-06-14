@@ -1,4 +1,4 @@
-import {  ActivityType, parseSquareBrackets, SDK2PlayerStartedActivityLog, USharpVideoStartedActivityLog, VideoPlayActivityLog } from "../../..";
+import {  ActivityType, SDK2PlayerStartedActivityLog, TopazPlayActivityLog, USharpVideoStartedActivityLog, VideoPlayActivityLog } from "../../..";
 
 export function createVideoPlayActivityLog(utcTime: number, message: string): VideoPlayActivityLog {
     const reg = /\[Video Playback\] URL '(.+)' resolved to '(.+)'/.exec(message)!;
@@ -29,6 +29,15 @@ export function createSDK2PlayerStartedActivityLog(utcTime: number, message: str
         activityType: ActivityType.SDK2PlayerStarted,
         url: reg[2],
         requestedBy: reg[1]
+    };
+    return activity;
+}
+export function createTopazPlayActivityLog(utcTime: number, message: string): TopazPlayActivityLog {
+    const reg = /\[Video Playback\] Resolving URL '(.+)'/.exec(message)!;
+    const activity: TopazPlayActivityLog = {
+        date: utcTime,
+        activityType: ActivityType.TopazPlay,
+        url: reg[1],
     };
     return activity;
 }
