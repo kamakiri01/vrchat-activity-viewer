@@ -1,9 +1,10 @@
 # ChangeLog
 
 ## 6.2.0
-- APIアクセスのログをパース出来るよう変更
+- APIアクセスのログをパースできるよう変更
   - VRChat.exe を `--enable-sdk-log-levels` 有効にした際に出力されるログをパース
   - パース結果の latest と、 displayName のヒストリを userDataTable に保存
+- TopazChat再生のログをパースできるよう変更
 
 ## 6.1.0
 - 動作再生のログをパースできるよう変更
