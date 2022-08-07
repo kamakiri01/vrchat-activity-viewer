@@ -59,7 +59,7 @@ export function parseVRChatLog(logString: string, isDebugLog: boolean): ParseVRC
 
 const JudgeLogType = {
     isOnPlayerJoined: (message: string) => { return message.indexOf("Initialized PlayerAPI") !== -1 },
-    isOnPlayerLeft: (message: string) => { return (message.indexOf("OnPlayerLeft") !== -1 && message.indexOf("OnPlayerLeftRoom") === -1) },
+    isOnPlayerLeft: (message: string) => { return (message.indexOf("[Behaviour] OnPlayerLeft") !== -1) },
     isEnter: (message: string) => { return message.indexOf("Entering Room") !== -1 },
     isExit: (message: string) => { return message.indexOf("OnLeftRoom") !== -1},
     isSendNotification: (message: string) => { return message.indexOf("Send notification") !== -1 },
