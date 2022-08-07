@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 6.2.1
+- leaveログの判定を厳密化
+
 ## 6.2.0
 - APIアクセスのログをパースできるよう変更
   - VRChat.exe を `--enable-sdk-log-levels` 有効にした際に出力されるログをパース
