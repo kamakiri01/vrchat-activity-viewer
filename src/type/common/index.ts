@@ -1,5 +1,5 @@
 // world scope
-export type WorldAccessScope = "invite" | "invite+" | "friends" | "friends+" | "public" | "unknown";
+export type WorldAccessScope = "invite" | "invite+" | "friends" | "friends+" | "public" | "unknown" | "group";
 
 // remove notificationの削除元
 export type NotificationFromType = "AllTime" | "Recent";

@@ -12,6 +12,7 @@ export interface WorldEnterInfo {
     region?: RegionType;
     canRequestInvite?: string;
     nonce?: string;
+    groupAccessType?: string;
 }
 
 /**

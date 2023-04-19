@@ -41,4 +41,5 @@ interface WorldLogData {
     instanceOwner?: string;
     region?: RegionType;
     nonce?: string;
+    groupAccessType?: string;
 }
