@@ -2,8 +2,9 @@ import * as fs from "fs";
 import * as path from "path";
 
 const USER_HOME = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]!;
-const DEFAULT_VRCAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
-export const DEFAULT_VRCHAT_FULL_PATH = path.join(USER_HOME, DEFAULT_VRCAT_PATH);
+const VRCHAT_PREFIX = process.platform == "win32" ? "" : ".local/share/Steam/steamapps/compatdata/438100/pfx/drive_c/users/steamuser";
+const DEFAULT_VRCHAT_PATH = "/AppData/LocalLow/VRChat/VRChat";
+export const DEFAULT_VRCHAT_FULL_PATH = path.join(USER_HOME, VRCHAT_PREFIX, DEFAULT_VRCHAT_PATH);
 export const DB_PATH = path.join(USER_HOME, ".vrchatActivityViewer", "db.json");
 
 export function findVRChatLogFileNames(dirPath: string): string[] {
