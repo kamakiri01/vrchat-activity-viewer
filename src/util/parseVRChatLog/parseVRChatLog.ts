@@ -158,10 +158,6 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
     } else {
         worldEnterInfo = parseScopeEnterMessage(message);
     }
-    console.log({
-        message,
-        worldEnterInfo,
-    })
     return worldEnterInfo;
 }
 
