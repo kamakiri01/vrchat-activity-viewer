@@ -153,10 +153,10 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
     if (!message) return null;
 
     let worldEnterInfo: WorldEnterInfo | null;
-    if (joinLine.indexOf("nonce") !== -1) {
-        worldEnterInfo = parseScopeEnterMessage(message);
-    } else {
+    if (joinLine.indexOf("nonce") === -1 && joinLine.indexOf("group") === -1) {
         worldEnterInfo = parsePublicEnterMessage(message);
+    } else {
+        worldEnterInfo = parseScopeEnterMessage(message);
     }
     return worldEnterInfo;
 }
@@ -174,25 +174,38 @@ function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
 }
 
 function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining (wrld_[\w-]+):(\w+)~(\w+)\((usr_[\w-]+)\)(~canRequestInvite)?(~region\(([\w-]+)\))?~nonce\(([\w-]+)\)/.exec(message);
+    const reg = /^Joining (wrld_[\w-]+):(\w+)~(\w+)\(((usr|grp)_[\w-]+)\)(~canRequestInvite)?(~groupAccessType\(([\w-]+)\))?(~region\(([\w-]+)\))?(~nonce\(([\w-]+)\))?/.exec(message);
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
 
     if (!reg) return null;
-    const access = getWorldScope(reg[3], reg[5]);
+
+    const worldId = reg[1];
+    const instanceId = reg[2];
+    const scope = reg[3];
+    const instanceOwnerOrGroup = reg[4];
+    const canRequestInvite = reg[6];
+    const groupAccessType = reg[8];
+    const region = reg[10];
+    const nonce = reg[12];
+    const access = getWorldScope(scope, canRequestInvite);
+
     return {
-        worldId: reg[1],
-        instanceId: reg[2],
-        access: access,
-        instanceOwner: reg[4],
-        canRequestInvite: reg[5],
-        region: reg[7] as RegionType,
-        nonce: reg[8]
+        worldId,
+        instanceId,
+        access,
+        instanceOwner: instanceOwnerOrGroup,
+        canRequestInvite,
+        region: region as RegionType,
+        nonce,
+        groupAccessType
     };
 }
 
 function getWorldScope(access: string, canRequestInvite: string): WorldAccessScope {
     let result: WorldAccessScope;
-    if (access === "hidden") {
+    if (access === "group") {
+        result = "group";
+    } else if (access === "hidden") {
         result = "friends+";
     } else if (access === "friends") {
         result = "friends";

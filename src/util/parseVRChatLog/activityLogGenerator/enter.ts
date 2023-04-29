@@ -13,7 +13,8 @@ export function createEnterActivityLog(utcTime: number, message: string, worldIn
             access: worldInfo.access,
             instanceOwner: worldInfo.instanceOwner,
             region: worldInfo.region,
-            nonce: worldInfo.nonce
+            nonce: worldInfo.nonce,
+            groupAccessType: worldInfo.groupAccessType
         }
     };
     return activity;

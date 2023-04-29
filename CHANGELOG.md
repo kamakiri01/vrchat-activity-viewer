@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 7.0.0
+- Linux環境向け対応 by [MalikuMane](https://github.com/MalikuMane) #31
+- グループのインスタンスログをパースで切るよう変更
+
 ## 6.2.1
 - leaveログの判定を厳密化
 
