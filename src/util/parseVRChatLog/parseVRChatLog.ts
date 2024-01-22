@@ -152,42 +152,23 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
     const message = parseSquareBrackets(logParserResult.message)?.message;
     if (!message) return null;
 
-    let worldEnterInfo: WorldEnterInfo | null;
-    if (joinLine.indexOf("nonce") === -1 && joinLine.indexOf("group") === -1) {
-        worldEnterInfo = parsePublicEnterMessage(message);
-    } else {
-        worldEnterInfo = parseScopeEnterMessage(message);
-    }
+    const worldEnterInfo = parseEnterMessage(message);
     return worldEnterInfo;
 }
 
-function parsePublicEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining (wrld_[\w-]+):(\d+)(~region\(([\w-]+)\))?/.exec(message);
-
-    if (!reg) return null;
-    return {
-        worldId: reg[1],
-        instanceId: reg[2],
-        access: "public",
-        region: reg[4] as RegionType
-    };
-}
-
-function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
-    const reg = /^Joining (wrld_[\w-]+):(\w+)~(\w+)\(((usr|grp)_[\w-]+)\)(~canRequestInvite)?(~groupAccessType\(([\w-]+)\))?(~region\(([\w-]+)\))?(~nonce\(([\w-]+)\))?/.exec(message);
+function parseEnterMessage(message: string): WorldEnterInfo | null {
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
-
+    const reg = /^Joining (wrld_[\w-]+):(\w+)(~(\w+)\(((usr|grp)_[\w-]+)\))?(~canRequestInvite)?(~groupAccessType\(([\w-]+)\))?(~region\(([\w-]+)\))?/.exec(message);
     if (!reg) return null;
 
     const worldId = reg[1];
     const instanceId = reg[2];
-    const scope = reg[3];
-    const instanceOwnerOrGroup = reg[4];
-    const canRequestInvite = reg[6];
-    const groupAccessType = reg[8];
-    const region = reg[10];
-    const nonce = reg[12];
-    const access = getWorldScope(scope, canRequestInvite);
+    const scope = reg[4];
+    const instanceOwnerOrGroup = reg[5];
+    const canRequestInvite = reg[7];
+    const groupAccessType = reg[9];
+    const region = reg[11];
+    const access = getWorldScope(scope, canRequestInvite, groupAccessType);
 
     return {
         worldId,
@@ -196,15 +177,22 @@ function parseScopeEnterMessage(message: string): WorldEnterInfo | null {
         instanceOwner: instanceOwnerOrGroup,
         canRequestInvite,
         region: region as RegionType,
-        nonce,
         groupAccessType
     };
 }
 
-function getWorldScope(access: string, canRequestInvite: string): WorldAccessScope {
+function getWorldScope(access: string, canRequestInvite: string, groupAccessType: string): WorldAccessScope {
     let result: WorldAccessScope;
     if (access === "group") {
-        result = "group";
+        if (groupAccessType === "public") {
+            result = "group public";
+        } else if (groupAccessType === "plus") {
+            result = "group+";
+        } else if (groupAccessType === "members") {
+            result = "group";
+        } else {
+            result = "unknown";
+        }
     } else if (access === "hidden") {
         result = "friends+";
     } else if (access === "friends") {

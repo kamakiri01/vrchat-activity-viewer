@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 7.1.0
+- Release - 31 July 2023 - Build 1319 のログからnonceが消えた変更への対応
+- グループの権限をパースできるよう変更
+
 ## 7.0.0
 - Linux環境向け対応 by [MalikuMane](https://github.com/MalikuMane) #31
 - グループのインスタンスログをパースで切るよう変更
