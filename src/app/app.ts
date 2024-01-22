@@ -13,18 +13,19 @@ export function app(param: ViewerAppParameterObject): void {
     completeParameterObject(param);
     if (!existDatabaseFile(DB_PATH)) initDatabase(DB_PATH);
 
-    if (param.watch) {
+    if (param.importDir) {
+        importDir(param);
+    } else if (param.watch) {
         watch(param);
     } else {
         const db = loadDatabase(DB_PATH);
-        updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+        updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, !!param.debug);
         showActivityLog(param, db.log);
     }
 }
 
 function completeParameterObject(param: ViewerAppParameterObject) {
     param.range = param.range ? parseRange(param.range) : 1000 * 60 * 60 * 24; // default 24h
-    param.importDir = param.importDir ? path.join(process.cwd(), param.importDir) : DEFAULT_VRCHAT_FULL_PATH;
 }
 
 function parseRange(range: string | number): number {
@@ -57,22 +58,22 @@ function parseRange(range: string | number): number {
     return rangeTime;
 }
 
-function updateDatabase(db: Database, vrchatLogDirPath: string, param: ViewerAppParameterObject): void {
-    if (param.debug) console.log("searching vrchat log files...")
+function updateDatabase(db: Database, vrchatLogDirPath: string, debug: boolean): void {
+    if (debug) console.log("searching vrchat log files...")
     const filePaths = findVRChatLogFileNames(vrchatLogDirPath);
-    if (param.debug) console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
+    if (debug) console.log("find " + filePaths.length + " log file(s): " + filePaths.map(filePath => path.basename(filePath)).join(", "));
     const parseResults = filePaths.map((filePath) => {
         return parseVRChatLog(
             fs.readFileSync(path.resolve(path.join(vrchatLogDirPath, filePath)), "utf8"),
-            !!param.debug
+            !!debug
         );
     });
 
-    updateDBActivityLog(db, parseResults, !!param.debug);
+    updateDBActivityLog(db, parseResults, !!debug);
     updateDBUserDataTable(db, parseResults);
 
     writeDatabase(DB_PATH, JSON.stringify(db, null, 2));
-    if (param.debug) console.log("update DB done");
+    if (debug) console.log("update DB done");
 }
 
 function updateDBActivityLog(db: Database, parseResults: ParseVRChatLogResult[], isDebug: boolean): void {
@@ -120,14 +121,20 @@ function formatDBActivityLog(log: ActivityLog[]): ActivityLog[] {
     })
 }
 
-function watch(param: ViewerAppParameterObject){
+function importDir(param: ViewerAppParameterObject) {
+    console.log("importing...");
+    const db = loadDatabase(DB_PATH);
+    updateDatabase(db, param.importDir!, !!param.debug);
+}
+
+function watch(param: ViewerAppParameterObject) {
     console.log("watching...");
     let shownDate = 0;
     const interval = parseInt(param.watch!, 10);
 
     function loop() {
         const db = loadDatabase(DB_PATH);
-        updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
+        updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, !!param.debug);
         const currentDate = db.log[db.log.length - 1].date;
         const newLog = db.log.filter(e => e.date > shownDate);
         shownDate = currentDate;
