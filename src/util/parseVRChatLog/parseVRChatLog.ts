@@ -16,7 +16,7 @@ import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
 import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./parseUtil";
 import { parseUserDataMessage } from "./userDataGenerator";
-import { createImagePadDownloadActivityLog } from "./activityLogGenerator/imagePad";
+import { createImageDownloadActivityLog } from "./activityLogGenerator/imageDownload";
 
 /**
  * ログファイル全体のパース結果
@@ -142,8 +142,8 @@ function parseLogLineToActivityOrUserData(
         // Fetched APIUser
         userData = parseUserDataMessage(logLines[index+1])!;
     } else if (JudgeLogType.isImageDownload(message)) {
-        // imagePad Download
-        activityLog = createImagePadDownloadActivityLog(utcTime, message);
+        // image Download
+        activityLog = createImageDownloadActivityLog(utcTime, message);
     }
 
     if (activityLog) return { data: activityLog, type: "ActivityLog" };

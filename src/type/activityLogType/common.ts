@@ -22,7 +22,7 @@ export const ActivityType = {
     TopazPlay: "topazPlay", // TopazChatによる動画再生
     USharpVideoStarted: "usharpVideoStarted", // USharpVideoの動画リクエスト
     SDK2PlayerStarted: "sdk2PlayerStarted", // SDK2プレイヤーの動画リクエストと再生
-    ImageDownload: "imageDownload" // imagePadの画像ダウンロード
+    ImageDownload: "imageDownload" // 画像ダウンロード
 } as const;
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 
