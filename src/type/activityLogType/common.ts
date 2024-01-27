@@ -21,7 +21,8 @@ export const ActivityType = {
     VideoPlay: "videoPlay", // 動画再生
     TopazPlay: "topazPlay", // TopazChatによる動画再生
     USharpVideoStarted: "usharpVideoStarted", // USharpVideoの動画リクエスト
-    SDK2PlayerStarted: "sdk2PlayerStarted" // SDK2プレイヤーの動画リクエストと再生
+    SDK2PlayerStarted: "sdk2PlayerStarted", // SDK2プレイヤーの動画リクエストと再生
+    ImageDownload: "imageDownload" // 画像ダウンロード
 } as const;
 export type ActivityType = typeof ActivityType[keyof typeof ActivityType];
 

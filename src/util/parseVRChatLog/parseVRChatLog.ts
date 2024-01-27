@@ -16,6 +16,7 @@ import { createSendNotificationActivityLog } from "./activityLogGenerator/send";
 import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./parseUtil";
 import { parseUserDataMessage } from "./userDataGenerator";
+import { createImageDownloadActivityLog } from "./activityLogGenerator/imageDownload";
 
 /**
  * ログファイル全体のパース結果
@@ -72,7 +73,8 @@ const JudgeLogType = {
     isUSharpVideoStarted: (message: string) => { return message.indexOf("[USharpVideo] Started video load for URL:") !== -1 },
     isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) },
     isTopazPlay: (message: string) => { return message.indexOf("[Video Playback] Resolving URL") !== -1 },
-    isFetchUserData: (message: string) => { return message.indexOf("Fetched APIUser") !== -1 }
+    isFetchUserData: (message: string) => { return message.indexOf("Fetched APIUser") !== -1 },
+    isImageDownload: (message: string) => { return message.indexOf("[Image Download] Attempting") !== -1 }
 }
 
 // ログ1行のパース結果
@@ -139,6 +141,9 @@ function parseLogLineToActivityOrUserData(
     } else if (JudgeLogType.isFetchUserData(message)) {
         // Fetched APIUser
         userData = parseUserDataMessage(logLines[index+1])!;
+    } else if (JudgeLogType.isImageDownload(message)) {
+        // image Download
+        activityLog = createImageDownloadActivityLog(utcTime, message);
     }
 
     if (activityLog) return { data: activityLog, type: "ActivityLog" };
