@@ -60,6 +60,12 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
   filter result with ignore case words. when specify space separeted words, use "or" matching
 * `-cf --case-filter`:
   use case sensitive filter
+* `-ia --instance-all`
+  include same instance user names, world enter log
+* `-ie --instance-enter`
+  include world enter log
+* `-i, --import-dir <dir>`
+  specify log directory (default: VRChat App path)
 * `-V --verbose`:
   display full result details
 * `-r --range <year/month/week/day/hour>`:
