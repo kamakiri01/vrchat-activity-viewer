@@ -10,5 +10,6 @@ export type PlayerAPIAccessType = "remote" | "local";
 
 interface UserLogData {
     userName: string;
+    userId?: string;
     access?: PlayerAPIAccessType; // join のみ
 }
