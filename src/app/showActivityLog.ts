@@ -136,7 +136,8 @@ function generateMoveActivityMessage(log: MoveActivityLog, verbose: boolean): st
         log.activityType + " " +
         log.userData.userName;
         if (verbose) {
-            if (log.userData.access === "local") message += " (self)";
+            if (log.userData.access && log.userData.access === "local") message += " (self)";
+            if (log.userData.userId) message += ` ${log.userData.userId}`;
         }
         return message;
 }
