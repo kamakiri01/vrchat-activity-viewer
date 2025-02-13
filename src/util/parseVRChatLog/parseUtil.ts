@@ -20,12 +20,12 @@ export interface LogLineParseResult {
  * [3]: "messageBody"
  */
 export function parseMessageBodyFromLogLine(rawActivity: string): LogLineParseResult | null {
-    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2}) Log\s{8}-\s{2}(.+)/.exec(rawActivity);
+    const reg = /^(\d{4}\.\d{2}\.\d{2})\s(\d{2}:\d{2}:\d{2}) (Log|Debug)\s+-\s{2}(.+)/.exec(rawActivity);
     if (!reg || reg.length < 4) return null;
     const mmmmyydd = reg[1];
     const hhmmss = reg[2];
     const utcTime = new Date(mmmmyydd + " " + hhmmss).getTime();
-    const message = reg[3]; // 括弧を含むメッセージ
+    const message = reg[4]; // 括弧を含むメッセージ
 
     const parsedMessage = parseSquareBrackets(message);
     return {
