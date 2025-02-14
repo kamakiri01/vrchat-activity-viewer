@@ -33,7 +33,7 @@ export interface CheckBuildActivityLog extends ActivityLog {
     buildName: string;
 }
 
-interface WorldLogData {
+export interface WorldLogData {
     worldName: string;
     worldId: string;
     access: WorldAccessScope;
