@@ -163,7 +163,7 @@ function parseEnterActivityJoinLine(joinLine: string): WorldEnterInfo | null {
 
 function parseEnterMessage(message: string): WorldEnterInfo | null {
     // NOTE: instanceIdの:(\w+)は通常数字で\dマッチだが、英字で作ることも可能なので\wマッチ
-    const reg = /^Joining (wrld_[\w-]+):(\w+)(~(\w+)\(((usr|grp)_[\w-]+)\))?(~canRequestInvite)?(~groupAccessType\(([\w-]+)\))?(~region\(([\w-]+)\))?/.exec(message);
+    const reg = /^Joining (wrld_[\w-]+):(\w+)(~(\w+)\(((usr|grp)_[\w-]+)\))?(~canRequestInvite)?(~groupAccessType\(([\w-]+)\))?(~region\(([\w-]+)\))?(~nonce\(([\w-]+)\))?/.exec(message);
     if (!reg) return null;
 
     const worldId = reg[1];
@@ -174,6 +174,7 @@ function parseEnterMessage(message: string): WorldEnterInfo | null {
     const groupAccessType = reg[9];
     const region = reg[11];
     const access = getWorldScope(scope, canRequestInvite, groupAccessType);
+    const nonce = reg[13];
 
     return {
         worldId,
@@ -182,7 +183,8 @@ function parseEnterMessage(message: string): WorldEnterInfo | null {
         instanceOwner: instanceOwnerOrGroup,
         canRequestInvite,
         region: region as RegionType,
-        groupAccessType
+        groupAccessType,
+        nonce
     };
 }
 

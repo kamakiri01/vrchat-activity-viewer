@@ -1,4 +1,4 @@
-import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog } from "..";
+import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog, WorldLogData, WorldAccessScope } from "..";
 import { ImageDownloadActivityLog } from "../type/activityLogType/imageDownloadType";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/activityLogType/removeType";
 import { TopazPlayActivityLog } from "../type/activityLogType/videoPlayType";
@@ -150,17 +150,8 @@ function generateEnterActivityMessage(log: EnterActivityLog, verbose: boolean): 
         data.access + ")";
     if (verbose) {
         if (data.region) message += " (" + data.region + ")";
-        message += 
-            " (" + data.instanceId + ") " +
-            "https://vrchat.com/home/launch?worldId=" + data.worldId + "&instanceId=" + data.instanceId;
-        if (data.access) { // no public instance
-            message += "~" + data.access + "(" + data.instanceOwner + ")";
-            if (data.access === "group") {
-                if (data.groupAccessType) message += "~groupAccessType(" + data.groupAccessType + ")";
-            } else {
-                if (data.nonce) message += "~nonce(" + data.nonce + ")";
-            }
-        }
+        message += ` (${data.instanceId})` +
+            " (" + data.instanceId + ") " + generateWorldURL(data);
     }
     return message;
 }
@@ -261,4 +252,15 @@ function generateTopazPlayMessage(log: TopazPlayActivityLog): string {
 function generateImageDownloadMessage(log: ImageDownloadActivityLog): string {
     const message = "image Download " + log.url;
     return message;
+}
+
+function generateWorldURL(data: WorldLogData): string {
+    let url = `https://vrchat.com/home/launch?worldId=${data.worldId}&instanceId=${data.instanceId}`;
+
+    if (data.access !== "public") url += `~${data.access}(${data.instanceOwner})`;
+    if (data.access === "invite+") url += "~canRequestInvite";
+    if ((["group", "group+", "group public"] as WorldAccessScope[]).includes(data.access)) url += `~groupAccessType(${data.groupAccessType})`;
+    url += `~region(${data.region})`;
+    if ((["friends", "friends+", "invite", "invite+"] as WorldAccessScope[]).includes(data.access)) url += `~nonce(${data.nonce})`;
+    return url;
 }
