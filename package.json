@@ -1,6 +1,6 @@
 {
   "name": "vrchat-activity-viewer",
-  "version": "7.4.1",
+  "version": "7.5.0",
   "description": "VRChat log viewer",
   "main": "lib/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "eslint": "^7.23.0",
-    "typescript": "^4.1.3"
+    "typescript": "^5.8.2"
   },
   "dependencies": {
     "commander": "^6.2.1"
