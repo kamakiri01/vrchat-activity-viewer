@@ -17,6 +17,7 @@ import { createShutdownActivityLog } from "./activityLogGenerator/shutdown";
 import { parseMessageBodyFromLogLine, parseSquareBrackets } from "./parseUtil";
 import { parseUserDataMessage } from "./userDataGenerator";
 import { createImageDownloadActivityLog } from "./activityLogGenerator/imageDownload";
+import { createUnpackingAvatarActivityLog } from "./activityLogGenerator/unpackingAvatar";
 
 /**
  * ログファイル全体のパース結果
@@ -74,7 +75,8 @@ const JudgeLogType = {
     isSDK2PlayerVideoStarted: (message: string) => { return /User (.+) added URL (http.+)/.test(message) },
     isTopazPlay: (message: string) => { return message.indexOf("[Video Playback] Resolving URL") !== -1 },
     isFetchUserData: (message: string) => { return message.indexOf("Fetched APIUser") !== -1 },
-    isImageDownload: (message: string) => { return message.indexOf("[Image Download] Attempting") !== -1 }
+    isImageDownload: (message: string) => { return message.indexOf("[Image Download] Attempting") !== -1 },
+    isUnpackingAvatarType: (message: string) => { return message.indexOf("Unpacking Avatar") !== -1 },
 }
 
 // ログ1行のパース結果
@@ -144,6 +146,8 @@ function parseLogLineToActivityOrUserData(
     } else if (JudgeLogType.isImageDownload(message)) {
         // image Download
         activityLog = createImageDownloadActivityLog(utcTime, message);
+    } else if (JudgeLogType.isUnpackingAvatarType(message)) {
+        activityLog = createUnpackingAvatarActivityLog(utcTime, message);
     }
 
     if (activityLog) return { data: activityLog, type: "ActivityLog" };

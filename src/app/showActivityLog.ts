@@ -1,6 +1,7 @@
 import { ActivityLog, ActivityType, MoveActivityLog, EnterActivityLog, SendNotificationActivityLog, ReceiveNotificationActivityLog, AuthenticationActivityLog, CheckBuildActivityLog, ShutdownActivityLog, ReceiveNotificationDetails, VideoPlayActivityLog, USharpVideoStartedActivityLog, SDK2PlayerStartedActivityLog, ExitActivityLog, WorldLogData, WorldAccessScope } from "..";
 import { ImageDownloadActivityLog } from "../type/activityLogType/imageDownloadType";
 import { RemoveNotificationActivityLog, RemoveNotificationDetails } from "../type/activityLogType/removeType";
+import { UnpackingAvatarActivityLog } from "../type/activityLogType/unpackingAvatarType";
 import { TopazPlayActivityLog } from "../type/activityLogType/videoPlayType";
 import { ViewerAppParameterObject } from "../type/AppConfig";
 
@@ -26,7 +27,9 @@ const dateOption: Intl.DateTimeFormatOptions = {
 
 // TODO: 都度newするのは負荷の面で避けたい、ActivityLogに事前にtoLocaleString結果を持たせるか、
 // 本文マッチしない場合のみnewするべき
-function acitivityLogToMessage(log: ActivityLog, verbose?: boolean): string {
+function acitivityLogToMessage(log: ActivityLog, verbose?: boolean): string | undefined {
+    const message = messageGenerator(log, verbose);
+    if (!message) return undefined;
     return (new Date(log.date)).toLocaleString(undefined, dateOption) + " " + messageGenerator(log, verbose);
 }
 
@@ -38,7 +41,7 @@ function pickFilteredLogs(showableRangeLogs: ActivityLog[], param: ViewerAppPara
 
     showableRangeLogs.forEach(e => {
         const message = acitivityLogToMessage(e, param.verbose);
-
+        if (!message) return;
         if (!param.filter) return matchedLogs.push(message);        
         if (isMatchFilter(message, param.filter, param.caseFilter!)) matchedLogs.push(message);
     });
@@ -53,6 +56,7 @@ function pickFilteredLogsWithInstance(showableRangeLogs: ActivityLog[], param: V
     const matchedGroupLogs = separatedLogs.filter(instanceLogs => {
         return instanceLogs.find(e => {
             const message = acitivityLogToMessage(e, param.verbose);
+            if (!message) return false;
             return isMatchFilter(message, param.filter!, param.caseFilter!);
         });
     });
@@ -60,10 +64,11 @@ function pickFilteredLogsWithInstance(showableRangeLogs: ActivityLog[], param: V
     let matchedLogs: string[] = [];
     matchedGroupLogs.forEach((instanceLogs) => {
         if (param.instanceAll) {
-            matchedLogs = matchedLogs.concat(instanceLogs.map(e => acitivityLogToMessage(e, param.verbose)));
+            matchedLogs = matchedLogs.concat(instanceLogs.map(e => acitivityLogToMessage(e, param.verbose)).filter(e => e !== undefined));
         } else if (param.instanceEnter) {
             instanceLogs.forEach(e => {
                 const message = acitivityLogToMessage(e, param.verbose);
+                if (!message) return;
                 if (e.activityType === ActivityType.Enter || isMatchFilter(message, param.filter!, param.caseFilter!)) matchedLogs.push(message);
             })
         }
@@ -73,8 +78,9 @@ function pickFilteredLogsWithInstance(showableRangeLogs: ActivityLog[], param: V
 }
 
 
-function messageGenerator(e: ActivityLog, verbose?: boolean) {
-    switch (e.activityType) {
+function messageGenerator(e: ActivityLog, verbose?: boolean): string | undefined {
+    const type = e.activityType;
+    switch (type) {
         case ActivityType.Join:
         case ActivityType.Leave:
             return generateMoveActivityMessage(e as MoveActivityLog, !!verbose);
@@ -104,6 +110,12 @@ function messageGenerator(e: ActivityLog, verbose?: boolean) {
             return generateTopazPlayMessage(e as TopazPlayActivityLog);
         case ActivityType.ImageDownload:
             return generateImageDownloadMessage(e as ImageDownloadActivityLog);
+        case ActivityType.UnpackingAvatar:
+            if (verbose) return generateUnpackingAvatarMessage(e as UnpackingAvatarActivityLog, !!verbose);
+            return undefined;
+        default:
+            const neverType: never = type;
+            if (verbose) console.log(`unknown ActivityType ${neverType}`);
     }
 }
 
@@ -252,6 +264,14 @@ function generateTopazPlayMessage(log: TopazPlayActivityLog): string {
 function generateImageDownloadMessage(log: ImageDownloadActivityLog): string {
     const message = "image Download " + log.url;
     return message;
+}
+
+function generateUnpackingAvatarMessage(log: UnpackingAvatarActivityLog, verbose: boolean): string {
+    if (verbose) {
+        return `unpackingAvatar ${log.avatarName} by ${log.avatarAuthor}`; 
+    } else {
+        return ``; 
+    }    
 }
 
 function generateWorldURL(data: WorldLogData): string {
