@@ -7,7 +7,7 @@ import { ViewerAppParameterObject } from "../type/AppConfig";
 
 export function showActivityLog(param: ViewerAppParameterObject, activityLog: ActivityLog[]): void {
     const currentTime = Date.now();
-    const showableRangeLogs = activityLog.filter(e => currentTime - e.date < param.range);
+    const showableRangeLogs = activityLog.filter(e => currentTime - e.date < (param.range as number)); // NOTE: completeParameterObjectでnumber化される
 
     let resultLogs: string[];
     const isShowInstance = (param.instanceEnter || param.instanceAll) && param.filter;
