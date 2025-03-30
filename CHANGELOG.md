@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 7.5.0
+- UnpackingAvatarのログをパースできるよう変更
+
 ## 7.4.1
 - ワールドURLの生成処理を修正
 
