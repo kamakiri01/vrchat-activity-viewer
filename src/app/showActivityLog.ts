@@ -113,9 +113,11 @@ function messageGenerator(e: ActivityLog, verbose?: boolean): string | undefined
         case ActivityType.UnpackingAvatar:
             if (verbose) return generateUnpackingAvatarMessage(e as UnpackingAvatarActivityLog, !!verbose);
             return undefined;
-        default:
+        default: {
             const neverType: never = type;
             if (verbose) console.log(`unknown ActivityType ${neverType}`);
+        }
+
     }
 }
 
