@@ -151,7 +151,7 @@ function watch(param: ViewerAppParameterObject) {
 function moveOldLogFiles(dirName: string) {
     if (!existDatabaseFile(path.resolve(path.join(DEFAULT_VRCHAT_FULL_PATH, dirName)))) {
         fs.mkdirSync(path.join(DEFAULT_VRCHAT_FULL_PATH, dirName));
-    };
+    }
     const filePaths = findVRChatLogFileNames(DEFAULT_VRCHAT_FULL_PATH);
     const latestFilePath = findLatestVRChatLogFullPath();
     filePaths
