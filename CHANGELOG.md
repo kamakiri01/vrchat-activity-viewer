@@ -1,5 +1,8 @@
 # ChangeLog
 
+## 7.6.0
+- `--move-no-update-log-files` オプションを追加
+
 ## 7.5.0
 - UnpackingAvatarのログをパースできるよう変更
 
