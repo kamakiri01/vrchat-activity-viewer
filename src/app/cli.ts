@@ -19,6 +19,7 @@ program
     .option("-r, --range <range>", "specify the range to display with year/month/week/day/hour. (ex: 4w 7d 24h 60m)")
     .option("-w, --watch <sec>", "update db repeatedly")
     .option("-d, --debug", "show console log")
+    .option("--move-no-update-log-files <dir>", "move no update log files to specified dir(relative from log file)")
 
 export async function run(argv: any): Promise<void> {
     program.parse(argv);
@@ -31,6 +32,8 @@ export async function run(argv: any): Promise<void> {
         verbose: program["verbose"],
         range: program["range"],
         watch: program["watch"],
-        debug: program["debug"]
+        debug: program["debug"],
+        moveNoUpdateLogFiles: program["moveNoUpdateLogFiles"]
+
     });
 }

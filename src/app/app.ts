@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "../util/dbUtil";
 import { parseVRChatLog, ParseVRChatLogResult } from "../util/parseVRChatLog/parseVRChatLog";
-import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "../util/pathUtil";
+import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findLatestVRChatLogFullPath, findVRChatLogFileNames } from "../util/pathUtil";
 import { showActivityLog } from "./showActivityLog";
 import { ActivityLog } from "../type/activityLogType/common";
 import { ViewerAppParameterObject } from "../type/AppConfig";
@@ -21,6 +21,7 @@ export function app(param: ViewerAppParameterObject): void {
         const db = loadDatabase(DB_PATH);
         updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, !!param.debug);
         showActivityLog(param, db.log);
+        if (param.moveNoUpdateLogFiles) moveOldLogFiles(param.moveNoUpdateLogFiles);
     }
 }
 
@@ -139,8 +140,26 @@ function watch(param: ViewerAppParameterObject) {
         const newLog = db.log.filter(e => e.date > shownDate);
         shownDate = currentDate;
         showActivityLog(param, newLog);
+        if (param.moveNoUpdateLogFiles) moveOldLogFiles(param.moveNoUpdateLogFiles);
+
     }
 
     loop();
     setInterval(loop, interval * 1000);
+}
+
+function moveOldLogFiles(dirName: string) {
+    if (!existDatabaseFile(path.resolve(path.join(DEFAULT_VRCHAT_FULL_PATH, dirName)))) {
+        fs.mkdirSync(path.join(DEFAULT_VRCHAT_FULL_PATH, dirName));
+    };
+    const filePaths = findVRChatLogFileNames(DEFAULT_VRCHAT_FULL_PATH);
+    const latestFilePath = findLatestVRChatLogFullPath();
+    filePaths
+        .filter((filePath) => { return path.join(DEFAULT_VRCHAT_FULL_PATH, filePath) !== latestFilePath })
+        .forEach(filePath => {
+            fs.renameSync(
+                path.resolve(path.join(DEFAULT_VRCHAT_FULL_PATH, filePath)),
+                path.resolve(path.join(DEFAULT_VRCHAT_FULL_PATH, dirName, filePath))
+            );
+    });
 }
