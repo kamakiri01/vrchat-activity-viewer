@@ -8,4 +8,5 @@ export interface ViewerAppParameterObject {
     debug?: boolean;
     instanceAll?: boolean;
     instanceEnter?: boolean;
+    moveNoUpdateLogFiles?: string;
 }
