@@ -1,4 +1,5 @@
 node_modules
 lib
+thirdparty
 package-lock.json
 db.json

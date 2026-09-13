@@ -1,11 +1,12 @@
 {
   "name": "vrchat-activity-viewer",
-  "version": "7.5.0",
+  "version": "7.6.0",
   "description": "VRChat log viewer",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint \"./src/**/*.ts\""
+    "lint": "eslint \"./src/**/*.ts\"",
+    "update-ytdlp": "node lib/script/updateYtdlp.js"
   },
   "bin": {
     "va": "bin/run"

@@ -72,10 +72,32 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
   specify show range to display (default: "24h")(ex: 1y, 2m, 3w, 4d, 5h)
 * `-w --watch <sec>`:
    update db repeatedly
+* `--no-video-title`:
+  disable fetching video titles with yt-dlp
 * `-v --version`:
   output the current version
 * `-h --help`:
   display help for command
+
+## Video title
+
+For newly found video playback logs, this tool fetches the video title with [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+and stores it in the log entry. Existing logs are never re-fetched.
+
+The first time a title is needed, the yt-dlp binary for your platform (20-40MB) is downloaded
+into the `thirdparty` directory of this package. Nothing on your `PATH` is used.
+
+yt-dlp needs to be updated periodically to keep working. To update it,
+
+```
+$ npm run update-ytdlp
+```
+
+or just delete the `thirdparty` directory and the latest release will be downloaded on the next run.
+
+Use `--no-video-title` to disable this feature entirely (no download, no fetch).
+
+yt-dlp is released into the public domain under the Unlicense.
 
 ## Note
 

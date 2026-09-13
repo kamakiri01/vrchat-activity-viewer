@@ -17,6 +17,8 @@ export * from "./util/parseVRChatLog/activityLogGenerator/receive";
 export * from "./util/parseVRChatLog/activityLogGenerator/send";
 export * from "./util/parseVRChatLog/activityLogGenerator/shutdown";
 export * from "./util/parseVRChatLog/activityLogGenerator/videoPLay";
+export * from "./util/videoTitle/fetchVideoTitle";
+export * from "./util/videoTitle/ytdlpBinary";
 export * from "./util/dbUtil";
 export * from "./util/parseVRChatLog/parseVRChatLog";
 export * from "./util/parseVRChatLog/parseUtil";
