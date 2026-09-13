@@ -241,7 +241,7 @@ function generateShutdownMessage(log: ShutdownActivityLog): string {
     return message;   
 }
 function generateVideoPlayMessage(log: VideoPlayActivityLog, verbose: boolean): string {
-    let message = "videoplay " + log.url;
+    let message = "videoplay " + (log.title ? log.title + " " : "") + log.url;
     if (verbose) {
         message += " (" + log.resolvedUrl + ") ";
     }

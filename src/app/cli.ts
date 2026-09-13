@@ -18,11 +18,12 @@ program
     .option("-V, --verbose", "display full log details")
     .option("-r, --range <range>", "specify the range to display with year/month/week/day/hour. (ex: 4w 7d 24h 60m)")
     .option("-w, --watch <sec>", "update db repeatedly")
+    .option("--no-video-title", "disable fetching video titles with yt-dlp")
     .option("-d, --debug", "show console log")
 
 export async function run(argv: any): Promise<void> {
     program.parse(argv);
-    app({
+    await app({
         importDir: program["importDir"],
         filter: program["filter"],
         caseFilter: program["caseFilter"],
@@ -31,6 +32,7 @@ export async function run(argv: any): Promise<void> {
         verbose: program["verbose"],
         range: program["range"],
         watch: program["watch"],
+        videoTitle: program["videoTitle"],
         debug: program["debug"]
     });
 }

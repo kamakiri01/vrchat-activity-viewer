@@ -5,6 +5,10 @@ export interface VideoPlayActivityLog extends ActivityLog {
     activityType: typeof ActivityType.VideoPlay;
     url: string;
     resolvedUrl: string;
+    /**
+     * yt-dlp で取得した動画タイトル。取得できなかった場合は undefined
+     */
+    title?: string;
 }
 
 // usharpvideo started log

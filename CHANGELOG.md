@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 7.6.0
+- videoPlay のログに、 yt-dlp で取得した動画タイトルを付与するよう変更
+  - yt-dlp は初回実行時に `thirdparty/` へ自動ダウンロードする
+  - `--no-video-title` で無効化できる
+  - yt-dlp の更新用に `npm run update-ytdlp` を追加
+
 ## 7.5.0
 - UnpackingAvatarのログをパースできるよう変更
 
