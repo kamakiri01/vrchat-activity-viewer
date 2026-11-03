@@ -74,6 +74,10 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
    update db repeatedly
 * `--no-video-title`:
   disable fetching video titles with yt-dlp
+* `--move-no-update-log-files <dir>`:
+  move log files that have not been updated for a while into `<dir>` under the VRChat log directory
+* `--move-threshold <year/month/week/day/hour>`:
+  duration with no update before a log file is moved (default: "1d")(ex: 1y, 2m, 3w, 4d, 5h)
 * `-v --version`:
   output the current version
 * `-h --help`:
@@ -98,6 +102,27 @@ or just delete the `thirdparty` directory and the latest release will be downloa
 Use `--no-video-title` to disable this feature entirely (no download, no fetch).
 
 yt-dlp is released into the public domain under the Unlicense.
+
+## Moving old log files
+
+VRChat keeps every log file in its log directory, and this tool re-reads all of them on every run.
+With `--move-no-update-log-files <dir>`, log files that have not been updated for `--move-threshold`
+(default: 24 hours) are moved into `<dir>` under the log directory, so later runs no longer read them.
+
+```
+$ va -w 10 --move-no-update-log-files logs
+```
+
+The log file VRChat is currently writing to is updated constantly, so it never reaches the threshold
+and is never moved. Logs already stored in the database are kept as they are.
+Files that cannot be moved (for example a log file still held open by VRChat) are skipped,
+and the rest are moved as usual.
+
+To read moved files again, specify the directory with `-i`.
+
+```
+$ va -i "%USERPROFILE%\AppData\LocalLow\VRChat\VRChat\logs"
+```
 
 ## Note
 
