@@ -72,6 +72,10 @@ $ va
    一定間隔で繰り返し実行します
 * `--no-video-title`:
   yt-dlp による動画タイトルの取得を無効にします
+* `-ml --move-no-update-log-files <dir>`:
+  一定時間更新されていないログファイルを、 VRChat のログディレクトリ配下の `<dir>` へ移動します
+* `-mt --move-threshold <year/month/week/day/hour>`:
+  ログファイルを移動対象とみなすまでの無更新時間を指定します(default: "1d")(ex: 1y, 2m, 3w, 4d, 5h)
 * `-v --version`:
   アプリケーションのバージョン情報を表示します
 * `-h --help`:
@@ -96,6 +100,26 @@ $ npm run update-ytdlp
 `--no-video-title` を指定すると、ダウンロードも取得も行いません。
 
 yt-dlp は Unlicense によりパブリックドメインで公開されています。
+
+## 古いログファイルの移動
+
+VRChat はログファイルをログディレクトリへ残し続け、本ツールは実行ごとにその全てを読み直します。
+`--move-no-update-log-files <dir>` を指定すると、 `--move-threshold` で指定した時間(default: 24時間)
+更新されていないログファイルをログディレクトリ配下の `<dir>` へ移動し、以降の実行で読み込まないようにします。
+
+```
+$ va -w 10 -ml logs
+```
+
+VRChat が書き込み中のログファイルは常に更新されるため閾値に達せず、移動されることはありません。
+DB に取り込み済みのログはそのまま残ります。
+VRChat が掴んでいるなどで移動できないファイルがあった場合は、そのファイルを飛ばして残りを移動します。
+
+移動したファイルを読み直すには、 `-i` でディレクトリを指定します。
+
+```
+$ va -i "%USERPROFILE%\AppData\LocalLow\VRChat\VRChat\logs"
+```
 
 ## Note
 

@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { existDatabaseFile, initDatabase, loadDatabase, writeDatabase } from "../util/dbUtil";
 import { parseVRChatLog, ParseVRChatLogResult } from "../util/parseVRChatLog/parseVRChatLog";
-import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames } from "../util/pathUtil";
+import { DB_PATH, DEFAULT_VRCHAT_FULL_PATH, findVRChatLogFileNames, moveNoUpdateLogFiles } from "../util/pathUtil";
 import { showActivityLog } from "./showActivityLog";
 import { ActivityLog, ActivityType } from "../type/activityLogType/common";
 import { VideoPlayActivityLog } from "../type/activityLogType/videoPlayType";
@@ -26,11 +26,28 @@ export async function app(param: ViewerAppParameterObject): Promise<void> {
         const db = loadDatabase(DB_PATH);
         await updateDatabase(db, DEFAULT_VRCHAT_FULL_PATH, param);
         showActivityLog(param, db.log);
+        moveLogFiles(param);
     }
 }
 
 function completeParameterObject(param: ViewerAppParameterObject) {
     param.range = param.range ? parseRange(param.range) : 1000 * 60 * 60 * 24; // default 24h
+    param.moveThreshold = param.moveThreshold ? parseRange(param.moveThreshold) : 1000 * 60 * 60 * 24; // default 24h
+}
+
+/**
+ * 一定時間更新されていないログファイルを退避する。
+ * DB 更新後に実行するため、移動するファイルのログは取り込み済みになる
+ */
+function moveLogFiles(param: ViewerAppParameterObject): void {
+    if (!param.moveNoUpdateLogFiles) return;
+    const movedFileNames = moveNoUpdateLogFiles(
+        DEFAULT_VRCHAT_FULL_PATH,
+        param.moveNoUpdateLogFiles,
+        param.moveThreshold as number,
+        !!param.debug
+    );
+    if (param.debug) console.log("move " + movedFileNames.length + " log file(s) to " + param.moveNoUpdateLogFiles);
 }
 
 function parseRange(range: string | number): number {
@@ -203,6 +220,7 @@ function watch(param: ViewerAppParameterObject) {
         const newLog = db.log.filter(e => e.date > shownDate);
         shownDate = currentDate;
         showActivityLog(param, newLog);
+        moveLogFiles(param);
     }
 
     loop();
