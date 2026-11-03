@@ -12,4 +12,14 @@ export interface ViewerAppParameterObject {
     debug?: boolean;
     instanceAll?: boolean;
     instanceEnter?: boolean;
+    /**
+     * 指定された場合、一定時間更新されていないログファイルを
+     * ログディレクトリ配下のこのディレクトリへ移動する
+     */
+    moveNoUpdateLogFiles?: string;
+    /**
+     * moveNoUpdateLogFiles の移動対象とみなすまでの無更新時間。
+     * completeParameterObject で number 化される
+     */
+    moveThreshold?: string | number;
 }
