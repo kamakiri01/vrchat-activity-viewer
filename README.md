@@ -74,9 +74,9 @@ The first time you run it, it will generate `~/.vrchatActivityViewer/db.json` in
    update db repeatedly
 * `--no-video-title`:
   disable fetching video titles with yt-dlp
-* `--move-no-update-log-files <dir>`:
+* `-ml --move-no-update-log-files <dir>`:
   move log files that have not been updated for a while into `<dir>` under the VRChat log directory
-* `--move-threshold <year/month/week/day/hour>`:
+* `-mt --move-threshold <year/month/week/day/hour>`:
   duration with no update before a log file is moved (default: "1d")(ex: 1y, 2m, 3w, 4d, 5h)
 * `-v --version`:
   output the current version
@@ -110,7 +110,7 @@ With `--move-no-update-log-files <dir>`, log files that have not been updated fo
 (default: 24 hours) are moved into `<dir>` under the log directory, so later runs no longer read them.
 
 ```
-$ va -w 10 --move-no-update-log-files logs
+$ va -w 10 -ml logs
 ```
 
 The log file VRChat is currently writing to is updated constantly, so it never reaches the threshold

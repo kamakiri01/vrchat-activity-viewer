@@ -19,8 +19,8 @@ program
     .option("-r, --range <range>", "specify the range to display with year/month/week/day/hour. (ex: 4w 7d 24h 60m)")
     .option("-w, --watch <sec>", "update db repeatedly")
     .option("--no-video-title", "disable fetching video titles with yt-dlp")
-    .option("--move-no-update-log-files <dir>", "move log files with no update to specified dir (relative from log file dir)")
-    .option("--move-threshold <range>", "duration with no update before a log file is moved (default: \"1d\")")
+    .option("-ml, --move-no-update-log-files <dir>", "move log files with no update to specified dir (relative from log file dir)")
+    .option("-mt, --move-threshold <range>", "duration with no update before a log file is moved (default: \"1d\")")
     .option("-d, --debug", "show console log")
 
 export async function run(argv: any): Promise<void> {

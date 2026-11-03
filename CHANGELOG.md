@@ -1,8 +1,8 @@
 # ChangeLog
 
 ## 7.7.0
-- 一定時間更新されていないログファイルを、別ディレクトリへ移動する `--move-no-update-log-files <dir>` を追加
-  - 移動対象とみなすまでの無更新時間は `--move-threshold <range>` で変更できる(default: "1d")
+- 一定時間更新されていないログファイルを、別ディレクトリへ移動する `-ml, --move-no-update-log-files <dir>` を追加
+  - 移動対象とみなすまでの無更新時間は `-mt, --move-threshold <range>` で変更できる(default: "1d")
 
 ## 7.6.0
 - videoPlay のログに、 yt-dlp で取得した動画タイトルを付与するよう変更

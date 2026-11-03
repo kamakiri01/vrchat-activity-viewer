@@ -72,9 +72,9 @@ $ va
    一定間隔で繰り返し実行します
 * `--no-video-title`:
   yt-dlp による動画タイトルの取得を無効にします
-* `--move-no-update-log-files <dir>`:
+* `-ml --move-no-update-log-files <dir>`:
   一定時間更新されていないログファイルを、 VRChat のログディレクトリ配下の `<dir>` へ移動します
-* `--move-threshold <year/month/week/day/hour>`:
+* `-mt --move-threshold <year/month/week/day/hour>`:
   ログファイルを移動対象とみなすまでの無更新時間を指定します(default: "1d")(ex: 1y, 2m, 3w, 4d, 5h)
 * `-v --version`:
   アプリケーションのバージョン情報を表示します
@@ -108,7 +108,7 @@ VRChat はログファイルをログディレクトリへ残し続け、本ツ�
 更新されていないログファイルをログディレクトリ配下の `<dir>` へ移動し、以降の実行で読み込まないようにします。
 
 ```
-$ va -w 10 --move-no-update-log-files logs
+$ va -w 10 -ml logs
 ```
 
 VRChat が書き込み中のログファイルは常に更新されるため閾値に達せず、移動されることはありません。
