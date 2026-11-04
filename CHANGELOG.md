@@ -1,5 +1,10 @@
 # ChangeLog
 
+## 7.7.1
+- DB の書き込みが途中で中断された場合に db.json が破損する問題を修正
+  - 一時ファイルへ書き出し、 fsync 後に原子的な rename で置き換えるよう変更
+  - db.json が読み込めない場合、 .bkup があればフォールバックするよう変更
+
 ## 7.7.0
 - 一定時間更新されていないログファイルを、別ディレクトリへ移動する `-ml, --move-no-update-log-files <dir>` を追加
   - 移動対象とみなすまでの無更新時間は `-mt, --move-threshold <range>` で変更できる(default: "1d")
